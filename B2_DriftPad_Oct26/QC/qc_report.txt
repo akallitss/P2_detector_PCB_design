@@ -1,0 +1,21 @@
+[parse] F_Cu: original 15048 primitives, B2 15049 primitives
+[parse] B_Cu: original 36549 primitives, B2 36553 primitives
+[parse] F_ENIG_Finition: original 1905 primitives, B2 1906 primitives
+[parse] M1: original 295 primitives, B2 297 primitives
+[parse] M2: original 18315 primitives, B2 18317 primitives
+[syntax] M1: OK
+[syntax] M2: OK
+[syntax] mesh cut: OK
+[F.Cu] drift pad/trace/via -> nearest other front copper: 5.46 mm at [589.  17.]  PASS (rule 3.0 mm)
+[F.Cu] drift pad present: True; old Sig1 pad gone: True
+[B.Cu] drift route/vias -> nearest other back copper: 3.07 mm at [607.   10.9]  PASS (rule 3.0 mm, raster step 0.02 mm)
+[B.Cu] old Sig1 trace gone at (594.0, 11.62): True (was there: True)
+[B.Cu] copper removed by the 3 mm cut: 21.9 mm²; of which not GND hatch: 0.00 mm²  PASS
+[ENIG] drift pad gold: True
+[M1] island is resist: True; window over the pad open: True; unchanged outside the island: True
+[M1] open slits between the island and the existing resist: 0  PASS
+[M2] island is resist: True; window over the pad open: True; unchanged outside the island: True
+[M2] open slits between the island and the existing resist: 0  PASS
+[drill] holes: original 2644, B2 2645 (−1 Sig1 pad hole, +2 vias); Sig1 hole gone: True
+[drill] via (590.5, 7.6): copper round it on F.Cu True, on B.Cu True
+[drill] via (626.3, 15.8): copper round it on F.Cu True, on B.Cu True

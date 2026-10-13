@@ -1,0 +1,71 @@
+{
+  "lamination_growth_mm": 0.05,
+  "dead_area_budget": 0.03,
+  "frame_clearance_mm": 0.0,
+  "disc_clearance_mm": 1.0,
+  "zone_boundary_clearance_mm": 0.3,
+  "boundary_min_spacing_mm": 3.0,
+  "remove_large_mesh_pad": true,
+  "seam_rows": true,
+  "raster_step_mm": 0.25,
+  "name": "V3C",
+  "frame_source": "V1",
+  "description": "two-factor design. Three dead-area levels - 2.95 / 2.00 / 1.50 % effective - crossed with three pillar diameters. Zones 1 and 4 sit at 2.95 % with the widest size contrast available (0.40 vs 0.80 mm); zones 3 and 5 repeat 0.50 and 0.80 mm at 1.50 %; zone 2 adds the intermediate 2.00 % point at 0.50 mm. The pitch still grows monotonically from zone 1 to zone 5, which keeps the zone boundaries mild.",
+  "zones": [
+    {
+      "zone": 1,
+      "connectors": [
+        1,
+        2
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.4,
+      "target_dead_area": 0.0295,
+      "rotation": "wedge"
+    },
+    {
+      "zone": 2,
+      "connectors": [
+        3,
+        4
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.5,
+      "target_dead_area": 0.02,
+      "rotation": "wedge"
+    },
+    {
+      "zone": 3,
+      "connectors": [
+        5,
+        6
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.5,
+      "target_dead_area": 0.015,
+      "rotation": "wedge"
+    },
+    {
+      "zone": 4,
+      "connectors": [
+        7,
+        8
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.8,
+      "target_dead_area": 0.0295,
+      "rotation": "wedge"
+    },
+    {
+      "zone": 5,
+      "connectors": [
+        9,
+        10
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.8,
+      "target_dead_area": 0.015,
+      "rotation": "wedge"
+    }
+  ]
+}

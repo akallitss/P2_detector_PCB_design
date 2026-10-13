@@ -1,0 +1,151 @@
+{
+  "inputs": {
+    "V_mesh": 450.0,
+    "V_drift": 800.0,
+    "V_design": 1000.0,
+    "clearance_rule_mm": 3.0,
+    "pad_radius_mm": 1.0
+  },
+  "frame": {
+    "bounds_mm": [
+      [
+        38.57585525512695,
+        -10.0,
+        -2.7755575615628914e-14
+      ],
+      [
+        614.9990844726562,
+        537.5352172851562,
+        8.0
+      ]
+    ],
+    "horizontal_faces_z_mm": [
+      0.0,
+      2.4,
+      2.5,
+      2.6,
+      2.7,
+      3.3,
+      3.8,
+      4.0,
+      4.5,
+      8.0
+    ],
+    "opening_area_mm2": 182160
+  },
+  "mask": {
+    "active_area_V3B_final_mm2": 173849,
+    "active_area_V2_mm2": 161531,
+    "wall_to_active_V3B_mm": [
+      4.79,
+      4.91,
+      5.0
+    ],
+    "wall_to_active_V2_mm": [
+      12.26,
+      12.3,
+      12.58
+    ]
+  },
+  "pcb": {
+    "wall_to_first_readout_copper_mm": 5.0
+  },
+  "slot": {
+    "where": "bottom-right corner, through the outer-arc wall",
+    "x_mm": [
+      600.0,
+      615.0
+    ],
+    "y_mm": [
+      2.3,
+      4.8
+    ],
+    "z_mm": [
+      2.6,
+      3.8
+    ],
+    "ledge_z_mm": 4.0,
+    "roof_over_slot_mm": 0.2,
+    "ledge_width_mm": 3.0,
+    "mouth_to_bottom_mesh_pad_mm": 2.82
+  },
+  "second_slot": {
+    "existing bottom-right slot (control)": {
+      "surfaces_crossed": 0
+    },
+    "top corner, mirror of the bottom slot": {
+      "surfaces_crossed": 8
+    },
+    "bottom straight wall at x = 575": {
+      "surfaces_crossed": 0
+    },
+    "note": "0 = the slot only cuts solid frame. The top-corner mirror crosses the outer-arc gas channel that starts at the top gas port.",
+    "bottom_wall_mouth_to_bare_mesh_mm": 5.41
+  },
+  "conceptB": {
+    "bottom straight": {
+      "best_centre": [
+        569.8,
+        1.6
+      ],
+      "pad_edge_to_bare_mesh_mm": 2.2,
+      "meets_rule": false
+    },
+    "outer arc": {
+      "best_centre": [
+        579.4,
+        150.0
+      ],
+      "pad_edge_to_bare_mesh_mm": 2.44,
+      "meets_rule": false
+    },
+    "top straight": {
+      "best_centre": [
+        284.4,
+        489.6
+      ],
+      "pad_edge_to_bare_mesh_mm": 2.46,
+      "meets_rule": false
+    },
+    "inner arc": {
+      "best_centre": [
+        104.0,
+        40.2
+      ],
+      "pad_edge_to_bare_mesh_mm": 2.29,
+      "meets_rule": false
+    },
+    "bottom-right corner": {
+      "best_centre": [
+        598.4,
+        11.0
+      ],
+      "pad_edge_to_bare_mesh_mm": 2.5,
+      "meets_rule": false
+    },
+    "top corner": {
+      "best_centre": [
+        292.6,
+        503.8
+      ],
+      "pad_edge_to_bare_mesh_mm": 2.46,
+      "meets_rule": false
+    },
+    "inner-bottom corner": {
+      "best_centre": [
+        111.6,
+        1.6
+      ],
+      "pad_edge_to_bare_mesh_mm": 3.49,
+      "meets_rule": true
+    },
+    "inner-left corner": {
+      "best_centre": [
+        57.2,
+        95.8
+      ],
+      "pad_edge_to_bare_mesh_mm": 3.54,
+      "meets_rule": true
+    }
+  }
+}

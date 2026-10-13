@@ -1,0 +1,378 @@
+<title>P2 HV Contacts 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: a large 3D viewport with its numbered key beside it; findings and PCB changes below. */
+:root {
+  --bg: #f3f5f7; --paper: #ffffff; --ink: #17202a; --muted: #5b6774; --rule: #d5dbe1;
+  --stage: #e4e9ee; --accent: #2c6bb3; --bad: #c43a2a; --ok: #24865a; --drift: #d0452b;
+  --badge: #17202a; --badge-ink: #ffffff;
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171d; --paper: #1a2129; --ink: #e6ebf0; --muted: #9aa7b4; --rule: #2e3843;
+  --stage: #222b35; --accent: #5b9ae6; --bad: #f06a4c; --ok: #45b07c; --drift: #f06a4c;
+  --badge: #e6ebf0; --badge-ink: #12171d; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #12171d; --paper: #1a2129; --ink: #e6ebf0; --muted: #9aa7b4; --rule: #2e3843;
+  --stage: #222b35; --accent: #5b9ae6; --bad: #f06a4c; --ok: #45b07c; --drift: #f06a4c;
+  --badge: #e6ebf0; --badge-ink: #12171d; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body); }
+.wrap { max-width: 1200px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 80px; }
+h1, h2 { font-family: var(--f-display); font-weight: 600; text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.4rem; margin-top: 2.6rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+p, li { max-width: 72ch; }
+.eyebrow { font: 500 0.78rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem; }
+code { font-family: var(--f-mono); font-size: 0.88em; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.4rem; }
+.tabs button { font: 500 0.92rem var(--f-body); color: var(--ink); background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 7px 14px; cursor: pointer; }
+.tabs button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+.tabs button:focus-visible, .ctl button:focus-visible, .ctl input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.viewer { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; margin-top: 12px; }
+@media (max-width: 860px) { .viewer { grid-template-columns: 1fr; } }
+.stage { position: relative; background: var(--stage); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; height: min(72vh, 680px); min-height: 380px; }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.badges { position: absolute; inset: 0; pointer-events: none; }
+.bd { position: absolute; transform: translate(-50%, -50%); width: 22px; height: 22px; border-radius: 50%; background: var(--badge); color: var(--badge-ink); font: 600 0.74rem/22px var(--f-mono); text-align: center; box-shadow: 0 0 0 2px var(--paper); }
+.bd.hot { background: var(--drift); color: #fff; }
+.hint { position: absolute; left: 10px; bottom: 8px; font: 0.76rem var(--f-mono); color: var(--muted); pointer-events: none; }
+.side { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.panel { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; }
+.panel h3 { font: 600 0.8rem/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 8px; }
+ol.key { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 0.9rem; }
+ol.key li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; line-height: 1.35; cursor: default; }
+ol.key li:hover .b { background: var(--drift); color: #fff; }
+.b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--badge); color: var(--badge-ink); font: 600 0.72rem/1 var(--f-mono); margin-top: 1px; }
+.ctl { display: grid; gap: 6px; font-size: 0.9rem; }
+.ctl label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.ctl .row { display: flex; flex-wrap: wrap; gap: 6px; }
+.ctl button { font: 500 0.82rem var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+.ctl input[type=range] { width: 100%; }
+.verdict { font-size: 0.95rem; }
+.verdict b.ok { color: var(--ok); } .verdict b.bad { color: var(--bad); }
+table { border-collapse: collapse; font-size: 0.92rem; margin-top: 0.8rem; }
+th, td { text-align: left; padding: 7px 16px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 600 0.76rem/1.3 var(--f-mono); text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.tbl { overflow-x: auto; }
+.err { padding: 20px; color: var(--muted); }
+.flow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 1rem; }
+@media (max-width: 760px) { .flow { grid-template-columns: 1fr; } }
+.flow > div { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 16px; min-width: 0; }
+.flow h3 { font: 600 1rem/1.3 var(--f-display); margin: 0 0 6px; }
+.flow ol { margin: 0; padding-left: 1.2rem; font-size: 0.93rem; }
+.flow .m { color: var(--accent); } .flow .d { color: var(--drift); }
+footer { margin-top: 2.6rem; color: var(--muted); font-size: 0.85rem; }
+</style>
+
+<div class="wrap">
+<div class="eyebrow">P2 basket Micromegas · HV contacts with concept B</div>
+<h1>Mesh and drift contacts in 3D</h1>
+<p>This shows both HV contacts as they would be with concept B: where each voltage enters the board, how it gets inside the frame, and where it touches the mesh or the window. The frame is the real STL, the copper is the real PCB Gerbers and the resist is the V3B_final M2 mask. The new parts are the proposal. Everything is to scale in mm, so use <b>Explode</b> to pull the thin layers apart.</p>
+
+<div class="flow">
+  <div><h3 class="m">Mesh, 450 V</h3><ol>
+    <li>Cable soldered to the <b>M</b> pad, outside the frame at the bottom-right corner.</li>
+    <li>Front-copper trace under the frame wall and the O-ring.</li>
+    <li>Gold mesh-contact pad inside the frame. The mesh is laminated straight onto it through a window in M2.</li>
+  </ol></div>
+  <div><h3 class="d">Drift, 800 V</h3><ol>
+    <li>Cable soldered to the <b>D</b> pad, right next to M.</li>
+    <li>Via in the D pad down to a back-copper trace, about {{routelen}} mm under the frame band to the inner-left corner.</li>
+    <li>Via just outside the O-ring, then a short front-copper trace under the frame wall.</li>
+    <li>Gold drift pad on the PCB, with a soldered pogo pin up to a copper tab glued on the window's aluminium coating.</li>
+  </ol></div>
+</div>
+
+<div class="tabs" role="group" aria-label="View">
+  <button id="tab0" aria-pressed="true">B1 · Whole sector</button>
+  <button id="tab1" aria-pressed="false">B1 · Bottom-right: HV pads + mesh contact</button>
+  <button id="tab2" aria-pressed="false">B1 · Inner-left: drift pad</button>
+  <button id="tab3" aria-pressed="false">B2 · Whole sector</button>
+  <button id="tab4" aria-pressed="false">B2 · Corner readout pad given up</button>
+</div>
+
+<div class="viewer">
+  <div class="stage" id="stage">
+    <div class="badges" id="badges"></div>
+    <div class="hint">drag to rotate · right-drag to pan · scroll to zoom</div>
+  </div>
+  <div class="side">
+    <div class="panel"><h3>Key</h3><ol class="key" id="key"></ol></div>
+    <div class="panel ctl">
+      <h3>Show</h3>
+      <label><input type="checkbox" id="cFrame" checked> Frame</label>
+      <label><input type="checkbox" id="cGhost"> See-through frame</label>
+      <label><input type="checkbox" id="cBoard"> See-through PCB (show the back copper)</label>
+      <label><input type="checkbox" id="cMylar" checked> Mylar window</label>
+      <label><input type="checkbox" id="cResist" checked> Resist</label>
+      <label><input type="checkbox" id="cMesh" checked> Mesh</label>
+      <label><input type="checkbox" id="cSpring" checked> Pogo pin and cables</label>
+      <label><input type="checkbox" id="cCut"> Cut through the corner</label>
+      <label for="explode">Explode layers</label>
+      <input type="range" id="explode" min="0" max="1" step="0.01" value="0">
+      <h3 style="margin-top:6px">View</h3>
+      <div class="row">
+        <button id="v34">3/4</button><button id="vTop">Top</button><button id="vSide">Section</button><button id="vBot">From below</button>
+      </div>
+    </div>
+    <div class="panel verdict" id="verdict"></div>
+  </div>
+</div>
+
+<h2>Two variants of B</h2>
+<p><b>Square pad in B2.</b> The drift pad is 3 × 3 mm. The mesh is laminated last and trimmed at the end, so the cut edge stays bare. It is cut as a 10 × 10 mm square, 3.5 mm from the pad edge everywhere, which leaves 0.5 mm of margin for hand cutting. The resist island (about 10.8 × 11.6 mm) extends about 1 mm beyond the cut on the open sides, so the mesh edge rests on resist. Its bottom and right sides merge with the existing resist border in the corner. The red ring is the 3 mm keep-out from the pad edge, a square with rounded corners, and it stays inside the cut.</p>
+<div class="tbl"><table>
+  <tr><th></th><th>B1 · inner-left corner</th><th>B2 · corner readout pad given up</th></tr>
+  <tr><td>Drift pad</td><td>In the dead strip at the inner-left corner</td><td>In place of the readout pad next to the bottom-right HV pads</td></tr>
+  <tr><td>Back-copper route</td><td>About {{routelen}} mm, around the inner arc and along the bottom wall</td><td>About {{b2len}} mm, all in the bottom-right corner</td></tr>
+  <tr><td>Readout lost</td><td>None</td><td>One channel (about 1.4 cm² of 1738 cm²)</td></tr>
+  <tr><td>Resist / mesh</td><td>Window over the pad, Ø8 mesh hole</td><td>Square 3 × 3 mm pad, about 10.8 × 11.6 mm resist island with a window over the pad, 10 × 10 mm mesh cut</td></tr>
+  <tr><td>Drift field</td><td>Pogo pin outside the active area</td><td>Pogo pin inside the active corner, so the field is bent near it; test it</td></tr>
+  <tr><td>Gerber edit without KiCad</td><td>Long route through the GND hatch: harder</td><td>Local changes only: realistic</td></tr>
+</table></div>
+
+<h2>What the model shows</h2>
+<p><b>Both cables land at the same place.</b> At the bottom-right corner the M and D pads sit side by side, as they do today, so the HV cabling doesn't change. What changes is how the drift voltage reaches the inside of the frame: today a wire goes through the frame slot, and with B it runs through the board on the back copper. The wire slot is no longer needed and can be filled.</p>
+<p><b>The two contacts use the same crossing under the frame.</b> The mesh trace already runs on the front copper under the frame wall and the O-ring. The drift trace does the same at the inner-left corner. The only difference is the via just outside the O-ring: the board has no room outside the frame at that corner, so the drift voltage has to come along the back. Because the via is outside the O-ring, it is outside the gas volume and needs no plugging.</p>
+<p><b>The two contacts touch their electrodes differently.</b> The mesh is laminated straight onto its gold pad during the bulk process. The window is 4 mm above the board, so the drift pad needs a pogo pin, soldered after the bulk is cured.</p>
+<p><b>Inner-left is the only corner that works.</b> The pad edge is {{clear}} mm from bare mesh. At the inner-bottom corner, V3B_final's evacuation channel leaves bare mesh exactly where the pad would go.</p>
+<p><b>Mesh edge.</b> The mesh stops at the outer edge of the resist border, about 1.9 mm from the frame wall. At the inner-left corner the drift pad overlaps that edge, so the mesh gets a Ø8 mm hole around the pad, trimmed at the end like the rest of the mesh. That keeps every piece of mesh 3 mm from the pad edge. The hole still ends 0.5 mm short of the active area.</p>
+<p><b>No readout pad is lost.</b> The drift pad sits in the dead band between the frame wall and the active edge. The nearest readout pad is 3.8 mm from its edge.</p>
+<p><b>The top corner cannot take the drift pad.</b> That corner is already used by the top mesh-contact pad: the existing gold pad is only 1.3 mm from the active edge and 1.6 mm from the nearest readout pad. Even with that pad left unused, a new drift pad there would sit next to bare mesh.</p>
+
+<h2>PCB changes for B</h2>
+<div class="tbl"><table>
+  <tr><th>Layer</th><th>Change</th></tr>
+  <tr><td>F.Cu</td><td>Ø2 mm drift pad at {{pad}} and a 0.3 mm trace to the via. The GND hatch is pulled back 3 mm around both.</td></tr>
+  <tr><td>Finish</td><td>Add the pad to the ENIG layer so the pogo pin is soldered on gold.</td></tr>
+  <tr><td>Drill</td><td>One Ø0.4 via at {{via}}, outside the O-ring groove, and one in the bottom-right D pad.</td></tr>
+  <tr><td>B.Cu</td><td>A drift trace of about {{routelen}} mm between the two vias, 3 mm outside the frame opening, in a gap cut through the GND hatch. The route drawn here is illustrative; the final one should be laid out in KiCad.</td></tr>
+  <tr><td>Masks M1/M2</td><td>A Ø2.6 mm window over the pad. Everything else in V3B_final stays the same.</td></tr>
+  <tr><td>Process</td><td>Cut the mesh around the pad when it is trimmed, and solder the pogo pin after the bulk is cured.</td></tr>
+</table></div>
+<p>The proposed parts, including the back-copper route, are exported as STEP (<code>cad/conceptB_inner_left_parts.step</code>) in the frame's own coordinates, so they line up when loaded next to <code>P2_Frame_V2.0.stp</code>.</p>
+
+<footer>Built by <code>Drift_Contact_Oct26/tools/make_conceptB_3d.py</code> from <code>P2_Frame_V2.0.stl</code>, the <code>Version_Apr26/FABRICATION_P2</code> Gerbers and <code>V3B_final</code> M2. In the detail views the frame mesh is simplified to a 0.05 mm grid; in the whole-sector view it is drawn as a simple extrusion of its outline.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const DATA = /*DATA*/null;
+(function () {
+  const stage = document.getElementById("stage");
+  if (!window.THREE || !THREE.OrbitControls) {
+    stage.insertAdjacentHTML("afterbegin", '<p class="err">The 3D library did not load. Check the connection and reload the page.</p>');
+    return;
+  }
+  const $ = id => document.getElementById(id);
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.localClippingEnabled = true;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  stage.prepend(renderer.domElement);
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 5000);
+  camera.up.set(0, 0, 1);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  const scene = new THREE.Scene();
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.5));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.6); sun.position.set(-20, -30, 50); scene.add(sun);
+  const sun2 = new THREE.DirectionalLight(0xffffff, 0.35); sun2.position.set(30, 20, -40); scene.add(sun2);
+  const setBg = () => { scene.background = new THREE.Color(css("--stage") || "#e4e9ee"); };
+  setBg();
+  try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", setBg); } catch (e) {}
+  new MutationObserver(setBg).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  const clip = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
+  const b64 = (s, T) => { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new T(u.buffer); };
+  const texLoader = new THREE.TextureLoader();
+  const tex = s => { const t = texLoader.load("data:image/png;base64," + s); t.anisotropy = 8; t.encoding = THREE.sRGBEncoding; return t; };
+  const COL = { mesh: 0x2c6bb3, drift: 0xd0452b };
+
+  let EX = {}, groups = {}, labels = [], S = null, root = null, boardMats = [], frameMats = [];
+
+  function plane(t, z, layer, opts) {
+    const g = new THREE.PlaneGeometry(S.w, S.h);
+    const m = new THREE.MeshStandardMaterial(Object.assign({ map: tex(t), transparent: true, alphaTest: 0.04, side: THREE.DoubleSide, roughness: 0.8, metalness: 0.0, clippingPlanes: [clip] }, opts || {}));
+    const mesh = new THREE.Mesh(g, m); mesh.position.z = z; groups[layer].add(mesh); return mesh;
+  }
+  const mat = (c, o) => new THREE.MeshStandardMaterial(Object.assign({ color: c, metalness: 0.6, roughness: 0.35, clippingPlanes: [clip] }, o || {}));
+  function tube(pts, r, color, layer) {
+    const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(p[0], p[1], p[2])), false, "catmullrom", 0.1);
+    groups[layer].add(new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(16, pts.length * 12), r, 10, false), mat(color, { metalness: 0.2, roughness: 0.5 })));
+  }
+  function shape(loop, holes) {
+    const sh = new THREE.Shape(loop.map(p => new THREE.Vector2(p[0], p[1])));
+    for (const h of holes || []) sh.holes.push(new THREE.Path(h.map(p => new THREE.Vector2(p[0], p[1]))));
+    return sh;
+  }
+
+  function buildDetail(D) {
+    const fg = new THREE.BufferGeometry();
+    fg.setAttribute("position", new THREE.BufferAttribute(b64(S.frame.pos, Float32Array), 3));
+    fg.setIndex(new THREE.BufferAttribute(b64(S.frame.idx, Uint32Array), 1));
+    fg.computeVertexNormals();
+    const fm = new THREE.MeshStandardMaterial({ color: 0x8796a6, roughness: 0.7, metalness: 0.05, flatShading: true, side: THREE.DoubleSide, clippingPlanes: [clip], transparent: true });
+    groups.frame.add(new THREE.Mesh(fg, fm)); frameMats.push(fm);
+    groups.frame.add(new THREE.LineSegments(new THREE.EdgesGeometry(fg, 35), new THREE.LineBasicMaterial({ color: 0x46525e, transparent: true, opacity: 0.55, clippingPlanes: [clip] })));
+
+    boardMats.push(plane(S.tex.top, 0.0005, "pcb", { roughness: 0.55 }).material);
+    plane(S.tex.bot, -0.2005, "pcb", { roughness: 0.55 });
+    plane(S.tex.resist, D.resist_t + D.cover_t, "resist", { roughness: 0.4 });
+    plane(S.tex.resist, 0.002, "resist", { roughness: 0.4 });
+    plane(S.tex.pillars, D.resist_t, "resist", { roughness: 0.4 });
+    plane(S.tex.mesh, D.mesh_z + 0.004, "mesh", { roughness: 0.5, metalness: 0.4, alphaTest: 0.02, depthWrite: false });
+    plane(S.tex.keepout, D.resist_t + D.cover_t + 0.01, "mesh", { emissive: new THREE.Color(0xd0452b), emissiveIntensity: 0.6 });
+    const ag = new THREE.BufferGeometry().setFromPoints(S.act.map(p => new THREE.Vector3(p[0], p[1], D.mesh_z + 0.02)));
+    groups.mesh.add(new THREE.Line(ag, new THREE.LineBasicMaterial({ color: 0x24865a, clippingPlanes: [clip] })));
+    plane(S.tex.mylar, D.mylar_z, "mylar", { color: 0xff9a80, opacity: 0.22, depthWrite: false, roughness: 0.2 });
+    plane(S.tex.mylar, D.mylar_z + D.mylar_t, "mylar", { opacity: 0.12, depthWrite: false, roughness: 0.1 });
+
+    if (S.pad) {
+      const gm = mat(0xe2b82a, { metalness: 0.8, roughness: 0.3 });
+      const pad = S.padsq ? new THREE.Mesh(new THREE.BoxGeometry(2 * S.padsq, 2 * S.padsq, 0.035), gm)
+                          : new THREE.Mesh(new THREE.CylinderGeometry(D.pad_r, D.pad_r, 0.035, 48), gm);
+      if (!S.padsq) pad.rotation.x = Math.PI / 2;
+      pad.position.set(S.pad[0], S.pad[1], 0.018); groups.pcb.add(pad);
+    }
+    if (S.spring) {
+      // generic SMT pogo pin: soldered barrel + gold plunger, tip on a copper tab glued to the window coating
+      const tabT = 0.035, tip = D.mylar_z - tabT;
+      const prof = [[0, 0.035], [0.95, 0.035], [0.95, 0.25], [0.75, 0.25], [0.75, 2.6], [0.45, 2.66], [0.4, 2.66],
+                    [0.4, tip - 0.2], [0.3, tip - 0.08], [0.16, tip - 0.01], [0, tip]].map(p => new THREE.Vector2(p[0], p[1]));
+      const pg = new THREE.Mesh(new THREE.LatheGeometry(prof, 40), mat(0xd9a83a, { metalness: 0.85, roughness: 0.28, side: THREE.DoubleSide }));
+      pg.rotation.x = Math.PI / 2; pg.position.set(S.pad[0], S.pad[1], 0); groups.spring.add(pg);
+      const tab = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, tabT, 48), mat(0xc98a4b, { metalness: 0.7, roughness: 0.35 }));
+      tab.rotation.x = Math.PI / 2; tab.position.set(S.pad[0], S.pad[1], D.mylar_z - tabT / 2); groups.mylar.add(tab);
+    }
+    for (const v of S.vias) {
+      const via = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.21, 24), mat(0xb87333, { metalness: 0.8, roughness: 0.3 }));
+      via.rotation.x = Math.PI / 2; via.position.set(v[0], v[1], -0.1); groups.pcb.add(via);
+    }
+    for (const c of S.cables) tube(c.pts, 0.45, COL[c.c], "spring");
+  }
+
+  function buildOverview(D) {
+    // frame: extruded outline, wall to z = 4 and the part above the ledge to z = 8
+    const fm = new THREE.MeshStandardMaterial({ color: 0x8796a6, roughness: 0.7, metalness: 0.05, side: THREE.DoubleSide, transparent: true });
+    frameMats.push(fm);
+    const lo = new THREE.ExtrudeGeometry(shape(S.outer, [S.open]), { depth: 4, bevelEnabled: false, curveSegments: 4 });
+    const hi = new THREE.ExtrudeGeometry(shape(S.outer, [S.ledge]), { depth: 4, bevelEnabled: false, curveSegments: 4 });
+    const m1 = new THREE.Mesh(lo, fm), m2 = new THREE.Mesh(hi, fm); m2.position.z = 4;
+    groups.frame.add(m1, m2);
+    boardMats.push(plane(S.tex.top, 0.0005, "pcb", { roughness: 0.6 }).material);
+    plane(S.tex.bot, -0.2005, "pcb", { roughness: 0.6 });
+    const act = new THREE.Mesh(new THREE.ShapeGeometry(shape(S.act)), new THREE.MeshStandardMaterial({ color: 0x2c6bb3, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false }));
+    act.position.z = 0.3; groups.mesh.add(act);
+    const my = new THREE.Mesh(new THREE.ShapeGeometry(shape(S.ledge)), new THREE.MeshStandardMaterial({ color: 0xff9a80, transparent: true, opacity: 0.15, side: THREE.DoubleSide, depthWrite: false }));
+    my.position.z = D.mylar_z; groups.mylar.add(my);
+    // route on the back, drawn through the board so it reads from above
+    const rc = new THREE.CurvePath();
+    for (let k = 0; k < S.route.length - 1; k++) rc.add(new THREE.LineCurve3(new THREE.Vector3(S.route[k][0], S.route[k][1], -0.3), new THREE.Vector3(S.route[k + 1][0], S.route[k + 1][1], -0.3)));
+    const rl = new THREE.Mesh(new THREE.TubeGeometry(rc, S.route.length * 4, 1.6, 8, false), new THREE.MeshBasicMaterial({ color: COL.drift, depthTest: false, transparent: true, opacity: 0.9 }));
+    rl.renderOrder = 10; groups.pcb.add(rl);
+    // contact markers: posts at the two mesh pads and the drift pad
+    const post = (p, c, h) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, h, 24), mat(c, { metalness: 0.3 })); m.rotation.x = Math.PI / 2; m.position.set(p[0], p[1], h / 2); groups.spring.add(m); };
+    for (const p of S.pads.mesh) post(p, COL.mesh, 1.5);
+    post(S.pads.drift, COL.drift, D.mylar_z);
+  }
+
+  function build(i) {
+    if (root) { scene.remove(root); root.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); } }); }
+    S = DATA.scenes[i]; if (S.ref !== undefined) S = Object.assign({}, DATA.scenes[S.ref], S);
+    root = new THREE.Group(); scene.add(root);
+    const big = S.kind === "overview";
+    EX = big ? { pcb: 0, resist: 0, mesh: 6, spring: 0, frame: 30, mylar: 60 } : { pcb: 0, resist: 1.2, mesh: 2.4, spring: 3.6, frame: 9, mylar: 16 };
+    groups = {}; boardMats = []; frameMats = [];
+    for (const k of Object.keys(EX)) { groups[k] = new THREE.Group(); root.add(groups[k]); }
+    $("cGhost").checked = !!S.ghost;
+    if (big) buildOverview(S.dims); else buildDetail(S.dims);
+    const c = S.pad ? new THREE.Vector3(S.pad[0], S.pad[1], 0) : new THREE.Vector3(0, 0, 0);
+    S._dir = new THREE.Vector3(S.out[0], S.out[1], 0).normalize();
+    S._nrm = new THREE.Vector3(-S._dir.y, S._dir.x, 0);
+    clip.setFromNormalAndCoplanarPoint(S._nrm, c);
+    S._c = c;
+
+    const key = $("key"), bd = $("badges");
+    key.innerHTML = ""; bd.innerHTML = ""; labels = [];
+    for (const L of S.labels) {
+      const li = document.createElement("li");
+      li.innerHTML = '<span class="b"></span><span></span>'; li.firstChild.textContent = L.n; li.lastChild.textContent = L.t;
+      key.appendChild(li);
+      const el = document.createElement("div"); el.className = "bd"; el.textContent = L.n; bd.appendChild(el);
+      li.addEventListener("mouseenter", () => el.classList.add("hot"));
+      li.addEventListener("mouseleave", () => el.classList.remove("hot"));
+      labels.push({ L, el });
+    }
+    $("verdict").innerHTML = S.verdict || '<b>Whole sector.</b> Pick a corner above for the detail. The dashed red line is the drift route on the back of the board.';
+    $("verdict").hidden = false;
+    applyToggles(); view("34");
+  }
+
+  function applyToggles() {
+    const on = id => $(id).checked;
+    groups.frame.visible = on("cFrame"); groups.mylar.visible = on("cMylar");
+    groups.resist.visible = on("cResist"); groups.mesh.visible = on("cMesh"); groups.spring.visible = on("cSpring");
+    const cut = on("cCut");
+    root.traverse(o => { if (o.material && "clippingPlanes" in o.material && o.material.clippingPlanes !== null) { o.material.clippingPlanes = cut && S.kind !== "overview" ? [clip] : []; o.material.needsUpdate = true; } });
+    for (const m of frameMats) { m.opacity = on("cGhost") ? 0.3 : 1; m.depthWrite = !on("cGhost"); }
+    for (const m of boardMats) { m.opacity = on("cBoard") ? 0.25 : 1; m.depthWrite = !on("cBoard"); m.alphaTest = on("cBoard") ? 0 : 0.04; m.needsUpdate = true; }
+    const e = +$("explode").value;
+    for (const k of Object.keys(EX)) groups[k].position.z = EX[k] * e;
+  }
+
+  function view(v) {
+    const big = S.kind === "overview", k = big ? 22 : 1;
+    const e = +$("explode").value;
+    const t = big ? new THREE.Vector3(0, 0, 0) : new THREE.Vector3(S._c.x * 0.5, S._c.y * 0.5, 1.5 + 6 * e);
+    const d = S._dir, n = S._nrm;
+    let p;
+    if (v === "top") p = new THREE.Vector3(t.x, t.y - 0.01, (big ? 1150 : 62));
+    else if (v === "bot") p = new THREE.Vector3(t.x + 0.01, t.y, -(big ? 1150 : 58));
+    else if (v === "side") p = t.clone().add(n.clone().multiplyScalar(-34 * k)).add(new THREE.Vector3(0, 0, 3 * k));
+    else if (big) p = new THREE.Vector3(-40, -860, 780);
+    else p = t.clone().add(d.clone().multiplyScalar(-26)).add(n.clone().multiplyScalar(-30)).add(new THREE.Vector3(0, 0, 30));
+    camera.position.copy(p); controls.target.copy(t); controls.update();
+  }
+
+  for (const id of ["cFrame", "cGhost", "cBoard", "cMylar", "cResist", "cMesh", "cSpring", "cCut", "explode"])
+    $(id).addEventListener("input", applyToggles);
+  $("v34").onclick = () => view("34");
+  $("vTop").onclick = () => view("top");
+  $("vSide").onclick = () => { if (S.kind !== "overview") { $("cCut").checked = true; applyToggles(); } view("side"); };
+  $("vBot").onclick = () => view("bot");
+  const tabs = Array.from(document.querySelectorAll(".tabs button"));
+  tabs.forEach((b, i) => b.onclick = () => { tabs.forEach((x, j) => x.setAttribute("aria-pressed", String(i === j))); build(i); });
+
+  function resize() {
+    const w = stage.clientWidth, h = stage.clientHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(stage);
+
+  const v = new THREE.Vector3();
+  function tick() {
+    controls.update();
+    renderer.render(scene, camera);
+    const w = stage.clientWidth, h = stage.clientHeight, e = +$("explode").value;
+    for (const { L, el } of labels) {
+      const vis = groups[L.l] ? groups[L.l].visible : true;
+      v.set(L.p[0], L.p[1], L.p[2] + (EX[L.l] || 0) * e).project(camera);
+      const show = vis && v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
+      el.style.display = show ? "block" : "none";
+      el.style.left = ((v.x + 1) / 2 * w) + "px"; el.style.top = ((1 - v.y) / 2 * h) + "px";
+    }
+    requestAnimationFrame(tick);
+  }
+  resize(); build(0); tick();
+})();
+</script>

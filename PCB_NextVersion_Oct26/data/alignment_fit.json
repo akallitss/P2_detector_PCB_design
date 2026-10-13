@@ -1,0 +1,54 @@
+[
+  {
+    "original_centre": [
+      70.8,
+      66.19
+    ],
+    "proposed_centre": [
+      73.72,
+      68.92
+    ],
+    "moved_mm": 4.0,
+    "max_square_patch_half_mm": 3.75,
+    "max_cross_arm_mm_in_patch": 2.25
+  },
+  {
+    "original_centre": [
+      93.67,
+      28.5
+    ],
+    "proposed_centre": [
+      97.5,
+      29.66
+    ],
+    "moved_mm": 4.0,
+    "max_square_patch_half_mm": 5.03,
+    "max_cross_arm_mm_in_patch": 3.53
+  },
+  {
+    "original_centre": [
+      635.63,
+      83.91
+    ],
+    "proposed_centre": [
+      635.63,
+      83.91
+    ],
+    "moved_mm": 0.0,
+    "max_square_patch_half_mm": 6.45,
+    "max_cross_arm_mm_in_patch": 4.95
+  },
+  {
+    "original_centre": [
+      391.22,
+      507.0
+    ],
+    "proposed_centre": [
+      391.22,
+      507.0
+    ],
+    "moved_mm": 0.0,
+    "max_square_patch_half_mm": 6.29,
+    "max_cross_arm_mm_in_patch": 4.79
+  }
+]

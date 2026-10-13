@@ -1,0 +1,14 @@
+F.Cu: removed the /Sector0/Sig1 pad zone (43 lines)
+F.Cu: removed the two /Sector0/Sig1 pad flashes (Ø0.8, Ø5.0) at (589.183, 10.999)
+F.Cu: added 3 x 3 mm drift pad at (590.5, 10.0), via pads at (590.5, 7.6) and (626.3, 15.8), 0.3 mm trace pad -> via
+B.Cu: removed the /Sector0/Sig1 via pad at (589.183, 10.999)
+B.Cu: removed the /Sector0/Sig1 trace, 4 segments from the pad via to the via at (619.97, 26.00)
+B.Cu: removed the /Sector0/Sig1 teardrop at the pad via (38 lines)
+B.Cu: added drift route (590.5, 7.6) -> (600.0, 7.0) -> (616.0, 8.5) -> (626.3, 15.8) (0.3 mm) and via pads; GND hatch cleared 3.1 mm round it (clear polarity)
+ENIG: added the 3 x 3 mm drift pad at (590.5, 10.0)
+drill: removed the /Sector0/Sig1 pad hole (T2, Ø0.4) at (589.183, 10.999)
+drill: added vias (T1, Ø0.4) at (590.5, 7.6) and (626.3, 15.8)
+M1: resist island (584.6, 4.4, 595.4, 16.0) and 3.6 x 3.6 mm window over the pad
+M2: resist island (584.6, 4.4, 595.4, 16.0) and 3.6 x 3.6 mm window over the pad
+mesh cut: 10 x 10 mm square (585.5, 5.0) - (595.5, 15.0)
+copied unchanged: Edge_Cuts, User_Drawings, Stack_Up

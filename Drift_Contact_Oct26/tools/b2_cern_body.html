@@ -1,0 +1,54 @@
+<div class="wrap">
+<div class="eyebrow">P2 basket Micromegas · drift HV contact · proposal for the PCB · Oct 2026</div>
+<h1>Drift contact on the PCB: the B2 proposal</h1>
+<p>Today the mylar window gets its drift voltage from a wire that runs through a slot in the drift frame, soldered to copper tape stuck on the window. It works, but the tape's adhesive outgasses, and the bare wire leaves the slot only 2.8 mm from the bare mesh-contact pad, below the 3 mm we want for 1 kV.</p>
+<p>B2 moves the drift contact onto the PCB. We give up one readout pad, the corner pad <code>/Sector0/Sig1</code> next to the HV pads, and put a gold drift pad there. A pogo pin soldered on it presses on the window's aluminium coating. Both HV cables stay where they are today, on M and D.</p>
+
+<div class="flow">
+  <div><h3 class="m">Mesh, ≈450 V (unchanged)</h3><ol>
+    <li>Cable soldered to the <b>M</b> pad, outside the frame.</li>
+    <li>Front-copper trace under the frame wall and the O-ring.</li>
+    <li>Gold mesh-contact pad. The mesh lies on it through a window in M2.</li>
+  </ol></div>
+  <div><h3 class="d">Drift, ≈800 V (new)</h3><ol>
+    <li>Cable soldered to the <b>D</b> pad, next to M, as today.</li>
+    <li>Via in the D pad, then a {{b2len}} mm back-copper trace in a gap cut through the GND hatch.</li>
+    <li>Via next to the new pad, then a short front-copper trace.</li>
+    <li>3 × 3 mm gold drift pad and a soldered pogo pin, whose tip lands on a copper tab glued to the window coating.</li>
+  </ol></div>
+</div>
+
+<div class="tabs" role="group" aria-label="View">
+  <button id="tab0" aria-pressed="true">Whole sector</button>
+  <button id="tab1" aria-pressed="false">Corner readout pad given up</button>
+</div>
+
+<div class="viewer">
+  <div class="stage" id="stage">
+    <div class="badges" id="badges"></div>
+    <div class="hint">drag to rotate · right-drag to pan · scroll to zoom</div>
+  </div>
+  <div class="side">
+    <div class="panel"><h3>Key</h3><ol class="key" id="key"></ol></div>
+    <div class="panel ctl">
+      <h3>Show</h3>
+      <label><input type="checkbox" id="cFrame" checked> Frame</label>
+      <label><input type="checkbox" id="cGhost"> See-through frame</label>
+      <label><input type="checkbox" id="cBoard"> See-through PCB (show the back copper)</label>
+      <label><input type="checkbox" id="cMylar" checked> Mylar window</label>
+      <label><input type="checkbox" id="cResist" checked> Resist</label>
+      <label><input type="checkbox" id="cMesh" checked> Mesh</label>
+      <label><input type="checkbox" id="cSpring" checked> Pogo pin and cables</label>
+      <label><input type="checkbox" id="cCut"> Cut through the corner</label>
+      <label for="explode">Explode layers</label>
+      <input type="range" id="explode" min="0" max="1" step="0.01" value="0">
+      <h3 style="margin-top:6px">View</h3>
+      <div class="row">
+        <button id="v34">3/4</button><button id="vTop">Top</button><button id="vSide">Section</button><button id="vBot">From below</button>
+      </div>
+    </div>
+    <div class="panel verdict" id="verdict"></div>
+  </div>
+</div>
+<p class="fsub" style="color:var(--muted);font-size:.85rem">The frame is the real drift-frame STL, the copper is the P2_BASKET Gerbers, and the resist is the V3B_final mask. Everything is to scale in mm.</p>
+</div>

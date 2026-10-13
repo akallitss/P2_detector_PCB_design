@@ -1,0 +1,74 @@
+[
+  {
+    "centre": [
+      70.8,
+      66.19
+    ],
+    "r_mm": 96.9,
+    "theta_deg": 43.07,
+    "free_radius_mm": 1.97,
+    "max_arm_mm": {
+      "+x": 20.98,
+      "-x": 1.32,
+      "+y": 20.98,
+      "-y": 1.46
+    },
+    "symmetric_max_arm_mm": 1.32,
+    "mask_M1_dark_at_centre": false,
+    "mask_M2_dark_at_centre": false
+  },
+  {
+    "centre": [
+      93.67,
+      28.5
+    ],
+    "r_mm": 97.9,
+    "theta_deg": 16.92,
+    "free_radius_mm": 2.85,
+    "max_arm_mm": {
+      "+x": 16.68,
+      "-x": 1.9,
+      "+y": 20.98,
+      "-y": 7.12
+    },
+    "symmetric_max_arm_mm": 1.9,
+    "mask_M1_dark_at_centre": false,
+    "mask_M2_dark_at_centre": false
+  },
+  {
+    "centre": [
+      635.63,
+      83.91
+    ],
+    "r_mm": 641.1,
+    "theta_deg": 7.52,
+    "free_radius_mm": 8.5,
+    "max_arm_mm": {
+      "+x": 9.2,
+      "-x": 20.98,
+      "+y": 9.88,
+      "-y": 10.38
+    },
+    "symmetric_max_arm_mm": 9.2,
+    "mask_M1_dark_at_centre": false,
+    "mask_M2_dark_at_centre": false
+  },
+  {
+    "centre": [
+      391.22,
+      507.0
+    ],
+    "r_mm": 640.4,
+    "theta_deg": 52.34,
+    "free_radius_mm": 8.4,
+    "max_arm_mm": {
+      "+x": 13.82,
+      "-x": 9.26,
+      "+y": 10.7,
+      "-y": 7.48
+    },
+    "symmetric_max_arm_mm": 7.48,
+    "mask_M1_dark_at_centre": false,
+    "mask_M2_dark_at_centre": false
+  }
+]

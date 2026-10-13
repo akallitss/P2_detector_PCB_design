@@ -1,0 +1,323 @@
+<title>P2 Drift Contact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one reading column; each drawing full width with its numbered key underneath. */
+:root {
+  --bg: #f3f5f7; --paper: #ffffff; --ink: #17202a; --muted: #5b6774; --rule: #d5dbe1;
+  --frame: #b9c3cd; --frame-line: #46525e; --ledge: #8fa0b0; --pcb: #dfe6cf; --pcb-line: #a9b58c;
+  --cu: #d29a5c; --gold: #e2b82a; --resist: #6aa58a;
+  --drift: #d0452b; --mesh: #2c6bb3; --active: #24865a; --pot: #8c8f99; --ag: #a7adb6;
+  --bad: #c43a2a; --ok: #24865a; --badge: #17202a; --badge-ink: #ffffff;
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171d; --paper: #1a2129; --ink: #e6ebf0; --muted: #9aa7b4; --rule: #2e3843;
+  --frame: #4a5866; --frame-line: #b9c6d3; --ledge: #6f8296; --pcb: #2c3524; --pcb-line: #556340;
+  --cu: #c48a4c; --gold: #d9b028; --resist: #4f8d72;
+  --drift: #f06a4c; --mesh: #5b9ae6; --active: #45b07c; --pot: #737885; --ag: #8d949e;
+  --bad: #f06a4c; --ok: #45b07c; --badge: #e6ebf0; --badge-ink: #12171d; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #12171d; --paper: #1a2129; --ink: #e6ebf0; --muted: #9aa7b4; --rule: #2e3843;
+  --frame: #4a5866; --frame-line: #b9c6d3; --ledge: #6f8296; --pcb: #2c3524; --pcb-line: #556340;
+  --cu: #c48a4c; --gold: #d9b028; --resist: #4f8d72;
+  --drift: #f06a4c; --mesh: #5b9ae6; --active: #45b07c; --pot: #737885; --ag: #8d949e;
+  --bad: #f06a4c; --ok: #45b07c; --badge: #e6ebf0; --badge-ink: #12171d; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body); }
+.wrap { max-width: 1000px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2.1rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.5rem; margin-top: 3.2rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.12rem; margin-top: 1.8rem; }
+p, li { max-width: 68ch; }
+p { margin: 0.7rem 0; }
+.eyebrow { font: 500 0.78rem/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem; }
+.lede { font-size: 1.1rem; color: var(--ink); }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+code { font-family: var(--f-mono); font-size: 0.88em; }
+
+.answer { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 18px 22px; margin-top: 1.6rem; display: grid; gap: 10px; }
+.answer div { display: grid; grid-template-columns: 7.2rem 1fr; gap: 12px; align-items: baseline; }
+.answer div > * { min-width: 0; }
+.tag { font: 600 0.74rem/1.3 var(--f-mono); letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 7px; border-radius: 3px; text-align: center; border: 1px solid currentColor; }
+.tag.go { color: var(--ok); } .tag.maybe { color: var(--mesh); } .tag.no { color: var(--bad); }
+
+figure { margin: 1.4rem 0 0; background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 14px 16px; }
+.figrow { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 1.4rem; }
+.narrow svg { max-width: 620px; margin-inline: auto; }
+.figrow figure { margin: 0; }
+.figrow > * { min-width: 0; }
+.draw { overflow-x: auto; }
+.draw svg { display: block; width: 100%; height: auto; min-width: 520px; }
+figcaption { margin-top: 10px; }
+.ftitle { font: 600 0.95rem/1.3 var(--f-display); }
+.fsub { font-size: 0.85rem; color: var(--muted); }
+ol.key { list-style: none; padding: 0; margin: 10px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px 22px; font-size: 0.9rem; }
+ol.key li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; line-height: 1.4; }
+.b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--badge); color: var(--badge-ink); font: 600 0.72rem/1 var(--f-mono); margin-top: 1px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.82rem; color: var(--muted); margin-top: 10px; }
+.sw { display: inline-flex; align-items: center; gap: 6px; }
+.sw i { display: inline-block; width: 18px; height: 10px; border-radius: 2px; }
+
+ol.steps { padding-left: 1.4rem; } ol.steps li { margin: 0.35rem 0; padding-left: 0.2rem; }
+.note { border-left: 3px solid var(--mesh); padding: 4px 0 4px 14px; color: var(--muted); font-size: 0.95rem; }
+table { border-collapse: collapse; font-size: 0.92rem; margin-top: 1rem; }
+th, td { text-align: left; padding: 6px 14px 6px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 600 0.78rem/1.3 var(--f-mono); text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.tbl { overflow-x: auto; }
+footer { margin-top: 3rem; color: var(--muted); font-size: 0.85rem; }
+
+/* drawing styles */
+svg text { font-family: var(--f-body); }
+.frame { fill: var(--frame); fill-rule: evenodd; stroke: var(--frame-line); stroke-width: 0.8; }
+.frame-s { fill: var(--frame); fill-rule: evenodd; stroke: var(--frame-line); stroke-width: 1.2; }
+.ledge { fill: var(--ledge); fill-rule: evenodd; stroke: none; opacity: 0.85; }
+.hole { fill: var(--paper); stroke: var(--frame-line); stroke-width: 0.8; }
+.cut3 { fill: none; stroke: var(--frame-line); stroke-width: 0.7; stroke-dasharray: 3 2; opacity: 0.8; }
+.pcb { fill: var(--pcb); stroke: var(--pcb-line); stroke-width: 0.8; }
+.edge { fill: none; stroke: var(--pcb-line); stroke-width: 1.2; }
+.cu { fill: var(--cu); stroke: none; opacity: 0.85; }
+.cu-tr { stroke: var(--cu); stroke-linecap: round; opacity: 0.85; fill: none; }
+.meshpad { fill: var(--gold); stroke: var(--mesh); stroke-width: 1.4; }
+.resist { fill: var(--resist); stroke: none; opacity: 0.9; }
+.mesh, .mesh-in { stroke: var(--mesh); stroke-width: 2.4; fill: none; }
+.mesh-in { stroke-dasharray: 5 3; }
+.mylar { fill: var(--paper); stroke: var(--muted); stroke-width: 0.8; }
+.drift { stroke: var(--drift); stroke-width: 2.6; fill: none; }
+.drift-pad { fill: var(--drift); }
+.active { stroke: var(--active); stroke-width: 1.4; stroke-dasharray: 6 4; fill: none; }
+.act-line { fill: none; stroke: var(--active); stroke-width: 1.6; stroke-dasharray: 6 4; }
+.act-fill { fill: var(--active); fill-opacity: 0.1; stroke: var(--active); stroke-width: 1.2; stroke-dasharray: 6 4; }
+.slot { fill: var(--paper); fill-opacity: 0.6; stroke: var(--frame-line); stroke-width: 1.2; stroke-dasharray: 4 2; }
+.slot.new { fill: var(--ok); fill-opacity: 0.25; stroke: var(--ok); stroke-dasharray: none; }
+.slot.bad { fill: var(--bad); fill-opacity: 0.25; stroke: var(--bad); stroke-dasharray: none; }
+.hit { fill: var(--bad); }
+.tab { fill: var(--drift); fill-opacity: 0.35; stroke: var(--drift); stroke-width: 1.4; }
+.holeA { fill: var(--drift); stroke: var(--paper); stroke-width: 1; }
+.wire { fill: none; stroke: var(--drift); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.spring { fill: none; stroke: var(--drift); stroke-width: 2.2; stroke-linejoin: round; }
+.pot { fill: var(--pot); opacity: 0.55; }
+.agepoxy { fill: var(--ag); stroke: var(--drift); stroke-width: 1; }
+.lab { fill: var(--ink); font-size: 13px; }
+.lab.big { font: 600 18px var(--f-display); fill: var(--active); }
+.lab.act { fill: var(--active); font-size: 11px; }
+.lead { stroke: var(--ink); stroke-width: 1; }
+.dot { fill: var(--ink); }
+.badge circle { fill: var(--badge); stroke: var(--paper); stroke-width: 1.5; }
+.badge text { fill: var(--badge-ink); font: 600 11.5px var(--f-mono); }
+.dim line { stroke: var(--ink); stroke-width: 1; }
+.dim line.ext { stroke-width: 0.6; opacity: 0.6; }
+.dim text { fill: var(--ink); font: 500 11.5px var(--f-mono); paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
+.dim.bad line { stroke: var(--bad); } .dim.bad text { fill: var(--bad); }
+.dim.ok line { stroke: var(--ok); } .dim.ok text { fill: var(--ok); }
+.arh { fill: context-stroke; }
+.scale line { stroke: var(--muted); stroke-width: 1.2; }
+.scale text { fill: var(--muted); font: 10.5px var(--f-mono); }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.tick { fill: var(--muted); font: 11px var(--f-mono); }
+svg .num { fill: var(--ink); font: 500 12px var(--f-mono); }
+.bar.ok { fill: var(--ok); } .bar.bad { fill: var(--bad); opacity: 0.75; }
+.rule { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 5 3; }
+.rulet { fill: var(--ink); font: 500 11px var(--f-mono); }
+</style>
+
+<div class="wrap">
+<div class="eyebrow">P2 basket Micromegas · drift HV contact · Oct 2026</div>
+<h1>A robust drift contact for the P2 window</h1>
+<p class="lede">Today the mylar window gets its 800 V through copper tape and a soldered wire. This page shows where that wire runs, why the bare mesh limits where a contact can go, and the option that fixes it with one drilled hole.</p>
+
+<div class="answer">
+  <div><span class="tag go">Do this</span><span><b>A.</b> Drill a Ø1.2 mm hole from the mylar ledge into the existing wire slot. Bring the wire up to a copper tab under the window and pot the slot. No PCB or mask change.</span></div>
+  <div><span class="tag go">Add later</span><span><b>A2.</b> A second slot through the bottom wall at x = 575 mm, for a redundant feed.</span></div>
+  <div><span class="tag maybe">Fallback</span><span><b>B.</b> A drift pad on the PCB with a spring. It only meets the 1 kV clearance at the two inner corners and needs a PCB re-spin.</span></div>
+  <div><span class="tag no">Skip</span><span><b>D.</b> Gas through a hole in the PCB. The frame already distributes gas, and the hole causes trouble in lamination.</span></div>
+</div>
+
+<h2>1 · How the edge of the detector is built</h2>
+<p>This is a real cut through the frame across the bottom straight edge, drawn to scale. The PCB, resist and mesh are thinner than a line at this scale, so they are drawn thicker.</p>
+<p>Three potentials meet here. The window's coating is at about 800 V (red). The mesh is at about 450 V (blue), and the readout pads are near ground. Where the mesh sits inside the resist, it is insulated: 75 µm of cured Dynamask holds about 5 kV. Over the active area the mesh is <b>bare</b>, and so is the gold pad where the mesh is contacted. Every bare drift-potential part must stay at least 3 mm from bare mesh, which is the clearance for 1 kV.</p>
+<figure>
+  <div class="draw">{{stack}}</div>
+  <figcaption>
+    <div class="ftitle">Section across the bottom edge (x = 350 mm), frame from the STL</div>
+    <ol class="key">
+      <li><span class="b">1</span><span>Drift frame: 10 mm wall, 8 mm tall.</span></li>
+      <li><span class="b">2</span><span>O-ring dovetail groove in the frame's bottom face.</span></li>
+      <li><span class="b">3</span><span>Mylar window glued on the 3 mm ledge at z = 4 mm. Its coating (red) faces the PCB and sits at drift potential.</span></li>
+      <li><span class="b">4</span><span>Resist frame (Dynamask M1 + M2). The mesh is buried in it here, so it is insulated.</span></li>
+      <li><span class="b">5</span><span>Bare mesh on pillars over the active area, at mesh potential.</span></li>
+      <li><span class="b">6</span><span>Readout pads. The first one starts 5.0 mm from the frame wall.</span></li>
+    </ol>
+    <div class="swatches">
+      <span class="sw"><i style="background:var(--drift)"></i>drift potential</span>
+      <span class="sw"><i style="background:var(--mesh)"></i>mesh potential</span>
+      <span class="sw"><i style="background:var(--resist)"></i>resist</span>
+      <span class="sw"><i style="background:var(--frame)"></i>frame</span>
+      <span class="sw"><i style="background:var(--pcb)"></i>PCB</span>
+      <span class="sw"><i style="border-top:2px dashed var(--active);height:0"></i>active edge</span>
+    </div>
+  </figcaption>
+</figure>
+<p>The active edge is only 4.8 mm from the frame wall in V3B_final, and it must not move. This is why a contact <i>on the PCB</i>, standing up next to the wall, has trouble meeting the 3 mm rule (section 5). A contact <i>up at the window</i>, inside the frame, does not.</p>
+
+<h2>2 · Where things are</h2>
+<figure>
+  <div class="draw">{{overview}}</div>
+  <figcaption>
+    <div class="ftitle">Whole sector, frame on PCB (mm, fan apex at the origin)</div>
+    <div class="fsub">Grey: frame footprint. Darker band: the mylar ledge. Green: active area of V3B_final. Gold dots: the two bare mesh-contact pads.</div>
+    <ol class="key">
+      <li><span class="b">1</span><span>Bottom-right corner: the existing wire slot, the bottom mesh pad and the GND / M / D / GND HV pads. Concept A goes here.</span></li>
+      <li><span class="b">2</span><span>Top corner: the top mesh pad, the second HV pad cluster, and a gas port.</span></li>
+      <li><span class="b">3</span><span>Gas port at the inner-bottom corner. The frame feeds 26 small nozzles from internal channels.</span></li>
+      <li><span class="b">4</span><span>Inner-left corner: one of only two places where a PCB pad (concept B) clears 3 mm, at {{b_il}} mm.</span></li>
+      <li><span class="b">5</span><span>Inner-bottom corner: the other one, at {{b_ib}} mm. It sits in front of the gas port.</span></li>
+      <li><span class="b">6</span><span>x = 575 mm on the bottom wall: where a second slot (A2) can go.</span></li>
+    </ol>
+  </figcaption>
+</figure>
+
+<h2>3 · Concept A: contact inside the glue joint</h2>
+<p>The existing wire slot runs through the outer wall directly <i>under</i> the mylar ledge. Only 0.2 mm of frame separates the slot from the ledge. One small hole connects them, so the wire can come up and meet the window's coating inside the glue joint.</p>
+
+<figure>
+  <div class="draw">{{corner}}</div>
+  <figcaption>
+    <div class="ftitle">Bottom-right corner, plan view: PCB copper under the frame</div>
+    <div class="fsub">The dashed outlines inside the frame are its internal cavities at z = 3 mm: the wire slot and the gas channel.</div>
+    <ol class="key">
+      <li><span class="b">1</span><span>Bottom mesh pad. Bare mesh at 450 V.</span></li>
+      <li><span class="b">2</span><span>Existing wire slot, 2.5 × 1.2 mm at z 2.6–3.8 mm. It is filled with epoxy at the end.</span></li>
+      <li><span class="b">3</span><span><b>New Ø1.2 mm hole</b> at (601.5, 3.55), drilled from the ledge down into the slot.</span></li>
+      <li><span class="b">4</span><span>Copper foil tab, 2 × 6 mm, lying on the ledge under the window.</span></li>
+      <li><span class="b">5</span><span>HV pads GND / M / D / GND. The wire goes to D, as today.</span></li>
+      <li><span class="b">6</span><span>Active area (bare mesh).</span></li>
+      <li><span class="b">7</span><span>Frame screw hole.</span></li>
+      <li><span class="b">8</span><span>Mylar ledge: the darker band along the inner edge of the frame.</span></li>
+    </ol>
+  </figcaption>
+</figure>
+
+<div class="figrow">
+  <figure>
+    <div class="draw">{{today}}</div>
+    <figcaption>
+      <div class="ftitle">Today, cut through the slot (y = 3.5 mm)</div>
+      <ol class="key">
+        <li><span class="b">1</span><span>Wire leaves the slot and goes up to copper tape on the mylar.</span></li>
+        <li><span class="b">2</span><span>Wire in the slot.</span></li>
+        <li><span class="b">3</span><span>Bare mesh pad, only <b>{{mouth}} mm</b> from the bare wire. That is below the 3 mm rule.</span></li>
+      </ol>
+    </figcaption>
+  </figure>
+  <figure>
+    <div class="draw">{{conceptA}}</div>
+    <figcaption>
+      <div class="ftitle">Concept A, same cut</div>
+      <ol class="key">
+        <li><span class="b">1</span><span>Ø1.2 hole through the 0.2 mm roof, filled with silver epoxy.</span></li>
+        <li><span class="b">2</span><span>Cu tab on the ledge, pressed against the coating with silver epoxy.</span></li>
+        <li><span class="b">3</span><span>Slot potted with epoxy: no bare wire left below the window.</span></li>
+        <li><span class="b">4</span><span>Mesh pad: now only sees epoxy and frame.</span></li>
+      </ol>
+    </figcaption>
+  </figure>
+</div>
+
+<h3>How to build it</h3>
+<ol class="steps">
+  <li>Drill <b>Ø1.2 mm</b> vertically from the ledge into the slot at (601.5, 3.55), through the 0.2 mm roof. Deburr.</li>
+  <li>Feed the HV wire through the slot from outside, as today. Strip it so that only bare conductor goes up the hole; the insulation ends inside the slot.</li>
+  <li>Solder the conductor to a <b>copper foil tab, 2 × 6 mm, 35–50 µm</b> thick, laid along the ledge. Fill the hole with room-temperature silver epoxy. Keep the tab at most 2 mm wide so that at least 1 mm of the 3 mm glue land stays continuous.</li>
+  <li>Glue the mylar as usual, with a dab of silver epoxy on the tab only. The coated side faces down onto the tab.</li>
+  <li>Fill the slot with epoxy from outside. This buries the wire and closes the leak path.</li>
+  <li>Solder the wire to the D pad, as today.</li>
+  <li>Check: resistance from the D pad to the window surface, a 1 kV drift-to-mesh hold test before closing, and a leak test.</li>
+</ol>
+<p class="note">Keep every cure at 60 °C or below until the frame material's limit is known. Concept A only works if the window's conductive coating faces the PCB.</p>
+
+<h2>4 · A2: a second, redundant feed</h2>
+<p>Concept A still has one contact per detector. A second one has to go through the frame wall somewhere it does not cut the gas system and stays well away from bare mesh.</p>
+<div class="figrow">
+  <figure>
+    <div class="draw narrow">{{top}}</div>
+    <figcaption>
+      <div class="ftitle">Top corner: no room</div>
+      <ol class="key">
+        <li><span class="b">1</span><span>The bottom slot mirrored to this corner. It crosses {{hits}} frame surfaces (red dots): it would cut the gas channel.</span></li>
+        <li><span class="b">2</span><span>Top gas port, where the outer-arc gas channel starts.</span></li>
+        <li><span class="b">3</span><span>Top mesh pad.</span></li>
+      </ol>
+    </figcaption>
+  </figure>
+  <figure>
+    <div class="draw">{{a2sec}}</div>
+    <figcaption>
+      <div class="ftitle">Bottom wall, cut at x = 575 mm</div>
+      <ol class="key">
+        <li><span class="b">1</span><span>New slot, same size and height as today's (z 2.6–3.8 mm), above the O-ring groove.</span></li>
+        <li><span class="b">2</span><span>Ø1.2 hole up to the ledge.</span></li>
+        <li><span class="b">3</span><span>O-ring groove: untouched.</span></li>
+      </ol>
+    </figcaption>
+  </figure>
+</div>
+<figure>
+  <div class="draw">{{a2plan}}</div>
+  <figcaption>
+    <div class="ftitle">Bottom-right, plan view: both feeds</div>
+    <ol class="key">
+      <li><span class="b">1</span><span>New slot at x = 575 mm. It cuts solid frame only, between the screws at x = 537 and 592.</span></li>
+      <li><span class="b">2</span><span>Ø1.2 hole up to the ledge at (575, −1.5).</span></li>
+      <li><span class="b">3</span><span>Slot mouth to bare mesh: <b>{{mouth2}} mm</b>, well over 3 mm.</span></li>
+      <li><span class="b">4</span><span>Existing slot with concept A.</span></li>
+    </ol>
+  </figcaption>
+</figure>
+<p>On existing frames, a Ø1.2 mm horizontal hole at z = 3.2 mm does the same job as the new slot. Along the bottom edge the frame is flush with the board, so the wire runs along the frame's outer face to the same D pad.</p>
+
+<h2>5 · B: drift pad on the PCB with a spring</h2>
+<p>A Ø2 mm gold pad on the PCB, next to the wall, with a 4 mm spring or pogo pin pushing up onto the window. The pad is bare drift potential at board level, right next to the bare mesh. With the active edge only 4.8 mm from the wall, there is not enough room for the 3 mm rule along most of the frame.</p>
+<div class="figrow">
+  <figure>
+    <div class="draw">{{bsec}}</div>
+    <figcaption>
+      <div class="ftitle">What B needs, cut across the bottom edge</div>
+      <ol class="key">
+        <li><span class="b">1</span><span>New Ø2 drift pad on the PCB, fed by a new trace: PCB re-spin.</span></li>
+        <li><span class="b">2</span><span>Spring fitted after the bulk process, since the laminator and the 150 °C cure rule out anything standing proud.</span></li>
+        <li><span class="b">3</span><span>A window in the resist and a mesh cut-out made before M2.</span></li>
+      </ol>
+    </figcaption>
+  </figure>
+  <figure>
+    <div class="draw">{{bbars}}</div>
+    <figcaption>
+      <div class="ftitle">Best pad position in each place: pad edge to nearest bare mesh</div>
+      <div class="fsub">Pad centre at least 1.5 mm from the wall. Only the two inner corners pass.</div>
+    </figcaption>
+  </figure>
+</div>
+<p>B stays the fallback if A gives trouble. It costs a PCB re-spin and an extra process step, and its resist window can be generated from the V3B_final config once a pad position is chosen.</p>
+
+<h2>6 · Other ideas</h2>
+<h3>C · Conductive elastomer instead of the spring</h3>
+<p>Gentler on the window, but silicone outgassing is an ageing risk in gas detectors. Only with a low-outgassing grade, and only together with B.</p>
+<h3>D · Gas through a hole in the PCB</h3>
+<p>Not recommended. The frame already feeds gas through 2 ports and 26 nozzles. In the bulk process, Dynamask tents the hole on the carrier plate, the mesh lies over it, and developer or rinse water gets trapped. Putting a gas hole and an HV contact in the same place also creates a leak path and a creepage path together. If a dead flow region shows up, add a nozzle to the frame instead.</p>
+
+<h2>7 · Masks, and what is still open</h2>
+<p><b>A and A2 need no mask change.</b> V3B_final is used as it is, whatever pillar diameter is chosen after the test. It keeps {{act_v3b}} cm² of active area, against {{act_v2}} cm² with V2.</p>
+<div class="tbl"><table>
+  <tr><th>To check</th><th>Why it matters</th></tr>
+  <tr><td>Which side of the mylar is coated</td><td>Concept A touches the coating from below.</td></tr>
+  <tr><td>Frame material and its temperature limit</td><td>Sets the cure temperature for the silver epoxy.</td></tr>
+  <tr><td>A2 on new frames, or drilled into existing ones</td><td>A new slot in the CAD, or a Ø1.2 horizontal hole.</td></tr>
+</table></div>
+
+<footer>Drawn from the original files: frame <code>P2_Frame_V2.0.stl</code>, PCB Gerbers in <code>Version_Apr26/FABRICATION_P2</code>, mask <code>V3B_final</code>. Generated by <code>Drift_Contact_Oct26/tools/make_page.py</code>.</footer>
+</div>

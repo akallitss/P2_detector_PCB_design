@@ -1,0 +1,86 @@
+{
+  "name": "V3B_final",
+  "release": true,
+  "frame_source": "V1",
+  "description": "Production mask. Pillar diameter 0.50 mm everywhere - the smallest the shop can make. Zone 1 carries the CERN bulk layout as the reference: 0.50 mm pillars on the same 2.00 x 2.00 mm grid, at the same coordinates as CERN's P2_Mask2. Zones 2-5 are hexagonal with the least dense support in the centre: 2.20 % (zone 2), 0.75 % (zone 3, centre), 1.10 % (zone 4), 1.60 % (zone 5) dead area. A continuous 1.00 mm resist wall runs along each zone boundary so the zones are physically separated; as a consequence only zone 1 is vented by the evacuation channel during lamination.",
+  "lamination_growth_mm": 0.05,
+  "dead_area_budget": 0.03,
+  "frame_clearance_mm": 0.0,
+  "disc_clearance_mm": 1.0,
+  "zone_boundary_clearance_mm": 0.3,
+  "boundary_min_spacing_mm": 0.0,
+  "seam_rows": false,
+  "zone_walls": {
+    "width_mm": 1.0,
+    "pillar_clearance_mm": 0.5,
+    "dash_mm": 0.0,
+    "gap_mm": 0.0,
+    "require_venting": false,
+    "note": "continuous by request (2026-09-15): zones 2-5 have no path to the evacuation channel during lamination"
+  },
+  "remove_large_mesh_pad": true,
+  "raster_step_mm": 0.25,
+  "zones": [
+    {
+      "zone": 1,
+      "connectors": [
+        1,
+        2
+      ],
+      "lattice": "square",
+      "diameter_mm": 0.5,
+      "pitch_mm": 2.0,
+      "rotation": "global",
+      "lattice_origin": [
+        0.0,
+        0.0
+      ],
+      "dead_area_budget": 0.06,
+      "reference": "CERN bulk 3717-A (P2_Mask2): 0.50 mm on a 2.00 x 2.00 mm grid, identical coordinates; deliberately over the 3 % budget"
+    },
+    {
+      "zone": 2,
+      "connectors": [
+        3,
+        4
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.5,
+      "target_dead_area": 0.022,
+      "rotation": "wedge"
+    },
+    {
+      "zone": 3,
+      "connectors": [
+        5,
+        6
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.5,
+      "target_dead_area": 0.0075,
+      "rotation": "wedge"
+    },
+    {
+      "zone": 4,
+      "connectors": [
+        7,
+        8
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.5,
+      "target_dead_area": 0.011,
+      "rotation": "wedge"
+    },
+    {
+      "zone": 5,
+      "connectors": [
+        9,
+        10
+      ],
+      "lattice": "hex",
+      "diameter_mm": 0.5,
+      "target_dead_area": 0.016,
+      "rotation": "wedge"
+    }
+  ]
+}
