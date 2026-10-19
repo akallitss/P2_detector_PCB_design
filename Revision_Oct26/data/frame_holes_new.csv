@@ -1,0 +1,40 @@
+no,x_mm,y_mm,diameter_mm,edge,note
+1,99.31,-6.00,3.5,corner,kept (existing corner hole)
+2,145.32,-7.50,3.5,bottom side,new position
+3,191.33,-7.50,3.5,bottom side,new position
+4,237.34,-7.50,3.5,bottom side,new position
+5,283.35,-7.50,3.5,bottom side,new position
+6,329.36,-7.50,3.5,bottom side,new position
+7,375.38,-7.50,3.5,bottom side,new position
+8,421.39,-7.50,3.5,bottom side,new position
+9,467.40,-7.50,3.5,bottom side,new position
+10,513.41,-7.50,3.5,bottom side,new position
+11,559.42,-7.50,3.5,bottom side,new position
+12,605.43,-6.00,3.5,corner,corner hole moved 5.0 mm inward (mirror of the top corner hole)
+13,611.65,40.62,3.5,outer arc,new position
+14,606.78,87.07,3.5,outer arc,new position
+15,598.39,133.02,3.5,outer arc,new position
+16,586.53,178.20,3.5,outer arc,new position
+17,571.26,222.34,3.5,outer arc,new position
+18,552.67,265.19,3.5,outer arc,new position
+19,530.87,306.50,3.5,outer arc,new position
+20,505.99,346.03,3.5,outer arc,new position
+21,478.18,383.55,3.5,outer arc,new position
+22,447.59,418.85,3.5,outer arc,new position
+23,414.39,451.71,3.5,outer arc,new position
+24,378.80,481.96,3.5,outer arc,new position
+25,341.00,509.40,3.5,outer arc,new position
+26,297.52,527.32,3.5,corner,kept (existing corner hole)
+27,273.21,488.22,3.5,top side,new position
+28,250.21,448.37,3.5,top side,new position
+29,227.20,408.53,3.5,top side,new position
+30,204.20,368.68,3.5,top side,new position
+31,181.19,328.83,3.5,top side,new position
+32,158.19,288.99,3.5,top side,new position
+33,135.18,249.14,3.5,top side,new position
+34,112.18,209.29,3.5,top side,new position
+35,89.17,169.45,3.5,top side,new position
+36,66.17,129.60,3.5,top side,new position
+37,44.46,89.00,3.5,corner,kept (existing corner hole)
+38,74.92,65.48,3.5,inner arc,new position
+39,94.17,32.14,3.5,inner arc,new position

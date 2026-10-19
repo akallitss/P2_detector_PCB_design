@@ -1,0 +1,10 @@
+# FreeCAD script: horizontal outlines of the drift frame STEP, printed as JSON on stdout.
+# Run:  freecad.cmd -c "$(cat export_frame_slices.FCpy)" | grep '^JSON' | cut -c5- > ../data/frame_slices.json
+import Part, json
+STEP = '/local/home/ak271430/Documents/PostDocSaclay/Detector_Drawings/DRIFT_P2_261124/DRIFT_P2_261124/FRAME_4mm/P2_Frame_V2.0.stp'
+s = Part.read(STEP)
+res = {}
+for z in (1.0, 3.2, 7.5):
+    res[str(z)] = [[(round(p.x, 3), round(p.y, 3)) for p in w.discretize(Deflection=0.02)]
+                   for w in s.slice(App.Vector(0, 0, 1), z)]
+print('JSON' + json.dumps(res))

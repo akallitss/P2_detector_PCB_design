@@ -14,6 +14,7 @@ KiCad files, rendered figures and pages) are deliberately not tracked; see
 | `Drift_Contact_Oct26/` | Study of drift (mylar window) HV contact concepts: clearance analysis, 3D models of the concepts, the explainer pages. |
 | `B2_DriftPad_Oct26/` | Variant B2: `make_b2_files.py` writes the patched Gerbers and masks (3 × 3 mm drift pad on the former `/Sector0/Sig1` corner pad); `qc_b2.py` is the polarity-aware rasteriser and clearance checker reused by the other folders. |
 | `PCB_NextVersion_Oct26/` | Items for the next PCB version: space available for bigger alignment crosses, and a bigger mesh-contact pad next to the B2 drift pad. |
+| `Revision_Oct26/` | Schematic NOW → NEW figures for the technicians, from the "P2 Micromegas Revision" document: drift frame (extension, HV openings, symmetric Ø3.5 screw holes), carbon drift piece (2 mm, foam flap at the B2 corner), carbon back (3 mm, extension removed, 10 mm connector margin). Decisions in its README. |
 
 ## Running
 

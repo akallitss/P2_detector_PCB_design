@@ -36,6 +36,12 @@
 !/PCB_NextVersion_Oct26/data/
 !/PCB_NextVersion_Oct26/README.md
 
+!/Revision_Oct26/
+/Revision_Oct26/*
+!/Revision_Oct26/tools/
+!/Revision_Oct26/data/
+!/Revision_Oct26/README.md
+
 __pycache__/
 *.pyc
 *.png

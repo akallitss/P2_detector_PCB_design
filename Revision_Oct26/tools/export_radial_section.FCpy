@@ -1,0 +1,14 @@
+# FreeCAD script: vertical radial section of the drift frame at 27 deg (between holes and nozzles),
+# printed as JSON segments in (r, z).
+# Run:  freecad.cmd -c "$(cat export_radial_section.FCpy)" | grep '^JSON' | cut -c5- > ../data/frame_section_r27.json
+import Part, json, math
+STEP = '/local/home/ak271430/Documents/PostDocSaclay/Detector_Drawings/DRIFT_P2_261124/DRIFT_P2_261124/FRAME_4mm/P2_Frame_V2.0.stp'
+s = Part.read(STEP)
+a = math.radians(27.0)
+n = App.Vector(-math.sin(a), math.cos(a), 0)
+segs = []
+for w in s.slice(n, 0.0):
+    pts = w.discretize(Deflection=0.005)
+    rz = [(round(p.x * math.cos(a) + p.y * math.sin(a), 4), round(p.z, 4)) for p in pts]
+    segs.append(rz)
+print('JSON' + json.dumps(segs))
