@@ -46,6 +46,12 @@
 !/P2_Revision_2026/pcb/next_version/tools/
 !/P2_Revision_2026/pcb/next_version/data/
 !/P2_Revision_2026/pcb/next_version/README.md
+!/P2_Revision_2026/pcb/next_version/Insulation_masks/
+/P2_Revision_2026/pcb/next_version/Insulation_masks/*
+!/P2_Revision_2026/pcb/next_version/Insulation_masks/V3B_final_2026/
+/P2_Revision_2026/pcb/next_version/Insulation_masks/V3B_final_2026/*
+!/P2_Revision_2026/pcb/next_version/Insulation_masks/V3B_final_2026/CHANGES_masks_2026.txt
+!/P2_Revision_2026/pcb/next_version/Insulation_masks/V3B_final_2026/QC_masks_2026.txt
 
 __pycache__/
 *.pyc

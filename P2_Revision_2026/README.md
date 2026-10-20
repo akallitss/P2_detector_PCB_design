@@ -50,7 +50,7 @@ section 0 of its README).
 | 8 | 4 Ø2.2 holes next to the HV pads (inside the HV openings) | open: keep or remove? |
 | 9 | Mesh cut: whole corner x ≥ 585.5, y ≤ 15 | done (`P2_BASKET-MeshCut_B2.gbr`, `pcb_mesh_cut.csv`) |
 | 10 | PCB outline | unchanged |
-| – | Masks: drift-pad island (done), alignment-mark outlines (drawn), no mesh-pad change | |
+| – | Insulation masks M1, M2: new screw-hole openings, new crosses, corner-A mesh window closed | done: `pcb/next_version/Insulation_masks/V3B_final_2026/` (QC: only intended changes) |
 
 ## Running
 

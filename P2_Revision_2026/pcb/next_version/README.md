@@ -32,6 +32,22 @@ Figures and tables only; the changes go into the KiCad project. Made by
 | `pcb_corner_A_remove.csv` | corner A mesh contact to remove: mesh pad, trace, 2 M solder pads (F.Cu + ENIG), M2 window |
 | `../drift_pad_B2/CHANGES.txt` | every copper / drill / mask edit for the B2 drift pad |
 
+**Insulation masks (made here, not in KiCad):** `Insulation_masks/V3B_final_2026/`
+(`P2_BASKET-Mask_M1_2026.gbr`, `..._M2_2026.gbr`, mesh-cut template), made by
+`tools/make_masks_2026.py` from V3B_final + B2:
+- M1: today's 40 screw-hole openings closed, 39 new Ø4.0 openings;
+- M1, M2: alignment crosses 10 mm outline / 1.3 mm arms in 12.5 mm resist
+  squares at the new positions (old outlines removed; in M2 the old squares of
+  crosses 1, 2 opened again);
+- M1, M2: corner-A mesh-contact window closed; B2 drift-pad island and window,
+  pillars and everything else unchanged.
+
+`tools/qc_masks_2026.py` compares old and new masks over the whole board: every
+changed area is one of these (`QC_masks_2026.txt`, figure `figures/masks_2026.png`);
+both files pass `Version_Sept26/tools/validate_gerber.py`. To check: the
+12.5 mm squares of crosses 1 and 2 reach r ≈ 113, 3 mm past the frame inner
+wall (r 110) but before the pillar field (r ≈ 115).
+
 Decisions (2026-10-20): PCB outline unchanged; corner A keeps only the drift
 contact: its mesh contact (mesh pad, trace, the two M solder pads) is removed and
 the mesh is contacted only at the top corner (B); mesh corner x ≥ 585.5, y ≤ 15

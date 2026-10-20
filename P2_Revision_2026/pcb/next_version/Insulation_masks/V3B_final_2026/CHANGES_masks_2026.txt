@@ -1,0 +1,11 @@
+M1: removed 40 of 40 old screw-hole openings
+M1: removed 48 outline tracks of the 4 old alignment crosses
+M1: removed the corner-A mesh-contact window (595.52, 2.12, 597.86, 4.36)
+M1: 4 crosses, 10 mm outline / 1.3 mm arms in 12.5 mm resist squares at [(70.43, 76.86), (101.78, 22.56), (635.63, 83.91), (391.22, 507.0)]
+M1: 39 new screw-hole openings Ø4
+M2: removed 60 outline tracks of the 4 old alignment crosses
+M2: removed the corner-A mesh-contact window (595.77, 2.12, 597.8, 4.11)
+M2: old resist square of cross 1 (68.54, 63.29, 74.54, 69.25) opened (board edge r = 94.86)
+M2: old resist square of cross 2 (91.11, 25.6, 97.11, 31.64) opened (board edge r = 94.85)
+M2: 4 crosses, 10 mm outline / 1.3 mm arms in 12.5 mm resist squares at [(70.43, 76.86), (101.78, 22.56), (635.63, 83.91), (391.22, 507.0)]
+mesh cut template: copied from B2 (whole corner x >= 585.5, y <= 15 cleared)

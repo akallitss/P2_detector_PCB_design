@@ -1,0 +1,15 @@
+[M1] changed areas: 185, all inside an intended change: True
+   corner-A mesh window    : 0 changed area(s)
+   new cross               : 3 changed area(s)
+   new screw opening       : 36 changed area(s)
+   old cross               : 37 changed area(s)
+   old screw opening       : 108 changed area(s)
+   merged new screw opening + old screw opening: 1 area(s)
+   area opened 475.5 mm2, closed 846.8 mm2
+[M2] changed areas: 23, all inside an intended change: True
+   corner-A mesh window    : 1 changed area(s)
+   new cross               : 4 changed area(s)
+   new screw opening       : 0 changed area(s)
+   old cross               : 18 changed area(s)
+   old screw opening       : 0 changed area(s)
+   area opened 66.4 mm2, closed 427.2 mm2
