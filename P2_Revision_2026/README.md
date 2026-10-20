@@ -42,7 +42,7 @@ section 0 of its README).
 |---|---|---|
 | 1 | Homogenised screw holes: 39 × Ø3.5 (`pcb_screw_holes_new.csv`), 37 of today's 40 removed | drawn; plated or not? |
 | 2 | Sacrificed pad for the drift: B2 pad at (590.5, 10.0) | done (`pcb/drift_pad_B2`); Sig1 pin to GND or floating? (question for Irakli) |
-| 3 | Mesh-contact pad | no change: the top-corner pad is the mesh contact; the bottom one gets no mesh |
+| 3 | Mesh-contact pad | corner A: mesh contact removed (pad, trace, 2 M pads; `pcb_corner_A_remove.csv`); the top-corner pad is the only mesh contact |
 | 4 | Bigger alignment marks (9 mm, 12.5 mm resist square) | drawn; crosses 1, 2 moved to r = 104.25 (47.5°, 12.5°) |
 | 5 | Drift pad connected to the D contact | done in B2; its insulation under the carbon back is a placeholder |
 | 6 | Connectors to the back side (same FX20-140P, same positions) | drawn; pin order mirrors: check the mating side |

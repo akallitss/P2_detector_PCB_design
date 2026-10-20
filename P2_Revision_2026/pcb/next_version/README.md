@@ -29,11 +29,13 @@ Figures and tables only; the changes go into the KiCad project. Made by
 | `pcb_alignment_marks.csv` | 4 crosses, now / new centres and sizes |
 | `pcb_connectors.csv` | the 10 connector centres and angles (same position, now on B.Cu) |
 | `pcb_mesh_cut.csv` | the two mesh cut lines of the cleared corner |
+| `pcb_corner_A_remove.csv` | corner A mesh contact to remove: mesh pad, trace, 2 M solder pads (F.Cu + ENIG), M2 window |
 | `../drift_pad_B2/CHANGES.txt` | every copper / drill / mask edit for the B2 drift pad |
 
-Decisions (2026-10-20): PCB outline unchanged; mesh contact stays on the existing
-pad at the top corner (the bottom-corner M pad gets no mesh); mesh corner
-x ≥ 585.5, y ≤ 15 cleared. Open: plating of the screw holes; Sig1 pin to GND or
+Decisions (2026-10-20): PCB outline unchanged; corner A keeps only the drift
+contact: its mesh contact (mesh pad, trace, the two M solder pads) is removed and
+the mesh is contacted only at the top corner (B); mesh corner x ≥ 585.5, y ≤ 15
+cleared. Open: plating of the screw holes; Sig1 pin to GND or
 floating; symmetric Ø3.2 support holes; the 4 Ø2.2 holes next to the HV pads.
 
 ## 1. Bigger alignment crosses
@@ -71,8 +73,9 @@ bigger cross.
 ## 2. Bigger mesh-contact pad (bottom corner) – superseded
 
 **2026-10-20:** the whole bottom corner is cleared of mesh (B2 decision), so this
-pad gets no mesh. The mesh stays contacted through the existing pad at the top
-corner; no bigger pad is needed. The study below is kept for reference.
+pad would get no mesh: it is removed altogether, with its trace and the two M
+solder pads (`data/pcb_corner_A_remove.csv`). The mesh is contacted through the
+existing pad at the top corner; no bigger pad is needed. The study below is kept for reference.
 
 **Today:**
 - The gold pad is 2.93 × 2.81 mm, from (595.77, 1.29) to (598.70, 4.10).

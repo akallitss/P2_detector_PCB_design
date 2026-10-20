@@ -94,8 +94,10 @@ from the bottom wall to y = 15.0, then along y = 15.0 to the outer-arc wall.
 - The island extends 0.9–1.0 mm beyond the cut lines, so the mesh edge rests on
   resist.
 - The mesh-contact pad of this corner, at (595.77, 1.29)–(598.70, 4.10), then
-  has **no mesh**. The mesh is contacted through the pad at the top corner
-  (two mesh contacts exist in the design; the top one is kept).
+  has **no mesh**, so the whole mesh contact of this corner (pad, trace and
+  the two M solder pads) is **removed** in the next PCB: this corner keeps only
+  the drift contact. The mesh is contacted at the top corner only. The patched
+  Gerbers here still contain it (see `../next_version/data/pcb_corner_A_remove.csv`).
 - (Earlier version: a closed 10 × 10 mm square round the pad.)
 
 ### Contact to the window, after the bulk process
