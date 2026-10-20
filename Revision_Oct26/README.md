@@ -1,7 +1,7 @@
 # P2 Micromegas revision (Oct 2026): drawings for the technicians
 
 Schematic NOW → NEW figures explaining the changes listed in
-`P2_detector_PCB_design/P2 Micromegas Revision.pdf`, for the technicians who
+`Revision_Oct26/P2 Micromegas Revision.pdf` (untracked, like all PDFs), for the technicians who
 will redraw the real parts (Solid Edge). The figures are explanations, not
 manufacturing drawings: the designer checks the final positions.
 
