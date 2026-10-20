@@ -111,7 +111,7 @@ def corner():
         f"{rg.CONN_R_IN - rg.CB_R_OUT:.1f}", fs=8)
     callout(a1, tuple(rg.CB_R_OUT * np.array([math.cos(math.radians(4)), math.sin(math.radians(4))])), (593, 38),
             f"new outer edge r = {rg.CB_R_OUT:g}\n({rg.CONN_MARGIN:g} mm before the connector pads)", color=C_DIM)
-    callout(a1, (632, 25), (636, 47), "connectors FX20-60P\n(back side, r 627–637)", color=C_CONN)
+    callout(a1, (632, 25), (636, 47), "connectors FX20-140P\n(back side, r 627–637)", color=C_CONN)
     callout(a1, (645, 30), (643, 5), "extension removed", color=C_OPEN)
     tr = np.array(rg.B2_TRACE_BCU)
     a1.plot(*tr.T, color="#c0392b", lw=2.2, zorder=6)

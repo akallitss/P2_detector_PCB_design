@@ -16,13 +16,14 @@ PCB (Version_Apr26/FABRICATION_P2):
 Masks (Version_Sept26/Insulation_masks/V3B_final):
   M1, M2  10 x 10 mm resist island (clear) round the pad, 2.6 x 2.6 mm window (dark)
 New:
-  mesh-cut template, 10 x 10 mm, for trimming the mesh at the end
+  mesh-cut template (whole corner x >= 585.5, y <= 15 cleared), for trimming the mesh at the end
 
     python3 make_b2_files.py
 """
 from __future__ import annotations
 
 import datetime
+import math
 import os
 import re
 import shutil
@@ -224,18 +225,22 @@ def patch_mask(layer, log):
 
 
 def mesh_cut(log):
-    x0, y0, x1, y1 = PAD[0] - CUT_H, PAD[1] - CUT_H, PAD[0] + CUT_H, PAD[1] + CUT_H
-    L = ["G04 P2 BASKET - B2 drift pad: mesh cut-out template*",
-         f"G04 cut the mesh along this square when the mesh is trimmed, {STAMP}*",
-         "G04 square 10 x 10 mm centred on the drift pad, 3.5 mm from the pad edge*",
+    """Whole-corner cut (decided 2026-10-20): no mesh at all for x >= x0 and y <= y1, out to both
+    frame walls. Two cut lines: up x = x0 from the bottom wall to y1, then along y = y1 to the
+    outer-arc wall (r = 600). The mesh-contact pad of this corner then has no mesh; the mesh is
+    contacted at the top corner."""
+    x0, y1 = PAD[0] - CUT_H, PAD[1] + CUT_H
+    x_wall = math.sqrt(600.0 ** 2 - y1 ** 2)
+    L = ["G04 P2 BASKET - B2 drift pad: mesh cut template (whole corner cleared)*",
+         f"G04 cut the mesh along these two lines when the mesh is trimmed, {STAMP}*",
+         f"G04 no mesh for x >= {x0:g} and y <= {y1:g}, out to the frame walls*",
          "%FSLAX46Y46*%", "%MOMM*%", "%LPD*%", "G01*", "%ADD10C,0.100000*%", "D10*",
-         f"X{q(x0)}Y{q(y0)}D02*", f"X{q(x1)}Y{q(y0)}D01*", f"X{q(x1)}Y{q(y1)}D01*",
-         f"X{q(x0)}Y{q(y1)}D01*", f"X{q(x0)}Y{q(y0)}D01*",
+         f"X{q(x0)}Y{q(0.0)}D02*", f"X{q(x0)}Y{q(y1)}D01*", f"X{q(x_wall)}Y{q(y1)}D01*",
          f"X{q(PAD[0] - 0.5)}Y{q(PAD[1])}D02*", f"X{q(PAD[0] + 0.5)}Y{q(PAD[1])}D01*",
          f"X{q(PAD[0])}Y{q(PAD[1] - 0.5)}D02*", f"X{q(PAD[0])}Y{q(PAD[1] + 0.5)}D01*", "M02*", ""]
     _EOL["eol"] = "\n"
     write(os.path.join(MASK_OUT, "P2_BASKET-MeshCut_B2.gbr"), L)
-    log.append(f"mesh cut: {2 * CUT_H:g} x {2 * CUT_H:g} mm square ({x0}, {y0}) - ({x1}, {y1})")
+    log.append(f"mesh cut: whole corner cleared, lines ({x0}, 0) - ({x0}, {y1}) - ({x_wall:.2f}, {y1})")
 
 
 def copy_unchanged(log):

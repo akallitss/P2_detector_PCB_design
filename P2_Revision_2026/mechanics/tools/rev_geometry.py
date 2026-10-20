@@ -408,7 +408,7 @@ def screw_length(frame_h=FRAME_H):
 
 # ---------------------------------------------------------------- carbon back (strongback)
 CB_T = 3.0                            # new thickness
-CONN_R_IN, CONN_R_OUT = 626.95, 637.26    # FX20-60P pads on the PCB (now on the back side)
+CONN_R_IN, CONN_R_OUT = 626.95, 637.26    # FX20-140P pads on the PCB (now on the back side)
 CONN_MARGIN = 10.0
 CB_R_OUT = math.floor((CONN_R_IN - CONN_MARGIN) * 10) / 10   # 616.9
 RIB_W = 10.0

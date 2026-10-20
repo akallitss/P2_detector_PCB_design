@@ -1,0 +1,4 @@
+point,x_mm,y_mm,note
+1,585.50,0.00,start at the bottom frame wall
+2,585.50,15.00,corner
+3,599.81,15.00,end at the outer-arc frame wall

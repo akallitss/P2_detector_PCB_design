@@ -37,7 +37,7 @@ FABRICATION_P2_B2/
 Insulation_masks/V3B_final_B2/
   P2_BASKET-Mask_M1_V3B_final_B2.gbr    patched
   P2_BASKET-Mask_M2_V3B_final_B2.gbr    patched
-  P2_BASKET-MeshCut_B2.gbr              new: 10 x 10 mm mesh cut template
+  P2_BASKET-MeshCut_B2.gbr              new: mesh cut template (whole corner cleared)
 QC/qc_report.txt, QC/b2_before_after.png
 CHANGES.txt                             the exact edits, one line each
 tools/make_b2_files.py                  rebuilds everything above from the originals
@@ -83,17 +83,20 @@ planned.
 
 ### Mesh
 
-The mesh is laminated last and trimmed at the end. At that trim, also cut a
-**10 × 10 mm square** centred on the pad, from (585.5, 5.0) to (595.5, 15.0):
-see `P2_BASKET-MeshCut_B2.gbr`.
+The mesh is laminated last and trimmed at the end. At that trim, **clear the
+whole corner** (decided 2026-10-20): no mesh for x ≥ 585.5 and y ≤ 15.0, out to
+both frame walls. Two cut lines, see `P2_BASKET-MeshCut_B2.gbr`: up x = 585.5
+from the bottom wall to y = 15.0, then along y = 15.0 to the outer-arc wall.
 
-- The cut edge stays bare. It is **3.5 mm** from the pad edge everywhere,
-  which keeps 0.5 mm of margin on the 3 mm rule for hand cutting.
-- The island extends 0.9–1.0 mm beyond the cut on the open (left and top)
-  sides, so the mesh edge rests on resist. On the bottom and right the cut
-  edge rests on the existing corner border.
-- The cut's lower-right corner, at (595.5, 5.0), is about 1 mm from the
-  mesh-contact window. Cut that corner with care.
+- The two cut edges stay bare. They are **3.5 mm** from the pad edge, which
+  keeps 0.5 mm of margin on the 3 mm rule for hand cutting. On the other two
+  sides there is no mesh any more.
+- The island extends 0.9–1.0 mm beyond the cut lines, so the mesh edge rests on
+  resist.
+- The mesh-contact pad of this corner, at (595.77, 1.29)–(598.70, 4.10), then
+  has **no mesh**. The mesh is contacted through the pad at the top corner
+  (two mesh contacts exist in the design; the top one is kept).
+- (Earlier version: a closed 10 × 10 mm square round the pad.)
 
 ### Contact to the window, after the bulk process
 

@@ -10,6 +10,32 @@ Everything was measured on:
 The page to share is `next_pcb_items.html`, which has drawings for every item.
 Nothing in the original folders is modified.
 
+## 0. For the KiCad designer (revision 2026) – start here
+
+Figures and tables only; the changes go into the KiCad project. Made by
+`tools/fig_pcb.py` (and `tools/search_inner_marks.py` for the cross positions).
+
+| figure (`figures/`) | what |
+|---|---|
+| `pcb_overview.png` | the whole board NOW vs NEW: screw holes, connectors to the back, crosses |
+| `pcb_corner_A.png` | bottom-right corner: Sig1 → B2 drift pad + trace, mesh corner cleared, M pad |
+| `pcb_alignment_marks.png` | bigger crosses; crosses 1 and 2 moved clear of the new screw holes |
+| `pcb_connectors_back.png` | FX20-140P connectors move to the back side (pin order mirrors!) |
+
+| table (`data/`) | what |
+|---|---|
+| `pcb_screw_holes_new.csv` | 39 × Ø3.5, same positions as the frame and carbon back (plated: to decide) |
+| `pcb_screw_holes_remove.csv` | today's 40 screw holes; 37 go, 3 corner holes stay |
+| `pcb_alignment_marks.csv` | 4 crosses, now / new centres and sizes |
+| `pcb_connectors.csv` | the 10 connector centres and angles (same position, now on B.Cu) |
+| `pcb_mesh_cut.csv` | the two mesh cut lines of the cleared corner |
+| `../drift_pad_B2/CHANGES.txt` | every copper / drill / mask edit for the B2 drift pad |
+
+Decisions (2026-10-20): PCB outline unchanged; mesh contact stays on the existing
+pad at the top corner (the bottom-corner M pad gets no mesh); mesh corner
+x ≥ 585.5, y ≤ 15 cleared. Open: plating of the screw holes; Sig1 pin to GND or
+floating; symmetric Ø3.2 support holes; the 4 Ø2.2 holes next to the HV pads.
+
 ## 1. Bigger alignment crosses
 
 **Today:**
@@ -34,12 +60,19 @@ bigger cross.
 - **Masks:** a cross outline 10 mm across with 1.3 mm arms, in a
   12.5 × 12.5 mm resist square.
 - **Crosses 3 and 4** stay where they are.
-- **Crosses 1 and 2** move 4 mm radially outward, away from the slot:
-  (70.80, 66.19) → (73.72, 68.92) and (93.67, 28.50) → (97.50, 29.66).
+- **Crosses 1 and 2** (superseded 2026-10-20): with the new screw-hole pattern
+  their positions are 3.7–4.2 mm from holes 38 / 39. They move to r = 104.25 mm
+  at 47.5° and 12.5° (mirror pair): (70.43, 76.86) and (101.78, 22.56), with
+  7.1 mm free round the centre (`data/inner_marks_search.json`). The earlier
+  proposal ((73.72, 68.92), (97.50, 29.66)) is dropped.
 - **Alternative** if they can't move: an asymmetric cross, with short arms
   towards the slot.
 
-## 2. Bigger mesh-contact pad (bottom corner)
+## 2. Bigger mesh-contact pad (bottom corner) – superseded
+
+**2026-10-20:** the whole bottom corner is cleared of mesh (B2 decision), so this
+pad gets no mesh. The mesh stays contacted through the existing pad at the top
+corner; no bigger pad is needed. The study below is kept for reference.
 
 **Today:**
 - The gold pad is 2.93 × 2.81 mm, from (595.77, 1.29) to (598.70, 4.10).

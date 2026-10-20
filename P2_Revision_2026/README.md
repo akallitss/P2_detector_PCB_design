@@ -35,19 +35,22 @@ head on the frame, washer + nut on the carbon side.
 
 **PCB and insulation masks** – the next step. From the PDF and the work above:
 
+Figures and tables for the KiCad designer: `pcb/next_version/` (start with
+section 0 of its README).
+
 | # | item | state |
 |---|---|---|
-| 1 | Homogenised screw holes: the 39 × Ø3.5 of `mechanics/data/frame_holes_new.csv` replace today's 40 (26 plated + 14 not) | defined; plated or not? |
-| 2 | Sacrificed pad for the drift: B2 pad at (590.5, 10.0) | done in `pcb/drift_pad_B2`; Sig1 pin to GND or floating? (question for Irakli) |
-| 3 | Bigger mesh-contact pad | proposal in `pcb/next_version` sits in the bottom corner, which is now cleared of mesh: needs a new place |
-| 4 | Bigger alignment marks | crosses 1 and 2 come 3.6–4.2 mm from new screw holes 38/39 (need ≥ 7.2 mm) |
-| 5 | Drift pad connected to the D contact | done in B2 (back copper); its insulation under the carbon back is a placeholder |
-| 6 | Connectors moved to the back side (same FX20-60P, same positions) | to do |
-| 7 | Connector-support holes Ø2.2 / Ø3.2: upper Ø3.2 holes are rotated 0.09° (≈ 1 mm) from symmetric | make symmetric? |
-| 8 | 4 Ø2.2 holes next to the HV pads, purpose unknown (inside the HV openings) | keep or remove? |
-| 9 | Mesh cut: the B2 template is a closed 10 × 10 square; the decision is to clear the whole corner (x ≥ 585.5, y ≤ 15) | to update |
+| 1 | Homogenised screw holes: 39 × Ø3.5 (`pcb_screw_holes_new.csv`), 37 of today's 40 removed | drawn; plated or not? |
+| 2 | Sacrificed pad for the drift: B2 pad at (590.5, 10.0) | done (`pcb/drift_pad_B2`); Sig1 pin to GND or floating? (question for Irakli) |
+| 3 | Mesh-contact pad | no change: the top-corner pad is the mesh contact; the bottom one gets no mesh |
+| 4 | Bigger alignment marks (9 mm, 12.5 mm resist square) | drawn; crosses 1, 2 moved to r = 104.25 (47.5°, 12.5°) |
+| 5 | Drift pad connected to the D contact | done in B2; its insulation under the carbon back is a placeholder |
+| 6 | Connectors to the back side (same FX20-140P, same positions) | drawn; pin order mirrors: check the mating side |
+| 7 | Connector-support holes: upper Ø3.2 rotated 0.09° from symmetric | open: make symmetric? |
+| 8 | 4 Ø2.2 holes next to the HV pads (inside the HV openings) | open: keep or remove? |
+| 9 | Mesh cut: whole corner x ≥ 585.5, y ≤ 15 | done (`P2_BASKET-MeshCut_B2.gbr`, `pcb_mesh_cut.csv`) |
 | 10 | PCB outline | unchanged |
-| – | Masks: drift pad (done), mesh-pad window, alignment-mark outlines | follow items 2–4 |
+| – | Masks: drift-pad island (done), alignment-mark outlines (drawn), no mesh-pad change | |
 
 ## Running
 

@@ -10,5 +10,5 @@ drill: removed the /Sector0/Sig1 pad hole (T2, Ø0.4) at (589.183, 10.999)
 drill: added vias (T1, Ø0.4) at (590.5, 7.6) and (626.3, 15.8)
 M1: resist island (584.6, 4.4, 595.4, 16.0) and 3.6 x 3.6 mm window over the pad
 M2: resist island (584.6, 4.4, 595.4, 16.0) and 3.6 x 3.6 mm window over the pad
-mesh cut: 10 x 10 mm square (585.5, 5.0) - (595.5, 15.0)
+mesh cut: whole corner cleared, lines (585.5, 0) - (585.5, 15.0) - (599.81, 15.0)
 copied unchanged: Edge_Cuts, User_Drawings, Stack_Up
