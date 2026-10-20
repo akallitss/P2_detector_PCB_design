@@ -1,7 +1,7 @@
 # P2 Micromegas revision (Oct 2026): drawings for the technicians
 
 Schematic NOW → NEW figures explaining the changes listed in
-`Revision_Oct26/P2 Micromegas Revision.pdf` (untracked, like all PDFs), for the technicians who
+`../P2 Micromegas Revision.pdf` (untracked, like all PDFs), for the technicians who
 will redraw the real parts (Solid Edge). The figures are explanations, not
 manufacturing drawings: the designer checks the final positions.
 
@@ -14,7 +14,7 @@ original files, nothing in them is modified.
 | drift frame | `DRIFT_P2_261124/DRIFT_P2_261124/FRAME_4mm/P2_Frame_V2.0.stp` |
 | carbon parts | `carbon-frame/DECOUPE_CARBON_07_24.dxf` (blocks SE1 = carbon back, SE2 = carbon drift piece) |
 | PCB | `Version_Apr26/FABRICATION_P2/Gerber`, `NCDrill/P2_BASKET.drl` |
-| B2 drift pad / mesh cut | `B2_DriftPad_Oct26/README.md` |
+| B2 drift pad / mesh cut | `../pcb/drift_pad_B2/README.md` |
 | connector | `Version_Apr26/FX20-60P-0.5SV15_..._Catalog_D49373_en.pdf` |
 
 ## Decisions (agreed with the physicist)
@@ -74,7 +74,7 @@ python3 check_holes.py                              # hole clearances
 All design parameters are in `tools/rev_geometry.py`. The figures go to
 `figures/` (not tracked), the hole tables to `data/`.
 
-The scripts read `Drift_Contact_Oct26/data/cache.pkl` (made by
+The scripts read `../drift_contact/data/cache.pkl` (made by
 `drift_contact_study.py`). `data/frame_slices.json` and
 `data/frame_section_r27.json` are extracted from the STEP with FreeCAD:
 

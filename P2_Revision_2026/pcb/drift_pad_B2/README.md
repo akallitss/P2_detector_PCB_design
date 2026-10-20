@@ -19,7 +19,7 @@ insulation masks. **The originals are not modified.**
 
 3D model of this variant:
 - `B2_drift_contact.html` in this folder: the page for the PCB designers;
-- `Drift_Contact_Oct26/conceptB_3d.html`: all variants.
+- `../../drift_contact/conceptB_3d.html`: all variants.
 
 Draft email to the PCB designers: `email_draft.txt`.
 

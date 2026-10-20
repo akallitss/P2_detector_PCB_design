@@ -22,7 +22,7 @@ from shapely.ops import polygonize, unary_union
 import rev_geometry as rg
 from fig_frame_corners import C_DIM, C_EXT, C_EXT_EC, C_FRAME, C_FRAME_EC, dim, poly_patch
 
-CACHE = os.path.join(rg.ROOT, "Drift_Contact_Oct26", "data", "cache.pkl")
+CACHE = os.path.join(rg.ROOT, "P2_Revision_2026", "drift_contact", "data", "cache.pkl")
 RADIAL = os.path.join(rg.OUT, "data", "frame_section_r27.json")
 FIG = os.path.join(rg.OUT, "figures")
 XLIM = (-38, 16)

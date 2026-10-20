@@ -29,7 +29,7 @@ import shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.normpath(os.path.join(HERE, ".."))
-ROOT = os.path.normpath(os.path.join(OUT, ".."))
+ROOT = os.path.normpath(os.path.join(OUT, "..", "..", ".."))   # Detector_Drawings/
 FAB = os.path.join(ROOT, "Version_Apr26", "FABRICATION_P2")
 MASKS = os.path.join(ROOT, "Version_Sept26", "Insulation_masks", "V3B_final")
 FAB_OUT = os.path.join(OUT, "FABRICATION_P2_B2")
@@ -132,7 +132,7 @@ def patch_fcu(log):
     L = drop_lines(L, f"{SIG1_VIA}D03*", 2)                            # Ø0.8 and Ø5 pad flashes
     log.append("F.Cu: removed the two /Sector0/Sig1 pad flashes (Ø0.8, Ø5.0) at (589.183, 10.999)")
     a = max_aperture(L) + 1
-    block = ["G04 ==== B2 drift contact, added " + STAMP + " (see B2_DriftPad_Oct26/README.md) ====*",
+    block = ["G04 ==== B2 drift contact, added " + STAMP + " (see P2_Revision_2026/pcb/drift_pad_B2/README.md) ====*",
              "%LPD*%",
              f"%TA.AperFunction,SMDPad,CuDef*%", f"%ADD{a}R,{2 * PAD_H:.6f}X{2 * PAD_H:.6f}*%", "%TD*%",
              f"%TA.AperFunction,ViaPad*%", f"%ADD{a + 1}C,{VIA_PAD:.6f}*%", "%TD*%",
@@ -165,7 +165,7 @@ def patch_bcu(log):
     a = max_aperture(L) + 1
     clr_w = TRACE_W + 2 * (CU_CLEAR + CUT_MARGIN)
     clr_v = VIA_PAD + 2 * (CU_CLEAR + CUT_MARGIN)
-    block = ["G04 ==== B2 drift contact, added " + STAMP + " (see B2_DriftPad_Oct26/README.md) ====*",
+    block = ["G04 ==== B2 drift contact, added " + STAMP + " (see P2_Revision_2026/pcb/drift_pad_B2/README.md) ====*",
              "G04 clearance: GND hatch removed 3 mm round the drift route and vias*",
              f"%ADD{a}C,{clr_w:.6f}*%", f"%ADD{a + 1}C,{clr_v:.6f}*%",
              f"%TA.AperFunction,ViaPad*%", f"%ADD{a + 2}C,{VIA_PAD:.6f}*%", "%TD*%",
@@ -218,7 +218,7 @@ def patch_mask(layer, log):
             ["%LPD*%"] + rect_region(PAD[0] - WIN_H, PAD[1] - WIN_H, PAD[0] + WIN_H, PAD[1] + WIN_H)
     L = insert_before_m02(L, block)
     i = next(k for k, l in enumerate(L) if l.startswith("%FS"))
-    L = L[:i] + [f"G04 B2 drift pad variant of V3B_final, {STAMP} (B2_DriftPad_Oct26/tools/make_b2_files.py)*"] + L[i:]
+    L = L[:i] + [f"G04 B2 drift pad variant of V3B_final, {STAMP} (P2_Revision_2026/pcb/drift_pad_B2/tools/make_b2_files.py)*"] + L[i:]
     write(os.path.join(MASK_OUT, f"P2_BASKET-Mask_{layer}_V3B_final_B2.gbr"), L)
     log.append(f"{layer}: resist island {ISLAND} and {2 * WIN_H:.1f} x {2 * WIN_H:.1f} mm window over the pad")
 

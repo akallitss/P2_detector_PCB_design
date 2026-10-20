@@ -5,7 +5,7 @@ Everything was measured on:
 - the current fabrication Gerbers (`Version_Apr26/FABRICATION_P2`);
 - the V3B_final masks;
 - the drift-frame STL;
-- the B2 drift-contact patch (`B2_DriftPad_Oct26`).
+- the B2 drift-contact patch (`../drift_pad_B2`).
 
 The page to share is `next_pcb_items.html`, which has drawings for every item.
 Nothing in the original folders is modified.

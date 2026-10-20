@@ -649,7 +649,7 @@ def main():
     body = open(os.path.join(d.HERE, "b2_cern_body.html")).read().replace("{{b2len}}", f"{B2_ROUTE_LEN:.0f}")
     ov2_full = dict(ov); ov2_full.update({k: v for k, v in ov2.items() if k != "ref"})
     page = head + body + "\n" + script.replace("/*DATA*/null", json.dumps({"scenes": [ov2_full, b2]}))
-    out2 = os.path.join(d.ROOT, "B2_DriftPad_Oct26", "B2_drift_contact.html")
+    out2 = os.path.join(d.ROOT, "P2_Revision_2026", "pcb", "drift_pad_B2", "B2_drift_contact.html")
     open(out2, "w").write(page)
     print("wrote", out2, f"{os.path.getsize(out2) / 1e6:.1f} MB")
     # stand-alone copy for a plain web page: full document, three.js inlined (no CDN needed)
@@ -662,7 +662,7 @@ def main():
           '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
           + head + '<style>body{margin:0}[hidden]{display:none!important}</style>\n</head>\n<body>\n'
           + body + "\n" + libs + script_sa + "\n</body>\n</html>\n")
-    out3 = os.path.join(d.ROOT, "B2_DriftPad_Oct26", "B2_drift_contact_standalone.html")
+    out3 = os.path.join(d.ROOT, "P2_Revision_2026", "pcb", "drift_pad_B2", "B2_drift_contact_standalone.html")
     open(out3, "w").write(sa)
     print("wrote", out3, f"{os.path.getsize(out3) / 1e6:.1f} MB")
     os.makedirs(os.path.join(OUT, "cad"), exist_ok=True)

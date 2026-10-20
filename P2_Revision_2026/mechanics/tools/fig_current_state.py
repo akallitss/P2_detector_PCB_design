@@ -4,7 +4,7 @@ Figures of the CURRENT parts (drift frame, PCB, carbon back, carbon drift piece)
 overlaid in the common PCB coordinate system (fan apex at the origin, mm).
 
 Inputs (read only):
-  ../../Drift_Contact_Oct26/data/cache.pkl     frame slices + PCB Gerbers (from drift_contact_study.py)
+  ../../drift_contact/data/cache.pkl           frame slices + PCB Gerbers (from drift_contact_study.py)
   ../../Version_Apr26/FABRICATION_P2/NCDrill/P2_BASKET.drl
   ../data/carbon_registered.json                carbon DXF blocks SE1 (back) / SE2 (drift piece),
                                                 SE1 registered on the PCB holes (max residual 0.04 mm)
@@ -32,8 +32,8 @@ from matplotlib.patches import Circle, Patch, Rectangle
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.normpath(os.path.join(HERE, ".."))
-ROOT = os.path.normpath(os.path.join(OUT, ".."))
-CACHE = os.path.join(ROOT, "Drift_Contact_Oct26", "data", "cache.pkl")
+ROOT = os.path.normpath(os.path.join(OUT, "..", ".."))   # Detector_Drawings/
+CACHE = os.path.join(ROOT, "P2_Revision_2026", "drift_contact", "data", "cache.pkl")
 DRL = os.path.join(ROOT, "Version_Apr26", "FABRICATION_P2", "NCDrill", "P2_BASKET.drl")
 CARBON = os.path.join(OUT, "data", "carbon_registered.json")
 FIG = os.path.join(OUT, "figures")
@@ -41,7 +41,7 @@ FIG = os.path.join(OUT, "figures")
 COL = {"frame": "#1f5fbf", "frame_base": "#7fb2e5", "pcb": "black", "back": "#2e8b57",
        "drift": "#d2691e", "hv": "#e8a33d", "b2": "#c0392b"}
 
-# HV solder-pad groups (F.Cu, measured) and the B2 drift pad / mesh cut (B2_DriftPad_Oct26)
+# HV solder-pad groups (F.Cu, measured) and the B2 drift pad / mesh cut (pcb/drift_pad_B2)
 HV_BOX = {"bottom-right": (620.4, 1.0, 635.6, 23.2), "top": (313.1, 532.0, 327.9, 540.5)}
 B2_PAD = (590.5, 10.0, 3.0)
 B2_CUT = (585.5, 5.0, 595.5, 15.0)

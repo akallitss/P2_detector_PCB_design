@@ -21,7 +21,7 @@ from shapely.geometry import box
 import rev_geometry as rg
 
 FIG = os.path.join(rg.OUT, "figures")
-CACHE = os.path.join(rg.ROOT, "Drift_Contact_Oct26", "data", "cache.pkl")
+CACHE = os.path.join(rg.ROOT, "P2_Revision_2026", "drift_contact", "data", "cache.pkl")
 
 C_FRAME, C_FRAME_EC = "#c9cdd4", "#5b6170"
 C_EXT, C_EXT_EC = "#f4a742", "#b8650a"

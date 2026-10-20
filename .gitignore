@@ -12,35 +12,40 @@
 !/Version_Sept26/PRODUCTION_SUMMARY.md
 !/Version_Sept26/production_summary.csv
 
-!/Drift_Contact_Oct26/
-/Drift_Contact_Oct26/*
-!/Drift_Contact_Oct26/tools/
-/Drift_Contact_Oct26/tools/vendor/
-!/Drift_Contact_Oct26/README.md
-!/Drift_Contact_Oct26/data/
-/Drift_Contact_Oct26/data/*
-!/Drift_Contact_Oct26/data/results.json
+!/P2_Revision_2026/
+/P2_Revision_2026/*
+!/P2_Revision_2026/README.md
 
-!/B2_DriftPad_Oct26/
-/B2_DriftPad_Oct26/*
-!/B2_DriftPad_Oct26/tools/
-!/B2_DriftPad_Oct26/README.md
-!/B2_DriftPad_Oct26/CHANGES.txt
-!/B2_DriftPad_Oct26/QC/
-/B2_DriftPad_Oct26/QC/*
-!/B2_DriftPad_Oct26/QC/qc_report.txt
+!/P2_Revision_2026/drift_contact/
+/P2_Revision_2026/drift_contact/*
+!/P2_Revision_2026/drift_contact/tools/
+/P2_Revision_2026/drift_contact/tools/vendor/
+!/P2_Revision_2026/drift_contact/README.md
+!/P2_Revision_2026/drift_contact/data/
+/P2_Revision_2026/drift_contact/data/*
+!/P2_Revision_2026/drift_contact/data/results.json
 
-!/PCB_NextVersion_Oct26/
-/PCB_NextVersion_Oct26/*
-!/PCB_NextVersion_Oct26/tools/
-!/PCB_NextVersion_Oct26/data/
-!/PCB_NextVersion_Oct26/README.md
+!/P2_Revision_2026/mechanics/
+/P2_Revision_2026/mechanics/*
+!/P2_Revision_2026/mechanics/tools/
+!/P2_Revision_2026/mechanics/data/
+!/P2_Revision_2026/mechanics/README.md
 
-!/Revision_Oct26/
-/Revision_Oct26/*
-!/Revision_Oct26/tools/
-!/Revision_Oct26/data/
-!/Revision_Oct26/README.md
+!/P2_Revision_2026/pcb/
+/P2_Revision_2026/pcb/*
+!/P2_Revision_2026/pcb/drift_pad_B2/
+/P2_Revision_2026/pcb/drift_pad_B2/*
+!/P2_Revision_2026/pcb/drift_pad_B2/tools/
+!/P2_Revision_2026/pcb/drift_pad_B2/README.md
+!/P2_Revision_2026/pcb/drift_pad_B2/CHANGES.txt
+!/P2_Revision_2026/pcb/drift_pad_B2/QC/
+/P2_Revision_2026/pcb/drift_pad_B2/QC/*
+!/P2_Revision_2026/pcb/drift_pad_B2/QC/qc_report.txt
+!/P2_Revision_2026/pcb/next_version/
+/P2_Revision_2026/pcb/next_version/*
+!/P2_Revision_2026/pcb/next_version/tools/
+!/P2_Revision_2026/pcb/next_version/data/
+!/P2_Revision_2026/pcb/next_version/README.md
 
 __pycache__/
 *.pyc

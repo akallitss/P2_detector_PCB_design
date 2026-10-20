@@ -24,10 +24,10 @@ from scipy import ndimage
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.normpath(os.path.join(HERE, ".."))
-ROOT = os.path.normpath(os.path.join(OUT, ".."))
+ROOT = os.path.normpath(os.path.join(OUT, "..", "..", ".."))   # Detector_Drawings/
 FAB = os.path.join(ROOT, "Version_Apr26", "FABRICATION_P2")
 MASKS = os.path.join(ROOT, "Version_Sept26", "Insulation_masks", "V3B_final")
-sys.path.insert(0, os.path.join(ROOT, "B2_DriftPad_Oct26", "tools"))
+sys.path.insert(0, os.path.join(ROOT, "P2_Revision_2026", "pcb", "drift_pad_B2", "tools"))
 import qc_b2 as q                          # noqa: E402  (polarity-aware rasteriser + loader)
 
 CROSSES = [(70.80, 66.19), (93.67, 28.50), (635.63, 83.91), (391.22, 507.00)]

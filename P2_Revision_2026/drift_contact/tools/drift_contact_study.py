@@ -35,7 +35,7 @@ from scipy.spatial import cKDTree
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.normpath(os.path.join(HERE, ".."))
-ROOT = os.path.normpath(os.path.join(OUT, ".."))
+ROOT = os.path.normpath(os.path.join(OUT, "..", ".."))   # Detector_Drawings/
 STL = os.path.join(ROOT, "DRIFT_P2_261124", "DRIFT_P2_261124", "FRAME_4mm", "P2_Frame_V2.0.stl")
 GERB = os.path.join(ROOT, "Version_Apr26", "FABRICATION_P2", "Gerber")
 M1_V3B = os.path.join(ROOT, "Version_Sept26", "Insulation_masks", "V3B_final",

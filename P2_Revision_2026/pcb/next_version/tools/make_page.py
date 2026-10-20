@@ -9,7 +9,7 @@ P2 basket PCB, next version: placeholder page for two open items.
 Everything is measured on the real files:
   PCB       Version_Apr26/FABRICATION_P2 (and the B2 patched copy for item 2)
   masks     Version_Sept26/Insulation_masks/V3B_final
-  frame     DRIFT_P2_261124 STL (via Drift_Contact_Oct26/data/cache.pkl)
+  frame     DRIFT_P2_261124 STL (via P2_Revision_2026/drift_contact/data/cache.pkl)
 
     python3 alignment_marks.py && python3 fit_marks.py && python3 make_page.py
 writes ../next_pcb_items.html
@@ -34,13 +34,13 @@ import alignment_marks as am
 q = am.q
 OUT = am.OUT
 ROOT = am.ROOT
-sys.path.insert(0, os.path.join(ROOT, "Drift_Contact_Oct26", "tools"))
+sys.path.insert(0, os.path.join(ROOT, "P2_Revision_2026", "drift_contact", "tools"))
 import drift_contact_study as d                       # noqa: E402
 
-sys.path.insert(0, os.path.join(ROOT, "B2_DriftPad_Oct26", "tools"))
+sys.path.insert(0, os.path.join(ROOT, "P2_Revision_2026", "pcb", "drift_pad_B2", "tools"))
 import make_b2_files as b2                            # noqa: E402
 
-C = pickle.load(open(os.path.join(ROOT, "Drift_Contact_Oct26", "data", "cache.pkl"), "rb"))
+C = pickle.load(open(os.path.join(ROOT, "P2_Revision_2026", "drift_contact", "data", "cache.pkl"), "rb"))
 Z = sorted([l for l in d.loops(C["z0.2"]) if d.area(l) > 1e5], key=d.area, reverse=True)
 OUTER, OPEN = Z[0], Z[3]
 ACT = C["A_v3b"]
