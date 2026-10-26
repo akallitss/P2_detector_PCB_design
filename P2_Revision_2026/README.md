@@ -27,7 +27,10 @@ placeholder.
 
 **Carbon drift piece** (`mechanics/`) – 2 mm thick, outline unchanged; flap at
 the B2 corner pressing the mylar onto a 4 × 4 mm conductive-foam column
-(MECF-010P, 5 × 1 mm sheets) in an insulating guide ring.
+(MECF-010P, 5 × 1 mm sheets). Proposed 26 Oct (to agree): the foam sits in
+a 4.4 × 4.4 slot of a frame block that fills the corner at the lower level
+(z 0–4), and the flap has the block's outline and rests on it; this replaces
+the guide ring (`mechanics/figures/foam_slot_*.png`).
 
 **Carbon back** (`mechanics/`) – 3 mm; extension removed, edge 10 mm before the
 connectors (r 616.9); same 39-hole pattern; "#" ribs as principle; M3 × 16,

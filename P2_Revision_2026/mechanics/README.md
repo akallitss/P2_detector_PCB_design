@@ -43,10 +43,27 @@ sides and the inner arc (nothing may stick out in the basket).
 - Flap at the B2 drift-pad corner, x 585.5–597.5, y 2.5–15.0, pressing the
   mylar onto a conductive-foam column.
 - Foam MECF-010P (1 mm sheets): 4 × 4 mm, 5 sheets for 4 mm (20 %), 6 sheets
-  for the 5 mm placeholder (17 %); recommended 15–30 %. Held by an insulating
-  guide ring glued on the PCB (1 mm wall, 3 mm high).
+  for the 5 mm placeholder (17 %); recommended 15–30 %.
 - Mesh: the whole corner is cleared (no mesh for x ≥ 585.5, y ≤ 15). The
   bottom-corner mesh-contact pad then has no mesh: to solve in the PCB step.
+
+**Foam slot in the frame** (proposed 26 Oct after a colleague's comment on the
+drawings: "add slot in 3D at lower drift level for conductive foam + matching
+size on carbon frame"; replaces the guide ring of the 20 Oct figures if agreed)
+- Drift frame: the lower level (z 0–4, below the mylar step) is filled in the
+  cleared corner, x 585.5 → lower wall (14.5 mm), y 0 → 15, top flush with the
+  step. One piece with the frame.
+- Slot 4.4 × 4.4 through it (z 0–4), centred on the B2 pad (590.5, 10), corners
+  R0.5 (tool); walls 2.8 mm towards the mesh, 7.8 mm to the straight-side wall.
+  The foam (4 × 4, 5 sheets) stands 1 mm above the block before assembly.
+- Carbon flap: same outline as the block (x = 585.5, y = 15, out to the
+  strip), so it rests on the block everywhere with the mylar clamped in
+  between; it is no longer pushed up by the foam.
+- Figures `foam_slot_1_frame_B2` (top view, dimensions), `foam_slot_2_3d`,
+  `foam_slot_3_section` (A–A, B–B), `foam_slot_4_carbon_flap` (before/new).
+- To check: frame glue must not run into the slot (it would insulate the
+  pad); the block edges sit on the mesh-cut lines, while elsewhere the mesh
+  stops 1.9 mm from the walls (enlarge the cut to x ≥ 583.6, y ≤ 16.9?).
 
 **Carbon back**
 - Thickness 3 mm; outline = PCB outline; window unchanged.
@@ -68,6 +85,7 @@ cd tools
 (ulimit -v 3000000; python3 fig_frame_section.py)   # frame cross-sections
 (ulimit -v 3000000; python3 fig_carbon.py)          # carbon drift piece
 (ulimit -v 3000000; python3 fig_carbon_back.py)     # carbon back, screws
+(ulimit -v 3000000; python3 fig_foam_slot.py)       # foam slot in the frame + matching flap
 python3 check_holes.py                              # hole clearances
 ```
 

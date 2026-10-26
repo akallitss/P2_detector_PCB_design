@@ -482,3 +482,29 @@ def mesh_area():
     base_open = window.buffer(-3.0, join_style=2)
     corner = box(B2_CUT[0], -100, 1000, B2_CUT[3])
     return base_open.buffer(-MESH_TRIM, join_style=2).difference(corner)
+
+
+# ---------------------------------------------------------------- foam slot in the frame (replaces the guide ring)
+# The frame's lower level (z 0 - STEP_Z, below the mylar step) is filled in the cleared B2 corner and a
+# slot through it holds the foam; the carbon flap has the same outline and rests on it.
+SLOT_GAP = 0.2                        # foam -> slot wall, each side
+SLOT_R = 0.5                          # slot corner radius (end mill Ø1); designer's choice
+
+
+def foam_slot():
+    s = foam_square().buffer(SLOT_GAP, join_style=2)
+    return s.buffer(-SLOT_R, join_style=2).buffer(SLOT_R, join_style=1)
+
+
+def foam_block():
+    """New frame material at the lower level: the cleared corner (x >= 585.5, y <= 15) out to
+    today's lower walls (y = 0 and r = 600), minus the foam slot."""
+    _, window, _ = frame_top()
+    base_open = window.buffer(-3.0, join_style=2)
+    return base_open.intersection(box(B2_CUT[0], -1, 700, B2_CUT[3])).difference(foam_slot())
+
+
+def carbon_flap_slot():
+    """Flap with the block's outline (x = 585.5, y = 15) out to the lower walls; the strip covers
+    part of it, the rest is the flap. Rests on the block over its whole area."""
+    return box(B2_CUT[0], 0, 700, B2_CUT[3]).intersection(Point(0, 0).buffer(R_OUT_WALL, 4096))
