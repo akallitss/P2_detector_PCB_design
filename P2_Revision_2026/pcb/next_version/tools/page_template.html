@@ -68,13 +68,18 @@ svg text { font-family: var(--f-body); }
 .move { stroke: var(--ink); stroke-width: 1.4; stroke-dasharray: 2 3; }
 .wall { fill: none; stroke: #46525e; stroke-width: 2; }
 .island { fill: #5c9c7f; fill-opacity: 0.25; stroke: #3c7c5f; stroke-width: 1.2; }
-.cut { fill: none; stroke: var(--drift); stroke-width: 1.4; stroke-dasharray: 6 4; }
-.driftpad { fill: #e2b82a; stroke: var(--drift); stroke-width: 2; }
+.cutline { fill: none; stroke: var(--drift); stroke-width: 1.6; stroke-dasharray: 6 4; }
+.driftpad { fill: #e2b82a; stroke: #1b7a2e; stroke-width: 2; }
+.kept { fill: #e2b82a; fill-opacity: 0.85; stroke: #8a6d10; stroke-width: 1.2; }
+.removed { fill: none; stroke: var(--drift); stroke-width: 1.8; stroke-dasharray: 3 2; }
+.unused { fill: none; stroke: #6b7885; stroke-width: 1.4; stroke-dasharray: 3 3; }
+.keepout { fill: none; stroke: #1b7a2e; stroke-width: 1.2; stroke-dasharray: 4 3; }
+.winnew { fill: none; stroke: #2c6bb3; stroke-width: 1.8; }
 .meshedge { fill: none; stroke: #2c6bb3; stroke-width: 1.6; stroke-dasharray: 2 3; }
-.padnow { fill: #e2b82a; fill-opacity: 0.7; stroke: #8a6d10; stroke-width: 1.2; }
-.winnow { fill: none; stroke: #2c6bb3; stroke-width: 2; }
-.optA { fill: none; stroke: var(--ok); stroke-width: 2.6; }
-.optB { fill: none; stroke: var(--warn); stroke-width: 2; stroke-dasharray: 6 3; }
+.newhole { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+.holedot { fill: none; stroke: var(--ink); stroke-width: 1; }
+table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform: uppercase; white-space: nowrap; }
+.act-remove { color: var(--drift); } .act-add { color: var(--ok); } .act-keep { color: var(--warn); }
 .lead { stroke: var(--ink); stroke-width: 1; }
 .badge circle { fill: var(--badge); stroke: var(--paper); stroke-width: 1.5; }
 .badge text { fill: var(--badge-ink); font: 600 11px var(--f-mono); }
@@ -87,21 +92,22 @@ svg text { font-family: var(--f-body); }
 </head>
 <body>
 <div class="wrap">
-<div class="eyebrow">P2 basket Micromegas · PCB next version · items to include · Oct 2026</div>
-<h1>Next PCB version: alignment crosses and the mesh-contact pad</h1>
-<p>Two changes we would like in the next version of the P2 basket PCB and its insulation masks, together with the space each one has. Everything here was measured on the current fabrication Gerbers, the V3B_final masks and the drift-frame drawing, and checked against the B2 drift-contact proposal.</p>
+<div class="eyebrow">P2 basket Micromegas · PCB next version · items to include · state of 26 Oct 2026</div>
+<h1>Next PCB version: alignment crosses and the corner-A drift contact</h1>
+<p>Two changes for the next version of the P2 basket PCB and its insulation masks. Everything here was measured on the current fabrication Gerbers, the V3B_final masks and the drift-frame drawing. The other revision items (screw holes, connectors on the back, outline) are in the figures and tables of <code>P2_Revision_2026/pcb/next_version/</code>.</p>
 
 <figure>
   <div class="draw">{{overview}}</div>
   <figcaption>
     <div class="ftitle">Where the items are</div>
     <ol class="key">
-      <li><span class="b">1</span><span>Alignment cross {{c1}}, inner arc</span></li>
-      <li><span class="b">2</span><span>Alignment cross {{c2}}, inner arc</span></li>
+      <li><span class="b">1</span><span>Alignment cross 1, inner arc: {{c1}} → {{p1}}</span></li>
+      <li><span class="b">2</span><span>Alignment cross 2, inner arc: {{c2}} → {{p2}}</span></li>
       <li><span class="b">3</span><span>Alignment cross {{c3}}, outer arc, between connectors 1 and 2</span></li>
       <li><span class="b">4</span><span>Alignment cross {{c4}}, outer arc, between connectors 9 and 10</span></li>
-      <li><span class="b">5</span><span>Bottom mesh-contact pad, next to the B2 drift pad</span></li>
+      <li><span class="b">5</span><span>Corner A (bottom right): the drift contact</span></li>
     </ol>
+    <p style="margin:.4rem 0 0"><span class="sw"><i style="border:1.5px solid var(--ink);border-radius:50%;width:10px"></i>new screw holes (39 × Ø3.5)</span></p>
   </figcaption>
 </figure>
 
@@ -110,7 +116,7 @@ svg text { font-family: var(--f-body); }
 <p><b>What limits the size.</b> On copper, the GND hatch can always be re-poured around a bigger cross, so it isn't a limit. The real limits are pads, traces, holes and the board edge. In the masks, the resist square must not cover any connector pad.</p>
 
 <div class="tbl"><table>
-  <tr><th>Cross</th><th>Copper arms possible (1 mm clear)</th><th>Resist square possible (0.5 mm clear)</th><th>What stops it</th></tr>
+  <tr><th>Cross</th><th>Copper arms possible today (1 mm clear)</th><th>Resist square possible (0.5 mm clear)</th><th>What stops it</th></tr>
   <tr><td>1 · inner {{c1}}</td><td>only 1.3 mm towards the board edge; 17–21 mm the other way</td><td>–</td><td>the routed board-edge slot, 2 mm away</td></tr>
   <tr><td>2 · inner {{c2}}</td><td>only 1.9 mm towards the board edge; 7–21 mm the other way</td><td>–</td><td>the board-edge slot, 2.9 mm away</td></tr>
   <tr><td>3 · outer {{c3}}</td><td>9.2–10.4 mm</td><td>12.9 mm</td><td>board-edge slot, nearby connector vias and pads</td></tr>
@@ -123,8 +129,8 @@ svg text { font-family: var(--f-body); }
   <li><b>Copper (F.Cu and B.Cu):</b> a cross 9 mm across (4.5 mm arms) with 0.3 mm lines. That is three times longer and 2.5 times thicker than today.</li>
   <li><b>Masks (M1 and M2):</b> a cross outline 10 mm across with 1.3 mm wide arms (0.5 mm tolerance each side of the copper line), in a 12.5 × 12.5 mm resist square.</li>
   <li><b>Outer crosses 3 and 4</b> stay where they are.</li>
-  <li><b>Inner crosses 1 and 2</b> move 4 mm radially outward, away from the board-edge slot: to {{p1}} and {{p2}}. There they get the same 9 mm cross. The arms then run a little further under the frame, where the PCB already carries GND hatch.</li>
-  <li>If the inner crosses can't move, an asymmetric cross works too: short arms (≤ 1.3 mm) towards the slot, long arms away from it.</li>
+  <li><b>Inner crosses 1 and 2</b> move to r = 104.25 mm, at 47.5° and 12.5° (a mirror pair about the 30° axis): {{p1}} and {{p2}}. There they are clear of the board-edge slot <i>and</i> of the new screw holes, with 7.1 mm free round the centre. (An earlier proposal, 4 mm radially outward, ended up 3.7–4.2 mm from the new screw holes and is dropped.)</li>
+  <li>The 12.5 mm resist squares of crosses 1 and 2 reach r ≈ 113, 3 mm past the frame's inner wall (r 110) but before the pillar field (r ≈ 115). If that is a problem, a 10 mm square fits too.</li>
 </ul>
 </div>
 
@@ -140,59 +146,78 @@ svg text { font-family: var(--f-body); }
   <span class="sw"><i style="background:var(--drift)"></i>proposed copper cross</span>
   <span class="sw"><i style="border:1.5px dashed var(--accent)"></i>proposed mask outline</span>
   <span class="sw"><i style="background:var(--accent);opacity:.25"></i>proposed resist square</span>
+  <span class="sw"><i style="border:1.5px solid var(--ink);border-radius:50%;width:10px"></i>new screw hole Ø3.5</span>
   <span class="sw"><i style="background:#dc9e5c"></i>F.Cu</span>
   <span class="sw"><i style="background:#9ebde6"></i>B.Cu</span>
-  <span class="sw"><i style="background:#40404a"></i>holes</span>
+  <span class="sw"><i style="background:#40404a"></i>holes today</span>
   <span class="sw"><i style="background:#ccccd4"></i>outside the board</span>
 </p>
 
-<h2>2 · A bigger mesh-contact pad</h2>
-<p><b>Today</b> (bottom corner):</p>
+<h2>2 · Corner A: the drift contact</h2>
+<p><b>Why it changes.</b> The drift (window) HV contact moves onto the PCB, through a conductive-foam column pressed by the carbon drift piece onto a gold pad. The whole bottom-right corner of the mesh is cleared for it (no mesh for x ≥ 585.5 and y ≤ 15), so:</p>
 <ul>
-  <li><b>Gold pad:</b> 2.93 × 2.81 mm, from (595.77, 1.29) to (598.70, 4.10).</li>
-  <li><b>Contact area:</b> the mesh actually touches the pad only through the M2 window, which is 2.0 × 2.0 mm.</li>
-  <li><b>Where the mesh reaches:</b> it is trimmed at the outer edge of the resist border, about 1.9 mm from the frame wall, so it never reaches the part of the pad nearest the wall.</li>
-  <li><b>V3B_final:</b> it kept the window at its V1 size. So the masks haven't been enlarged yet.</li>
+  <li>the readout pad <code>/Sector0/Sig1</code> in that corner is given up;</li>
+  <li>the mesh-contact pad of this corner would get no mesh any more. The mesh is contacted at the top corner (B) only;</li>
+  <li>this corner's mesh line and its two M solder pads are free, and they now carry the drift.</li>
 </ul>
-<p><b>Is the B2 drift pad in the way?</b> Only from above. The mesh pad is bare mesh potential and the drift pad is bare drift potential, so they need 3 mm between them. The pad also has to stay outside the B2 mesh cut and resist island, so that the mesh still lies on it.</p>
+
+<div class="callout"><b>Proposal (decided 26 Oct).</b>
+<ul>
+  <li><b>Drift pad:</b> 3 × 3 mm, gold, at the centre of the cleared corner, {{pad}}.</li>
+  <li><b>Feed, all on F.Cu:</b> a {{trace_w}} mm segment from the pad to the bend of today's mesh line at {{bend}}, then today's line as it is, under the frame, to the two M solder pads.</li>
+  <li><b>HV pads:</b> the two M solder pads become the drift HV pads (silkscreen M → D). The drift cable is soldered there.</li>
+  <li><b>Removed:</b> Sig1; the mesh pad and the line's first stub (pad → bend).</li>
+  <li><b>No via, no back copper.</b> The first B2 patch put the pad at {{pad_old}} with a via and a back-copper route. That is not used any more.</li>
+  <li><b>Frame and carbon:</b> the frame fills this corner at its lower level, with a slot for the foam centred on the pad, and the carbon flap rests on it.</li>
+</ul>
+</div>
 
 <figure>
-  <div class="draw">{{meshpad}}</div>
+  <div class="draw">{{corner}}</div>
   <figcaption>
-    <div class="ftitle">Bottom mesh-contact corner, with B2</div>
+    <div class="ftitle">Corner A on the 2026 board (F.Cu / B.Cu from the B2-patched Gerbers, Sig1 removed)</div>
     <ol class="key">
-      <li><span class="b">1</span><span>B2 drift pad, 3 × 3 mm (800 V)</span></li>
-      <li><span class="b">2</span><span>B2 mesh cut, 10 × 10 mm (red dashed)</span></li>
-      <li><span class="b">3</span><span>B2 resist island (green)</span></li>
-      <li><span class="b">4</span><span>Today: the gold pad and the 2 × 2 mm M2 window (blue)</span></li>
-      <li><span class="b">5</span><span><b>Option A</b>: 5.0 × 3.0 mm pad (green), 4.2 mm below the drift pad</span></li>
-      <li><span class="b">6</span><span>Option B: 3.7 × 3.7 mm pad (orange dashed)</span></li>
-      <li><span class="b">7</span><span>Edge of the mesh, about 1.9 mm from the frame wall (blue dotted)</span></li>
+      <li><span class="b">1</span><span>NEW drift pad 3 × 3 mm, gold; M1/M2 window 3.6 × 3.6 mm (blue)</span></li>
+      <li><span class="b">2</span><span>NEW {{trace_w}} mm segment, pad → bend of the mesh line</span></li>
+      <li><span class="b">3</span><span>KEPT: today's mesh line, now the drift line</span></li>
+      <li><span class="b">4</span><span>KEPT: the two M solder pads, now drift HV (relabel D)</span></li>
+      <li><span class="b">5</span><span>REMOVED: the mesh pad and the line's first stub (red dashed)</span></li>
+      <li><span class="b">6</span><span>Mesh cut lines: no mesh for x ≥ 585.5, y ≤ 15 (red dashed)</span></li>
+      <li><span class="b">7</span><span>Resist island in M1/M2 (green), unchanged from B2</span></li>
+      <li><span class="b">8</span><span>3 mm keep-out round the drift net, for the GND pour (green dashed)</span></li>
+      <li><span class="b">9</span><span>First B2 pad position {{pad_old}}: not used (grey dashed)</span></li>
     </ol>
   </figcaption>
 </figure>
 
 <div class="tbl"><table>
-  <tr><th>Pad</th><th>Corners (mm)</th><th>To B2 drift pad</th><th>Pad area the mesh can reach</th><th>Masks</th></tr>
-  <tr><td>Today</td><td>(595.77, 1.29) – (598.70, 4.10)</td><td>5.8 mm</td><td>5.1 mm², window 2 × 2</td><td>–</td></tr>
-  <tr><td><b>A · 5.0 × 3.0</b></td><td>(593.70, 1.29) – (598.70, 4.29)</td><td>4.5 mm (4.2 mm vertically)</td><td>10.5 mm²</td><td>window ≈ (593.9, 2.0) – (598.0, 4.2); B2 island untouched</td></tr>
-  <tr><td>B · 3.7 × 3.7</td><td>(595.00, 1.29) – (598.70, 5.00)</td><td>4.6 mm</td><td>9.6 mm²</td><td>needs a 0.4 × 0.6 mm notch in the B2 island</td></tr>
-  <tr><td>Largest (3 mm rule)</td><td>(594.50, 1.29) – (598.70, 5.50)</td><td>3.9 mm</td><td>≈ 12.5 mm²</td><td>overlaps the B2 mesh cut; not recommended</td></tr>
+  <tr><th>Clearance from the new drift copper</th><th>Distance</th></tr>
+  <tr><td>bare mesh (the cut edges)</td><td>5.75 mm from the pad (3.5 mm with the first B2 pad)</td></tr>
+  <tr><td>nearest readout pad</td><td>7.8 mm</td></tr>
+  <tr><td>B.Cu readout traces under the corner, in plan</td><td>2.9 mm (0.24 mm with the first B2 pad)</td></tr>
+  <tr><td>F.Cu GND pour, along today's mesh line</td><td><b>0.5 mm today</b>: pull the pour back to 3 mm round the whole drift net</td></tr>
 </table></div>
-<p>The nearest other front copper is the GND hatch beyond the frame wall, 1.25 mm away. That is unchanged from today, because none of the options grow towards the wall.</p>
 
-<div class="callout"><b>Proposal: option A.</b> A 5.0 × 3.0 mm gold pad, with the M2 (and M1) window enlarged to about 4.1 × 2.2 mm. That roughly doubles the area the mesh can reach, and more than doubles the window. It stays clear of everything B2 adds.</div>
-<div class="callout warn"><b>Without B2</b>, the readout pad <code>/Sector0/Sig1</code> sits 0.9 mm from the mesh pad, so the pad can only grow towards the frame wall, where the mesh doesn't reach. A bigger mesh contact therefore comes almost for free with B2, and is hard without it. At the top corner the mesh pad is already 3.9 × 3.9 mm, but it is 1.6 mm from readout pad <code>/Sector9/Sig128</code> and 1.3 mm from the active edge, so it has no room to grow there.</div>
+<h3>Every edit, with coordinates (mm)</h3>
+<div class="tbl"><table class="edits">
+  <tr><th>Action</th><th>Item</th><th>Layer</th><th>Where</th><th>Note</th></tr>
+  {{corner_rows}}
+</table></div>
+<p class="fsub">Boxes are (x0, y0) – (x1, y1); tracks are start → end. Same table as <code>data/pcb_corner_A_drift.csv</code>.</p>
+
+<div class="callout warn"><b>To check on the HV side.</b> The M solder pads keep their spacing to the neighbouring D and GND pads, which was chosen for the mesh voltage. Please check it is enough for the drift voltage. The old D pads of this corner are no longer needed: keep or remove them as you prefer.</div>
 
 <h2>To decide with the PCB designers</h2>
 <ol>
-  <li>Cross line width (0.3 mm proposed) and whether the inner crosses can move 4 mm.</li>
-  <li>Keep the crosses on both F.Cu and B.Cu, as today, or only on the side used for mask alignment?</li>
-  <li>Mesh pad option A (5.0 × 3.0) or B (3.7 × 3.7), and the matching M1/M2 windows. We can generate the masks once this is decided.</li>
-  <li>Whether the M trace keeps leaving from the pad's upper-right corner, as today.</li>
+  <li>Cross line width (0.3 mm proposed); keep the crosses on both F.Cu and B.Cu, as today, or only on the side used for mask alignment?</li>
+  <li>Resist squares of crosses 1 and 2: 12.5 mm (reaching r ≈ 113) or 10 mm.</li>
+  <li>The GND-pour keep-out round the drift net (3 mm proposed), and the HV-pad spacing for the drift voltage.</li>
+  <li>The old D pads at corner A: keep or remove.</li>
+  <li>The Sig1 connector pin: to GND or floating.</li>
 </ol>
+<p>The insulation masks (M1, M2) and the mesh-cut template for all of this are already generated: <code>Insulation_masks/V3B_final_2026/</code>.</p>
 
-<footer>Measured on <code>Version_Apr26/FABRICATION_P2</code>, <code>Version_Sept26/Insulation_masks/V3B_final</code>, the drift-frame STL and the B2 patch. Scripts: <code>P2_Revision_2026/pcb/next_version/tools/</code>.</footer>
+<footer>Measured on <code>Version_Apr26/FABRICATION_P2</code>, <code>Version_Sept26/Insulation_masks/V3B_final</code>, the drift-frame STL and the B2 patch. Scripts: <code>P2_Revision_2026/pcb/next_version/tools/</code> (<code>fig_pcb.py</code>, <code>make_page.py</code>).</footer>
 </div>
 </body>
 </html>

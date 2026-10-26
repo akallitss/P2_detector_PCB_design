@@ -1,7 +1,7 @@
 action,item,layer,x0_mm,y0_mm,x1_mm,y1_mm,note
 remove,"readout pad /Sector0/Sig1: zone, pad via, B.Cu trace to the via at (619.97, 26.00)",F.Cu + B.Cu + drill,,,,,as in drift_pad_B2/CHANGES.txt; its connector-side copper stays
 remove,mesh-contact pad (gold),F.Cu + ENIG,595.77,1.29,598.70,4.10,no mesh in this corner any more
-remove,"first stub of the mesh line, mesh pad -> bend (599.58, 6.13)",F.Cu,595.82,1.29,600.05,6.12,the rest of the line is kept
+remove,"first stub of the mesh line (0.8 mm), mesh pad -> bend",F.Cu,597.99,3.41,599.58,6.13,start and end points (not a box); the rest of the line is kept
 add,"drift pad 3 x 3 mm, net DRIFT_A (SMD, gold)",F.Cu + ENIG,591.25,6.00,594.25,9.00,"centre (592.75, 7.5) = centre of the cleared corner"
 add,"trace 0.8 mm, pad centre -> bend of today's mesh line",F.Cu,592.75,7.50,599.58,6.13,start and end points (not a box); same width as the mesh line
 keep,"today's mesh line from the bend to the M solder pads, renamed net DRIFT_A",F.Cu,599.18,5.73,626.47,12.95,now carries the drift HV

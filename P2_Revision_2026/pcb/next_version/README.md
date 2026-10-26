@@ -7,7 +7,9 @@ Everything was measured on:
 - the drift-frame STL;
 - the B2 drift-contact patch (`../drift_pad_B2`).
 
-The page to share is `next_pcb_items.html`, which has drawings for every item.
+The page to share is `next_pcb_items.html` (state of 2026-10-26: the bigger
+crosses at their final positions, and the corner-A drift contact with its edit
+table), made by `tools/make_page.py` after `tools/fig_pcb.py`.
 Nothing in the original folders is modified.
 
 ## 0. For the KiCad designer (revision 2026) – start here
