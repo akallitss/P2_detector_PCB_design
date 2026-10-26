@@ -1,0 +1,13 @@
+action,item,layer,x0_mm,y0_mm,x1_mm,y1_mm,note
+remove,"readout pad /Sector0/Sig1: zone, pad via, B.Cu trace to the via at (619.97, 26.00)",F.Cu + B.Cu + drill,,,,,as in drift_pad_B2/CHANGES.txt; its connector-side copper stays
+remove,mesh-contact pad (gold),F.Cu + ENIG,595.77,1.29,598.70,4.10,no mesh in this corner any more
+remove,"first stub of the mesh line, mesh pad -> bend (599.58, 6.13)",F.Cu,595.82,1.29,600.05,6.12,the rest of the line is kept
+add,"drift pad 3 x 3 mm, net DRIFT_A (SMD, gold)",F.Cu + ENIG,591.25,6.00,594.25,9.00,"centre (592.75, 7.5) = centre of the cleared corner"
+add,"trace 0.8 mm, pad centre -> bend of today's mesh line",F.Cu,592.75,7.50,599.58,6.13,start and end points (not a box); same width as the mesh line
+keep,"today's mesh line from the bend to the M solder pads, renamed net DRIFT_A",F.Cu,599.18,5.73,626.47,12.95,now carries the drift HV
+keep,M solder pad -> drift HV solder pad (silkscreen M -> D),F.Cu + ENIG,621.57,9.08,625.42,12.98,drift cable soldered here; mesh cable at corner B only
+keep,M solder pad -> drift HV solder pad (silkscreen M -> D),F.Cu + ENIG,625.06,7.07,628.91,10.97,drift cable soldered here; mesh cable at corner B only
+change,GND pour (F.Cu): 3 mm keep-out round the whole DRIFT_A net,F.Cu,,,,,today the mesh line is 0.5 mm from the GND pour
+mask,"M1, M2: window over the drift pad moves with the pad (resist island unchanged)",M1 + M2,590.95,5.70,594.55,9.30,"3.6 x 3.6 mm, as for the first B2 pad"
+mask,window over the mesh pad: closed (resist),M2,595.82,2.15,597.82,4.15,the pad is gone
+not used,"first B2 patch: pad at (590.5, 10.0), vias (590.5, 7.6) and (626.3, 15.8), B.Cu drift route",F.Cu + B.Cu + drill,,,,,"replaced by the F.Cu feed above: no via, no back copper"

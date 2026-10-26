@@ -1,11 +1,15 @@
 M1: removed 40 of 40 old screw-hole openings
 M1: removed 48 outline tracks of the 4 old alignment crosses
 M1: removed the corner-A mesh-contact window (595.52, 2.12, 597.86, 4.36)
+M1: removed the drift-pad window at the first B2 pad (588.7, 8.2, 592.3, 11.8)
 M1: 4 crosses, 10 mm outline / 1.3 mm arms in 12.5 mm resist squares at [(70.43, 76.86), (101.78, 22.56), (635.63, 83.91), (391.22, 507.0)]
 M1: 39 new screw-hole openings Ø4
+M1: 3.6 x 3.6 mm window over the drift pad at (592.75, 7.5) (inside the B2 resist island (584.6, 4.4, 595.4, 16.0))
 M2: removed 60 outline tracks of the 4 old alignment crosses
 M2: removed the corner-A mesh-contact window (595.77, 2.12, 597.8, 4.11)
+M2: removed the drift-pad window at the first B2 pad (588.7, 8.2, 592.3, 11.8)
 M2: old resist square of cross 1 (68.54, 63.29, 74.54, 69.25) opened (board edge r = 94.86)
 M2: old resist square of cross 2 (91.11, 25.6, 97.11, 31.64) opened (board edge r = 94.85)
 M2: 4 crosses, 10 mm outline / 1.3 mm arms in 12.5 mm resist squares at [(70.43, 76.86), (101.78, 22.56), (635.63, 83.91), (391.22, 507.0)]
-mesh cut template: copied from B2 (whole corner x >= 585.5, y <= 15 cleared)
+M2: 3.6 x 3.6 mm window over the drift pad at (592.75, 7.5) (inside the B2 resist island (584.6, 4.4, 595.4, 16.0))
+mesh cut template: from B2 (whole corner x >= 585.5, y <= 15 cleared), pad marker moved to (592.75, 7.5)

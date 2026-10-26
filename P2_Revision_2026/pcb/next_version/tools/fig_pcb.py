@@ -41,6 +41,7 @@ CACHE = os.path.join(REV, "drift_contact", "data", "cache.pkl")
 B2_GERB = os.path.join(REV, "pcb", "drift_pad_B2", "FABRICATION_P2_B2", "Gerber")
 
 C_PCB, C_FCU, C_BCU, C_CONN, C_MESH = "#eaf3e6", "#f0b46a", "#b39ddb", "#8e44ad", "#d9dde3"
+C_DRIFT = "#e8c547"
 
 # alignment crosses: today 3 x 3 mm (0.12 mm lines); NEW 9 mm across, 0.3 mm lines, 12.5 mm resist square
 MARKS_NOW = {1: (70.80, 66.19), 2: (93.67, 28.50), 3: (635.63, 83.91), 4: (391.22, 507.00)}
@@ -232,7 +233,7 @@ def overview(C, conns, mk):
              "2. 39 screw holes Ø3.5, equal pitch, mirror-symmetric (table pcb_screw_holes_new.csv)\n"
              "3. connectors move to the BACK (B.Cu), same positions (dashed)\n"
              "4. alignment crosses 9 mm / 12.5 mm resist square; crosses 1, 2 move (zoom marks)\n"
-             "5. corner A: B2 drift pad replaces Sig1; mesh cleared in the corner (zoom A)\n"
+             "5. corner A: drift pad at the corner centre, fed by today's mesh line; mesh cleared (zoom A)\n"
              "6. connector-support holes (grey dots): unchanged",
              fontsize=9.5, va="top", bbox=dict(fc="white", ec=C_EXT_EC, boxstyle="round,pad=.5"))
     h = [Patch(fc=C_PCB, ec="0.3", label="PCB (outline unchanged)"),
@@ -250,13 +251,46 @@ def overview(C, conns, mk):
     plt.close(fig)
 
 
+def drift_net_A(mparts):
+    """Corner A drift contact (decided 2026-10-26): today's mesh line and M solder pads carry the
+    drift; the mesh pad and the line's first stub go; a 3 x 3 mm pad at the centre of the cleared
+    corner, joined to the line's bend by a straight segment of the same width.
+    Returns (added, removed, kept, m_pads) as shapely geometries."""
+    from shapely.geometry import LineString, Point, box
+    from shapely.ops import unary_union
+    x, y, s = rg.B2_PAD
+    pad = box(x - s / 2, y - s / 2, x + s / 2, y + s / 2)
+    ext = LineString([(x, y), rg.M_TRACE_BEND]).buffer(rg.M_TRACE_W / 2, cap_style=2)
+    parts = sorted(mparts, key=lambda g: g.bounds[0])
+    mesh_pad, trace, m_pads = parts[0], max(parts, key=lambda g: g.area), [g for g in parts[1:] if g.area < 10]
+    stub = LineString(rg.M_TRACE_STUB).buffer(rg.M_TRACE_W, cap_style=2).difference(Point(rg.M_TRACE_BEND).buffer(rg.M_TRACE_W / 2))
+    removed = unary_union([mesh_pad, trace.intersection(stub)])
+    kept = unary_union([trace.difference(stub)] + m_pads)
+    added = unary_union([pad, ext, Point(rg.M_TRACE_BEND).buffer(rg.M_TRACE_W / 2)])
+    return added, removed, kept, m_pads
+
+
+def is_b2_patch(q):
+    """Copper the first B2 patch added and the 2026 board does not use: pad on Sig1, its F.Cu
+    stub to the via, the two vias and the B.Cu route."""
+    from shapely.geometry import LineString, Point, Polygon
+    g = Polygon(q).buffer(0)
+    c = g.centroid
+    ox, oy, _ = rg.B2_PAD_OLD
+    return (abs(c.x - ox) < 1.6 and abs(c.y - oy) < 1.6 and g.area < 9.5) or (abs(c.x - 590.5) < 0.3 and 7.3 < c.y < 8.6) \
+        or Point(590.5, 7.6).distance(c) < 0.1 or Point(626.3, 15.8).distance(c) < 0.1 \
+        or LineString(rg.B2_TRACE_BCU).buffer(0.7).contains(g)
+
+
 def corner_A(C, conns):
     win = (578, 650, -14, 36)
     D, H = rg.read_drill()
     now_f, now_b = copper_polys(C["gerb"]["F_Cu"], win), copper_polys(C["gerb"]["B_Cu"], win)
     new = load_b2(win)
     mnet, mparts = m_net_A(C)
-    new["F_Cu"] = [q for q in new["F_Cu"] if not mnet.buffer(0.05).contains(rg.Point(*np.asarray(q).mean(0)))]
+    added, removed, kept, m_pads = drift_net_A(mparts)
+    new["F_Cu"] = [q for q in new["F_Cu"] if not is_b2_patch(q) and not mnet.buffer(0.05).contains(rg.Point(*np.asarray(q).mean(0)))]
+    new["B_Cu"] = [q for q in new["B_Cu"] if not is_b2_patch(q)]
     _, window, _ = rg.frame_top()
     base = window.buffer(-3.0, join_style=2)
     mesh_now = base.buffer(-rg.MESH_TRIM, join_style=2)
@@ -284,7 +318,12 @@ def corner_A(C, conns):
         a1.add_patch(MPoly(conn_box(c, a), fc="none", ec=C_CONN, lw=1.4, ls="--", zorder=6))
     c = rg.B2_CUT
     a1.plot([c[0], c[0], 600.5], [-1, c[3], c[3]], color=C_OPEN, lw=1.6, ls="--", zorder=7)
-    a1.add_patch(poly_patch(mnet, fc="none", ec=C_OPEN, lw=1.4, hatch="xxxx", zorder=8))
+    net = kept.union(added)
+    a1.add_patch(poly_patch(net.buffer(rg.CLEAR_HV).difference(net.buffer(0.05)), fc="none", ec="#1b7a2e", lw=.8,
+                            ls=(0, (2, 2)), zorder=8))
+    a1.add_patch(poly_patch(kept, fc=C_DRIFT, ec="#8a6a00", lw=.8, zorder=8))
+    a1.add_patch(poly_patch(added, fc=C_DRIFT, ec="#1b7a2e", lw=1.6, zorder=8))
+    a1.add_patch(poly_patch(removed, fc="none", ec=C_OPEN, lw=1.4, hatch="xxxx", zorder=8))
     a0.set_title("NOW", fontsize=13, weight="bold", loc="left")
     a1.set_title("NEW", fontsize=13, weight="bold", loc="left", color=C_EXT_EC)
     a0.set_ylabel("y [mm]", fontsize=8)
@@ -293,26 +332,34 @@ def corner_A(C, conns):
     callout(a0, (632, 33), (612, 32.5), "connector (front)")
     callout(a0, (597.2, 2.7), (581, -9), "mesh-contact pad M (corner A)")
     callout(a0, (592.3, -7.5), (601, -12.5), "screw holes: Ø3.5 plated / not plated")
-    callout(a1, (590.5, 10.0), (579, 27), "B2 drift pad 3 × 3 mm at (590.5, 10.0)\n(details: drift_pad_B2/CHANGES.txt)", color="#8a6a00")
-    callout(a1, (608, 7.7), (603, 21), "drift trace on B.Cu → via in the D pad\n(626.3, 15.8)", color="#6a1b9a")
-    callout(a1, (597.2, 2.7), (581, -9), "REMOVE the mesh contact of this corner:\nmesh pad, its trace and the two M solder pads\n"
-            "(mesh contact = corner B only)", color=C_OPEN)
-    callout(a1, (628.4, 14.6), (633, 3), "D pads (drift HV) and GND pads stay", color="#6a1b9a")
+    x, y, s = rg.B2_PAD
+    callout(a1, (x, y), (579, 27), f"NEW drift pad {s:g} × {s:g} mm at ({x:g}, {y:g}),\n"
+            "centre of the cleared corner (Sig1 removed)", color="#1b7a2e")
+    callout(a1, (597, 6.6), (603, 21), f"NEW {rg.M_TRACE_W:g} mm segment pad → bend ({rg.M_TRACE_BEND[0]:g}, {rg.M_TRACE_BEND[1]:g})\n"
+            "of today's mesh line (F.Cu)", color="#1b7a2e")
+    callout(a1, (597.2, 2.7), (579, -9), "REMOVE the mesh pad and the\nline's first stub (pad → bend)", color=C_OPEN)
+    callout(a1, (612, 9.7), (603, -12.5), "KEEP today's mesh line → now DRIFT\n(dashed: 3 mm keep-out in the GND pour)",
+            color="#8a6a00")
+    mp = max(m_pads, key=lambda g: g.centroid.x).centroid
+    callout(a1, (mp.x, mp.y), (633, 3), "the two M solder pads → drift HV\n(relabel M → D; mesh: corner B only)", color="#8a6a00")
     callout(a1, (586.5, 13.5), (612, 31.5), "mesh cut: no mesh for x ≥ 585.5, y ≤ 15", color=C_OPEN)
     callout(a1, (632, 30), (634, -11.5), "connector moves to the BACK\n(same position)", color=C_CONN)
     h = [Patch(fc=C_FCU, alpha=.75, label="F.Cu"), Patch(fc=C_BCU, alpha=.45, label="B.Cu"),
+         Patch(fc=C_DRIFT, ec="#1b7a2e", lw=1.6, label="NEW drift copper (F.Cu, pad + ENIG)"),
+         Patch(fc=C_DRIFT, ec="#8a6a00", label="kept: today's mesh line + M pads, now drift"),
+         Patch(fc="none", ec=C_OPEN, hatch="xxxx", label="REMOVE"),
          Patch(fc=C_MESH, ec="0.5", hatch="....", alpha=.55, label="mesh (laminated last)"),
          Line2D([], [], color=C_OPEN, ls="--", label="mesh cut lines"),
+         Line2D([], [], color="#1b7a2e", ls=(0, (2, 2)), label=f"{rg.CLEAR_HV:g} mm keep-out round the drift net"),
          Patch(fc="none", ec=C_CONN, ls="--", label="connector on the back"),
-         Patch(fc="none", ec=C_OPEN, hatch="xxxx", label="REMOVE (mesh contact, corner A)"),
          Line2D([], [], color="0.35", ls=":", label="frame inner wall")]
-    fig.legend(handles=h, loc="lower center", ncol=6, fontsize=8.5, frameon=False)
-    fig.suptitle("PCB – corner A (bottom right): drift contact only (B2 pad), mesh contact removed, mesh corner cleared",
-                 fontsize=14, y=.985)
-    fig.tight_layout(rect=(0, 0.05, 1, 0.95))
+    fig.legend(handles=h, loc="lower center", ncol=5, fontsize=8.5, frameon=False)
+    fig.suptitle("PCB – corner A (bottom right): drift pad at the corner centre, fed by today's mesh line; "
+                 "mesh corner cleared", fontsize=13.5, y=.985)
+    fig.tight_layout(rect=(0, 0.08, 1, 0.95))
     fig.savefig(os.path.join(FIG, "pcb_corner_A.png"), dpi=130)
     plt.close(fig)
-    return mparts
+    return added, removed, kept, m_pads
 
 
 def marks_fig(mk):
@@ -440,20 +487,42 @@ def tables(conns, mk):
             w.writerow([k, f"{x:.2f}", f"{y:.2f}", t])
 
 
-def remove_table(mparts):
-    with open(os.path.join(DATA, "pcb_corner_A_remove.csv"), "w", newline="") as fh:
+def drift_table(added, removed, kept, m_pads):
+    """Corner A changes for the KiCad designer (pcb_corner_A_drift.csv)."""
+    from shapely.ops import unary_union
+    x, y, sd = rg.B2_PAD
+    b = rg.M_TRACE_BEND
+    rows = [
+        ["remove", "readout pad /Sector0/Sig1: zone, pad via, B.Cu trace to the via at (619.97, 26.00)",
+         "F.Cu + B.Cu + drill", "", "", "", "", "as in drift_pad_B2/CHANGES.txt; its connector-side copper stays"],
+        ["remove", "mesh-contact pad (gold)", "F.Cu + ENIG", *[f"{v:.2f}" for v in rg.M_PAD_A],
+         "no mesh in this corner any more"],
+        ["remove", f"first stub of the mesh line ({rg.M_TRACE_W:g} mm), mesh pad -> bend", "F.Cu",
+         *[f"{v:.2f}" for p in rg.M_TRACE_STUB for v in p], "start and end points (not a box); the rest of the line is kept"],
+        ["add", f"drift pad {sd:g} x {sd:g} mm, net DRIFT_A (SMD, gold)", "F.Cu + ENIG",
+         f"{x - sd / 2:.2f}", f"{y - sd / 2:.2f}", f"{x + sd / 2:.2f}", f"{y + sd / 2:.2f}",
+         f"centre ({x:g}, {y:g}) = centre of the cleared corner"],
+        ["add", f"trace {rg.M_TRACE_W:g} mm, pad centre -> bend of today's mesh line", "F.Cu",
+         f"{x:.2f}", f"{y:.2f}", f"{b[0]:.2f}", f"{b[1]:.2f}", "start and end points (not a box); same width as the mesh line"],
+        ["keep", "today's mesh line from the bend to the M solder pads, renamed net DRIFT_A", "F.Cu",
+         *[f"{v:.2f}" for v in kept.difference(unary_union(m_pads)).bounds], "now carries the drift HV"],
+    ]
+    for g in sorted(m_pads, key=lambda g: g.centroid.x):
+        rows.append(["keep", "M solder pad -> drift HV solder pad (silkscreen M -> D)", "F.Cu + ENIG",
+                     *[f"{v:.2f}" for v in g.bounds], "drift cable soldered here; mesh cable at corner B only"])
+    rows += [
+        ["change", f"GND pour (F.Cu): {rg.CLEAR_HV:g} mm keep-out round the whole DRIFT_A net", "F.Cu", "", "", "", "",
+         "today the mesh line is 0.5 mm from the GND pour"],
+        ["mask", "M1, M2: window over the drift pad moves with the pad (resist island unchanged)", "M1 + M2",
+         f"{x - 1.8:.2f}", f"{y - 1.8:.2f}", f"{x + 1.8:.2f}", f"{y + 1.8:.2f}", "3.6 x 3.6 mm, as for the first B2 pad"],
+        ["mask", "window over the mesh pad: closed (resist)", "M2", *[f"{v:.2f}" for v in M_WIN_M2], "the pad is gone"],
+        ["not used", "first B2 patch: pad at (590.5, 10.0), vias (590.5, 7.6) and (626.3, 15.8), B.Cu drift route",
+         "F.Cu + B.Cu + drill", "", "", "", "", "replaced by the F.Cu feed above: no via, no back copper"],
+    ]
+    with open(os.path.join(DATA, "pcb_corner_A_drift.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["item", "layer", "x0_mm", "y0_mm", "x1_mm", "y1_mm", "note"])
-        names = {0: "mesh-contact pad", 1: "trace", 2: "M solder pad", 3: "M solder pad"}
-        parts = sorted(mparts, key=lambda g: g.bounds[0])
-        for g in parts:
-            x0, y0, x1, y1 = g.bounds
-            kind = ("mesh-contact pad (gold)" if x0 < 597 and g.area < 10 else
-                    "M solder pad (gold)" if g.area < 10 else "trace mesh pad -> M pads")
-            w.writerow([kind, "F.Cu + ENIG" if "gold" in kind else "F.Cu",
-                        f"{x0:.2f}", f"{y0:.2f}", f"{x1:.2f}", f"{y1:.2f}", "remove: corner A keeps only the drift contact"])
-        w.writerow(["mask window over the mesh pad", "M2", *[f"{v:.2f}" for v in M_WIN_M2],
-                    "close (resist), the pad is gone"])
+        w.writerow(["action", "item", "layer", "x0_mm", "y0_mm", "x1_mm", "y1_mm", "note"])
+        w.writerows(rows)
 
 
 def main():
@@ -461,8 +530,7 @@ def main():
     conns = connectors(C)
     mk = marks_new()
     overview(C, conns, mk)
-    mparts = corner_A(C, conns)
-    remove_table(mparts)
+    drift_table(*corner_A(C, conns))
     del C
     gc.collect()
     marks_fig(mk)

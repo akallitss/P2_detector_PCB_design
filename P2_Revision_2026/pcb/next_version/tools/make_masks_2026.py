@@ -12,7 +12,10 @@ Changes:
     in M2 the old resist squares of crosses 1, 2 are opened again
   * corner A (M1, M2): the window over the mesh-contact pad is closed (that pad is removed;
     the mesh is contacted at the top corner only)
-  * unchanged: B2 drift-pad island + window, pillars, everything else
+  * drift pad (M1, M2): its window moves from the first B2 pad (590.5, 10.0) to the centre of the
+    cleared corner (592.75, 7.5), inside the unchanged B2 resist island; the mesh-cut template's
+    pad marker moves with it (decided 2026-10-26)
+  * unchanged: B2 resist island, pillars, everything else
 
 Old objects are deleted by their exact line ranges; new ones are appended before M02 (later
 objects override earlier ones). Writes ../Insulation_masks/V3B_final_2026/ and a change log.
@@ -22,7 +25,6 @@ import datetime
 import math
 import os
 import re
-import shutil
 import sys
 
 import numpy as np
@@ -50,6 +52,17 @@ CROSS_OUT = 10.0           # mask cross outline: across
 CROSS_ARM = 1.3            # mask cross outline: arm width
 OUTLINE_W = 0.135          # today's outline line width (aperture D10)
 MESH_WIN_A = (594.0, 0.0, 600.0, 6.0)   # search box for the corner-A mesh-contact windows
+PAD_OLD, PAD_NEW = rg.B2_PAD_OLD[:2], rg.B2_PAD[:2]   # drift pad: first B2 patch -> corner centre (2026-10-26)
+
+
+def drift_window(c):
+    return (c[0] - mk.WIN_H, c[1] - mk.WIN_H, c[0] + mk.WIN_H, c[1] + mk.WIN_H)
+
+
+def drift_windows_old(objs):
+    return [o for o in objs if o["kind"] == "region" and o["pol"] == "D"
+            and math.hypot(o["c"][0] - PAD_OLD[0], o["c"][1] - PAD_OLD[1]) < 0.05
+            and max(o["bbox"][2] - o["bbox"][0], o["bbox"][3] - o["bbox"][1]) < 2 * mk.WIN_H + 0.01]
 
 
 def parse(L):
@@ -198,6 +211,10 @@ def make(layer, log):
     assert len(mw) == 1, mw
     drop += mw
     log.append(f"{layer}: removed the corner-A mesh-contact window {tuple(round(v, 2) for v in mw[0]['bbox'])}")
+    dw = drift_windows_old(objs)
+    assert len(dw) == 1, dw
+    drop += dw
+    log.append(f"{layer}: removed the drift-pad window at the first B2 pad {tuple(round(v, 2) for v in dw[0]['bbox'])}")
     kill = sorted({i for o in drop for i in o["lines"]})
     kill = set(kill)
     L = [l for i, l in enumerate(L) if i not in kill]
@@ -226,6 +243,10 @@ def make(layer, log):
         for _, x, y, _ in rg.new_frame_holes()[0]:
             block += ring_region(Point(x, y).buffer(HOLE_OPEN_D / 2, 32).exterior)
         log.append(f"{layer}: {len(rg.new_frame_holes()[0])} new screw-hole openings Ø{HOLE_OPEN_D:g}")
+    w = drift_window(PAD_NEW)
+    block += ["G04 drift pad at the corner centre: window over the pad*", "%LPD*%"] + mk.rect_region(*w)
+    log.append(f"{layer}: {2 * mk.WIN_H:.1f} x {2 * mk.WIN_H:.1f} mm window over the drift pad at {PAD_NEW} "
+               f"(inside the B2 resist island {mk.ISLAND})")
     block += ["%LPD*%"]
     L = mk.insert_before_m02(L, block)
     i = next(k for k, l in enumerate(L) if l.startswith("%FS"))
@@ -237,8 +258,15 @@ def main():
     log = []
     for layer in ("M1", "M2"):
         make(layer, log)
-    shutil.copy(os.path.join(SRC, "P2_BASKET-MeshCut_B2.gbr"), os.path.join(DST, "P2_BASKET-MeshCut_2026.gbr"))
-    log.append("mesh cut template: copied from B2 (whole corner x >= 585.5, y <= 15 cleared)")
+    L = open(os.path.join(SRC, "P2_BASKET-MeshCut_B2.gbr")).read()
+    for (ox, oy), (nx, ny) in (((PAD_OLD[0] + dx, PAD_OLD[1] + dy), (PAD_NEW[0] + dx, PAD_NEW[1] + dy))
+                               for dx, dy in ((-0.5, 0), (0.5, 0), (0, -0.5), (0, 0.5))):
+        old = f"X{mk.q(ox)}Y{mk.q(oy)}"
+        assert L.count(old) == 1, old
+        L = L.replace(old, f"X{mk.q(nx)}Y{mk.q(ny)}")
+    open(os.path.join(DST, "P2_BASKET-MeshCut_2026.gbr"), "w", newline="").write(L)
+    log.append("mesh cut template: from B2 (whole corner x >= 585.5, y <= 15 cleared), pad marker moved to "
+               f"{PAD_NEW}")
     open(os.path.join(DST, "CHANGES_masks_2026.txt"), "w").write("\n".join(log) + "\n")
     print("\n".join(log))
 

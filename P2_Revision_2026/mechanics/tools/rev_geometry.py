@@ -348,7 +348,9 @@ if __name__ == "__main__":
 CARBON_JSON = os.path.join(OUT, "data", "carbon_registered.json")
 CARBON_T_NEW = 2.0                    # new thickness [mm]
 STEP_Z, STEP_Z_5MM = 4.0, 5.0         # step height = drift gap (5 mm = placeholder)
-B2_PAD = (590.5, 10.0, 3.0)           # B2 drift pad on the PCB: centre x, y and side (pcb/drift_pad_B2)
+B2_PAD = (592.75, 7.5, 3.0)           # drift pad on the PCB: centre x, y and side; centre of the cleared corner
+                                      # (decided 2026-10-26; the first B2 patch had it at (590.5, 10.0), on Sig1)
+B2_PAD_OLD = (590.5, 10.0, 3.0)
 B2_CUT = (585.5, 5.0, 595.5, 15.0)    # mesh cut round the pad
 CLEAR_HV = 3.0                        # bare drift-potential metal <-> bare mesh
 FOAM_SIDE = 4.0                       # foam column: 4 x 4 mm, keeps CLEAR_HV to the cut edge
@@ -468,7 +470,15 @@ def connector_band():
     return ann.intersection(sector)
 
 
-B2_TRACE_BCU = [(590.5, 7.6), (600.0, 7.0), (616.0, 8.5), (626.3, 15.8)]   # drift HV trace, back copper
+B2_TRACE_BCU = [(590.5, 7.6), (600.0, 7.0), (616.0, 8.5), (626.3, 15.8)]   # first B2 patch: back copper (dropped)
+
+# drift feed (decided 2026-10-26): today's corner-A mesh line on F.Cu, from its bend just inside the
+# frame wall to the two M solder pads (which become the drift HV pads), extended to the drift pad.
+# The mesh pad and the line's first stub (pad -> bend) go.
+M_TRACE_W = 0.8                                  # today's mesh line
+M_TRACE_BEND = (599.58, 6.13)                    # centre line at the bend (F.Cu)
+M_TRACE_STUB = [(597.99, 3.41), M_TRACE_BEND]    # mesh pad -> bend: removed
+DRIFT_FEED = [(B2_PAD[0], B2_PAD[1]), M_TRACE_BEND, (621.76, 12.06), (626.23, 9.49)]   # pad -> M pads, F.Cu
 
 
 # mesh at the B2 corner: the whole corner is cleared (no mesh for x >= 585.5 and y <= 15.0,

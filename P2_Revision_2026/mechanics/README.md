@@ -53,8 +53,10 @@ size on carbon frame"; replaces the guide ring of the 20 Oct figures if agreed)
 - Drift frame: the lower level (z 0–4, below the mylar step) is filled in the
   cleared corner, x 585.5 → lower wall (14.5 mm), y 0 → 15, top flush with the
   step. One piece with the frame.
-- Slot 4.4 × 4.4 through it (z 0–4), centred on the B2 pad (590.5, 10), corners
-  R0.5 (tool); walls 2.8 mm towards the mesh, 7.8 mm to the straight-side wall.
+- Slot 4.4 × 4.4 through it (z 0–4), centred on the drift pad, which moves to
+  the centre of the corner (592.75, 7.5) (decided 26 Oct, see
+  `pcb/next_version`); corners R0.5 (tool); walls 5.05 mm (x) and 5.3 mm (y)
+  on every side.
   The foam (4 × 4, 5 sheets) stands 1 mm above the block before assembly.
 - Carbon flap: same outline as the block (x = 585.5, y = 15, out to the
   strip), so it rests on the block everywhere with the mylar clamped in
@@ -71,8 +73,9 @@ size on carbon frame"; replaces the guide ring of the 20 Oct figures if agreed)
 - 39 × Ø3.5, same pattern as the frame. Screws M3 × 16: head on the frame,
   washer + nut on the carbon side.
 - "#" ribs across the window: principle only (designer chooses).
-- Placeholders: insulation of the B2 drift trace (back copper) under the
-  carbon; straight-side hardware (an M3 head/nut is 0.25 mm wider than the
+- No drift copper on the back any more (26 Oct: the drift is fed on the front
+  by today's mesh line), so nothing to insulate under the carbon.
+- Placeholder: straight-side hardware (an M3 head/nut is 0.25 mm wider than the
   2.5 mm strip to the PCB edge, as today).
 
 ## Running

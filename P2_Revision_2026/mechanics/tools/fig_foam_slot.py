@@ -32,15 +32,17 @@ WIN = (576, 608, -6, 21)
 C_FOAM_EC, C_PAD_EC = "#3d6b1a", "#8a6a00"
 
 
-def base(ax, mesh=True):
-    """Frame corner (top view), B2 pad, mesh and the mesh-cut lines."""
+def base(ax, mesh=True, pad=None, feed=True):
+    """Frame corner (top view), drift pad + its F.Cu feed line, mesh and the mesh-cut lines."""
     wall, ledge, _ = frame_parts()
     ax.add_patch(poly_patch(wall, fc=C_FRAME, ec=C_FRAME_EC, lw=.6, zorder=1))
     ax.add_patch(poly_patch(ledge, fc=C_LEDGE, ec=C_FRAME_EC, lw=.4, zorder=1))
     if mesh:
         ax.add_patch(poly_patch(rg.mesh_area(), fc="#d9dde3", ec="0.55", lw=.5, hatch="....", zorder=1.5))
-    x, y, s = rg.B2_PAD
+    x, y, s = pad or rg.B2_PAD
     ax.add_patch(Rectangle((x - s / 2, y - s / 2), s, s, fc=C_PAD, ec=C_PAD_EC, lw=.6, zorder=2))
+    if feed:
+        ax.plot(*np.array(rg.DRIFT_FEED).T, color=C_PAD_EC, lw=2.0, ls=(0, (3, 1.5)), zorder=7)
     c = rg.B2_CUT
     ax.plot([c[0], c[0], 620], [-10, c[3], c[3]], color=C_OPEN, lw=1.4, ls="--", zorder=6)
     ax.set_aspect("equal")
@@ -70,11 +72,12 @@ def frame_top_view():
     a1.set_title("NEW – lower level filled in the corner, slot for the foam", fontsize=13, weight="bold",
                  loc="left", color=C_EXT_EC)
     a0.set_ylabel("y [mm]", fontsize=8)
-    callout(a0, (590.5, 10), (578, 18.5), "B2 drift pad 3 × 3 (PCB)")
+    callout(a0, rg.B2_PAD[:2], (578, 18.5), f"drift pad 3 × 3 (PCB) at the corner centre ({rg.B2_PAD[0]:g}, {rg.B2_PAD[1]:g})")
+    callout(a0, (597, 6.6), (601.2, 1.5), "drift line, F.Cu\n(today's mesh line,\nto the M pads)", color=C_PAD_EC)
     callout(a0, (585.5, 6), (577, 1), "mesh cut: whole corner cleared\n(no mesh for x ≥ 585.5, y ≤ 15)", color=C_OPEN)
     callout(a0, (601.5, 8), (601.5, 16), "frame step\nat z = 4\n(mylar on it)")
-    callout(a0, (604.5, -4.5), (589, -4.5), "frame upper wall (z 4–8)")
-    callout(a0, (593, 5), (599.5, -1.5), "empty corner,\nno mesh, no use", color="0.4")
+    callout(a0, (604.5, -4.5), (589, -4.7), "frame upper wall (z 4–8)")
+    callout(a0, (588, 4), (577, -4.5), "empty corner, no mesh", color="0.4")
 
     s = rg.foam_slot().bounds
     b = rg.foam_block().bounds
@@ -84,20 +87,21 @@ def frame_top_view():
     # slot
     dim(a1, (s[0], s[3]), (s[2], s[3]), (0, 1.2), f"{s[2] - s[0]:.1f}", fs=8)
     dim(a1, (s[2], s[1]), (s[2], s[3]), (1.3, 0), f"{s[3] - s[1]:.1f}", fs=8)
-    dim(a1, (b[0], 9.0), (s[0], 9.0), (0, 0), f"{s[0] - b[0]:.1f}", fs=8, color=C_OPEN)
-    dim(a1, (589.3, s[3]), (589.3, b[3]), (0, 0), f"{b[3] - s[3]:.1f}", fs=8, color=C_OPEN)
-    dim(a1, (594.5, 0), (594.5, s[1]), (0, 0), f"{s[1]:.1f}", fs=8)
+    dim(a1, (b[0], s[1] + 1.0), (s[0], s[1] + 1.0), (0, 0), f"{s[0] - b[0]:.1f}", fs=8, color=C_OPEN)
+    dim(a1, (s[0] + 1.0, s[3]), (s[0] + 1.0, b[3]), (0, 0), f"{b[3] - s[3]:.1f}", fs=8, color=C_OPEN)
+    dim(a1, (s[2] - 1.0, 0), (s[2] - 1.0, s[1]), (0, 0), f"{s[1]:.1f}", fs=8)
     callout(a1, (s[0] + .3, s[1] + .3), (577, 2.5),
             f"slot {s[2] - s[0]:.1f} × {s[3] - s[1]:.1f}, through the block (z 0–4),\n"
             f"centred on the pad ({rg.B2_PAD[0]:g}, {rg.B2_PAD[1]:g}); corners R{rg.SLOT_R:g}", color=C_EXT_EC)
-    callout(a1, (592, 9), (599.8, 12.0), f"foam {rg.FOAM_SIDE:g} × {rg.FOAM_SIDE:g}\n(not frame)", color=C_FOAM_EC)
-    callout(a1, (596, 3), (598.5, -4.3), "NEW frame material, lower level only:\nz 0 → 4, flush with the step",
+    callout(a1, (rg.B2_PAD[0] + 1.2, rg.B2_PAD[1] + 1.2), (599.8, 12.0), f"foam {rg.FOAM_SIDE:g} × {rg.FOAM_SIDE:g}\n(not frame)", color=C_FOAM_EC)
+    callout(a1, (597, 2), (598.5, -4.3), "NEW frame material, lower level only:\nz 0 → 4, flush with the step",
             color=C_EXT_EC)
     callout(a1, (586.5, 14.2), (577.5, 19.3), "block edges = mesh cut lines (x = 585.5, y = 15)", color=C_OPEN)
     h = [Patch(fc=C_EXT, ec=C_EXT_EC, label="NEW: frame material, z 0–4 (one piece with the frame)"),
          Patch(fc="white", ec=C_EXT_EC, label="NEW: slot (through)"),
          Patch(fc=C_FOAM, ec=C_FOAM_EC, hatch="xx", label="conductive foam in the slot"),
-         Patch(fc=C_PAD, ec=C_PAD_EC, label="B2 drift pad (PCB)"),
+         Patch(fc=C_PAD, ec=C_PAD_EC, label="drift pad (PCB)"),
+         Line2D([], [], color=C_PAD_EC, lw=2, ls=(0, (3, 1.5)), label="drift line on F.Cu (under the frame)"),
          Patch(fc="#d9dde3", ec="0.55", hatch="....", label="mesh"),
          Line2D([], [], color=C_OPEN, ls="--", label="mesh cut lines"),
          Patch(fc=C_LEDGE, ec=C_FRAME_EC, label="frame step (z = 4)"),
@@ -194,7 +198,7 @@ def three_d():
                  weight="bold")
     n = rg.foam_sheets(rg.STEP_Z)[0]
     fig.text(.04, .075, "orange = NEW frame material at the lower level (z 0–4), flush with the mylar step;\n"
-             f"slot {rg.foam_slot().bounds[2] - rg.foam_slot().bounds[0]:.1f} × 4.4 through it, open onto the B2 pad", fontsize=9.5, color=C_EXT_EC)
+             f"slot {rg.foam_slot().bounds[2] - rg.foam_slot().bounds[0]:.1f} × 4.4 through it, open onto the drift pad", fontsize=9.5, color=C_EXT_EC)
     fig.text(.53, .075, f"foam {n} × 1 mm sheets stands {n * rg.FOAM_SHEET - rg.STEP_Z:g} mm above the block; "
              "the carbon (strip + flap,\nflap = block outline) with the mylar glued under it squeezes it to 4 mm "
              "and rests on the block", fontsize=9.5, color="0.15")
@@ -203,7 +207,7 @@ def three_d():
          Patch(fc=C_FOAM, ec=C_FOAM_EC, label="conductive foam"),
          Patch(fc=C_CARB, ec="k", label="carbon strip"),
          Patch(fc=C_MYLAR, alpha=.4, label="mylar"),
-         Patch(fc=C_PAD, ec=C_PAD_EC, label="B2 drift pad"),
+         Patch(fc=C_PAD, ec=C_PAD_EC, label="drift pad"),
          Patch(fc="#a5c9a7", alpha=.6, label="PCB")]
     fig.legend(handles=h, loc="lower center", ncol=7, fontsize=8.5, frameon=False)
     fig.suptitle("Foam slot at the B2 corner – 3D view (schematic: walls drawn straight, O-ring groove not shown)",
@@ -303,23 +307,25 @@ def sections():
 def carbon_flap():
     fig, (a0, a1) = plt.subplots(1, 2, figsize=(15, 7.4))
     strip = rg.carbon_strip()
+    from shapely import affinity
+    dx, dy = rg.B2_PAD_OLD[0] - rg.B2_PAD[0], rg.B2_PAD_OLD[1] - rg.B2_PAD[1]
     for ax, new in ((a0, False), (a1, True)):
-        base(ax)
+        base(ax, pad=None if new else rg.B2_PAD_OLD, feed=new)
         if new:
             draw_block(ax, alpha=.35)
             flap = rg.carbon_flap_slot().difference(strip)
         else:
-            ax.add_patch(poly_patch(rg.guide_ring(), fc=C_RING, ec="#2c5f8a", lw=.8, alpha=.85, zorder=3))
-            ax.add_patch(poly_patch(rg.foam_square(), fc=C_FOAM, ec=C_FOAM_EC, lw=.8, hatch="xx", zorder=3))
+            ax.add_patch(poly_patch(affinity.translate(rg.guide_ring(), dx, dy), fc=C_RING, ec="#2c5f8a", lw=.8, alpha=.85, zorder=3))
+            ax.add_patch(poly_patch(affinity.translate(rg.foam_square(), dx, dy), fc=C_FOAM, ec=C_FOAM_EC, lw=.8, hatch="xx", zorder=3))
             flap = rg.carbon_flap().difference(strip)
         ax.add_patch(poly_patch(strip, fc=C_CARB, ec="black", lw=.6, alpha=.85, zorder=5))
         ax.add_patch(poly_patch(flap, fc=C_EXT, ec=C_EXT_EC, lw=1.2, alpha=.45, zorder=6))
     blk = rg.foam_block().union(rg.foam_slot())
     a1.add_patch(poly_patch(blk, fc="none", ec=C_DIM, lw=1.6, ls=(0, (4, 2)), zorder=7))
-    a0.set_title("BEFORE (proposal of 20 Oct): flap hanging over a guide ring", fontsize=12, weight="bold", loc="left")
-    a1.set_title("NEW: flap = outline of the frame block", fontsize=12, weight="bold", loc="left", color=C_EXT_EC)
+    a0.set_title("BEFORE (20 Oct): pad on Sig1, flap over a guide ring", fontsize=12, weight="bold", loc="left")
+    a1.set_title("NEW: pad at the corner centre, flap = block outline", fontsize=12, weight="bold", loc="left", color=C_EXT_EC)
     a0.set_ylabel("y [mm]", fontsize=8)
-    callout(a0, (rg.guide_ring().bounds[0] + .4, 10), (577, 18.5), "guide ring glued on the PCB\n(dropped)", color="#2c5f8a")
+    callout(a0, (rg.guide_ring().bounds[0] + dx + .4, 10), (577, 18.5), "guide ring glued on the PCB\n(dropped)", color="#2c5f8a")
     callout(a0, (590, 3.5), (578, -4.3), "flap supported only by the strip:\nthe foam pushes it up", color=C_EXT_EC)
     fx0, fy0, fx1, fy1 = rg.carbon_flap_slot().difference(strip).bounds
     dim(a1, (fx0, fy1), (597.5, fy1), (0, 2.0), f"{597.5 - fx0:.1f}")
@@ -334,7 +340,8 @@ def carbon_flap():
          Line2D([], [], color=C_DIM, ls="--", lw=1.6, label="NEW frame block + slot underneath"),
          Patch(fc=C_FOAM, ec=C_FOAM_EC, hatch="xx", label="conductive foam"),
          Patch(fc=C_RING, ec="#2c5f8a", label="guide ring (before)"),
-         Patch(fc=C_PAD, ec=C_PAD_EC, label="B2 drift pad"),
+         Patch(fc=C_PAD, ec=C_PAD_EC, label="drift pad"),
+         Line2D([], [], color=C_PAD_EC, lw=2, ls=(0, (3, 1.5)), label="drift line (F.Cu, ex mesh line)"),
          Line2D([], [], color=C_OPEN, ls="--", label="mesh cut lines")]
     fig.legend(handles=h, loc="lower center", ncol=4, fontsize=8.5, frameon=False)
     fig.suptitle("Carbon drift piece – flap matching the frame foam block (top view)", fontsize=14, y=.98)

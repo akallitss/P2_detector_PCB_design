@@ -30,7 +30,8 @@ the B2 corner pressing the mylar onto a 4 × 4 mm conductive-foam column
 (MECF-010P, 5 × 1 mm sheets). Proposed 26 Oct (to agree): the foam sits in
 a 4.4 × 4.4 slot of a frame block that fills the corner at the lower level
 (z 0–4), and the flap has the block's outline and rests on it; this replaces
-the guide ring (`mechanics/figures/foam_slot_*.png`).
+the guide ring (`mechanics/figures/foam_slot_*.png`). The slot is centred on
+the drift pad, now at the centre of the corner (592.75, 7.5).
 
 **Carbon back** (`mechanics/`) – 3 mm; extension removed, edge 10 mm before the
 connectors (r 616.9); same 39-hole pattern; "#" ribs as principle; M3 × 16,
@@ -44,16 +45,16 @@ section 0 of its README).
 | # | item | state |
 |---|---|---|
 | 1 | Homogenised screw holes: 39 × Ø3.5 (`pcb_screw_holes_new.csv`), 37 of today's 40 removed | drawn; plated or not? |
-| 2 | Sacrificed pad for the drift: B2 pad at (590.5, 10.0) | done (`pcb/drift_pad_B2`); Sig1 pin to GND or floating? (question for Irakli) |
-| 3 | Mesh-contact pad | corner A: mesh contact removed (pad, trace, 2 M pads; `pcb_corner_A_remove.csv`); the top-corner pad is the only mesh contact |
+| 2 | Sacrificed pad for the drift: Sig1 removed, drift pad 3 × 3 mm at the centre of the cleared corner (592.75, 7.5) (26 Oct; first B2 patch: (590.5, 10.0)) | drawn (`pcb_corner_A_drift.csv`); Sig1 pin to GND or floating? (question for Irakli) |
+| 3 | Mesh-contact pad | corner A: mesh pad removed; its line and the 2 M pads become the drift feed; the top-corner pad is the only mesh contact |
 | 4 | Bigger alignment marks (9 mm, 12.5 mm resist square) | drawn; crosses 1, 2 moved to r = 104.25 (47.5°, 12.5°) |
-| 5 | Drift pad connected to the D contact | done in B2; its insulation under the carbon back is a placeholder |
+| 5 | Drift pad connected to the HV pads | 26 Oct: on F.Cu through today's mesh line (0.8 mm segment pad → bend) to the old M pads (relabel D); no via, no back copper; GND pour 3 mm away (today 0.5 mm) |
 | 6 | Connectors to the back side (same FX20-140P, same positions) | drawn; pin order mirrors: check the mating side |
 | 7 | Connector-support holes: upper Ø3.2 rotated 0.09° from symmetric | open: make symmetric? |
 | 8 | 4 Ø2.2 holes next to the HV pads (inside the HV openings) | open: keep or remove? |
 | 9 | Mesh cut: whole corner x ≥ 585.5, y ≤ 15 | done (`P2_BASKET-MeshCut_B2.gbr`, `pcb_mesh_cut.csv`) |
 | 10 | PCB outline | unchanged |
-| – | Insulation masks M1, M2: new screw-hole openings, new crosses, corner-A mesh window closed | done: `pcb/next_version/Insulation_masks/V3B_final_2026/` (QC: only intended changes) |
+| – | Insulation masks M1, M2: new screw-hole openings, new crosses, corner-A mesh window closed, drift-pad window at the new pad | done: `pcb/next_version/Insulation_masks/V3B_final_2026/` (QC: only intended changes) |
 
 ## Running
 

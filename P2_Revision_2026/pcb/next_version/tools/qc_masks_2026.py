@@ -38,6 +38,8 @@ def expected_boxes():
         s = fp.SQUARE_NEW / 2 + 0.3
         out.append((f"new cross {i}", (c[0] - s, c[1] - s, c[0] + s, c[1] + s)))
     out.append(("corner-A mesh window", mm.MESH_WIN_A))
+    out.append(("drift-pad window old", mm.drift_window(mm.PAD_OLD)))
+    out.append(("drift-pad window new", mm.drift_window(mm.PAD_NEW)))
     return out
 
 

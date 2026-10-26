@@ -1,5 +1,12 @@
 # P2 basket: drift contact variant B2 (Oct 2026)
 
+> **2026 PCB (decided 2026-10-26):** the drift pad moves to the centre of the
+> cleared corner, (592.75, 7.5), and is fed on the front copper by today's
+> corner-A mesh line and M pads. The pad at (590.5, 10.0), the two vias and the
+> back-copper route below are therefore not used on the new board; the Sig1
+> removal and the mesh cut still are. See `../next_version/README.md` (section 0)
+> and `../next_version/data/pcb_corner_A_drift.csv`.
+
 The drift (window) HV contact moves onto the PCB. The corner readout pad next
 to the bottom-right HV pads (`/Sector0/Sig1`) is given up. In its place:
 

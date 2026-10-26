@@ -18,7 +18,7 @@ Figures and tables only; the changes go into the KiCad project. Made by
 | figure (`figures/`) | what |
 |---|---|
 | `pcb_overview.png` | the whole board NOW vs NEW: screw holes, connectors to the back, crosses |
-| `pcb_corner_A.png` | bottom-right corner: Sig1 → B2 drift pad + trace, mesh corner cleared, M pad |
+| `pcb_corner_A.png` | bottom-right corner: Sig1 removed, drift pad at the corner centre fed by today's mesh line and M pads, mesh corner cleared |
 | `pcb_alignment_marks.png` | bigger crosses; crosses 1 and 2 moved clear of the new screw holes |
 | `pcb_connectors_back.png` | FX20-140P connectors move to the back side (pin order mirrors!) |
 
@@ -29,8 +29,8 @@ Figures and tables only; the changes go into the KiCad project. Made by
 | `pcb_alignment_marks.csv` | 4 crosses, now / new centres and sizes |
 | `pcb_connectors.csv` | the 10 connector centres and angles (same position, now on B.Cu) |
 | `pcb_mesh_cut.csv` | the two mesh cut lines of the cleared corner |
-| `pcb_corner_A_remove.csv` | corner A mesh contact to remove: mesh pad, trace, 2 M solder pads (F.Cu + ENIG), M2 window |
-| `../drift_pad_B2/CHANGES.txt` | every copper / drill / mask edit for the B2 drift pad |
+| `pcb_corner_A_drift.csv` | corner A, every edit: remove Sig1, the mesh pad and the line's first stub; add the drift pad (592.75, 7.5) and a 0.8 mm segment to the line's bend; keep the line and the M pads as drift; 3 mm GND keep-out; mask windows |
+| `../drift_pad_B2/CHANGES.txt` | the Sig1 removal (the rest of that first B2 patch is not used, see below) |
 
 **Insulation masks (made here, not in KiCad):** `Insulation_masks/V3B_final_2026/`
 (`P2_BASKET-Mask_M1_2026.gbr`, `..._M2_2026.gbr`, mesh-cut template), made by
@@ -39,8 +39,10 @@ Figures and tables only; the changes go into the KiCad project. Made by
 - M1, M2: alignment crosses 10 mm outline / 1.3 mm arms in 12.5 mm resist
   squares at the new positions (old outlines removed; in M2 the old squares of
   crosses 1, 2 opened again);
-- M1, M2: corner-A mesh-contact window closed; B2 drift-pad island and window,
-  pillars and everything else unchanged.
+- M1, M2: corner-A mesh-contact window closed; the 3.6 × 3.6 mm drift-pad window
+  moved to the new pad (592.75, 7.5), inside the unchanged B2 resist island;
+  pillars and everything else unchanged. Mesh-cut template: same cut lines, pad
+  marker moved.
 
 `tools/qc_masks_2026.py` compares old and new masks over the whole board: every
 changed area is one of these (`QC_masks_2026.txt`, figure `figures/masks_2026.png`);
@@ -48,10 +50,21 @@ both files pass `Version_Sept26/tools/validate_gerber.py`. To check: the
 12.5 mm squares of crosses 1 and 2 reach r ≈ 113, 3 mm past the frame inner
 wall (r 110) but before the pillar field (r ≈ 115).
 
-Decisions (2026-10-20): PCB outline unchanged; corner A keeps only the drift
-contact: its mesh contact (mesh pad, trace, the two M solder pads) is removed and
-the mesh is contacted only at the top corner (B); mesh corner x ≥ 585.5, y ≤ 15
-cleared. Open: plating of the screw holes; Sig1 pin to GND or
+Decisions (2026-10-20): PCB outline unchanged; the mesh is contacted only at the
+top corner (B); mesh corner x ≥ 585.5, y ≤ 15 cleared.
+
+Decision (2026-10-26), corner A drift contact: the drift pad (3 × 3 mm) sits at
+the centre of the cleared corner, (592.75, 7.5), and is fed on F.Cu by today's
+mesh line: a 0.8 mm segment from the pad to the line's bend (599.58, 6.13), then
+the line as it is to the two M solder pads, which become the drift HV pads
+(silkscreen M → D). Removed: Sig1, the mesh pad and the line's first stub. The
+first B2 patch's pad at (590.5, 10.0), its two vias and the B.Cu route are not
+used: no drift copper on the back, so nothing to insulate under the carbon back.
+Clearances: 5.75 mm to the bare mesh, 7.8 mm to the nearest readout pad, 2.9 mm
+in plan to the B.Cu readout traces (was 0.24 mm). Today the mesh line is only
+0.5 mm from the F.Cu GND pour: pull the pour back to 3 mm round the whole drift
+net. The foam slot of the frame is centred on the new pad
+(`../../mechanics/figures/foam_slot_*.png`). Open: plating of the screw holes; Sig1 pin to GND or
 floating; symmetric Ø3.2 support holes; the 4 Ø2.2 holes next to the HV pads.
 
 ## 1. Bigger alignment crosses
@@ -90,7 +103,8 @@ bigger cross.
 
 **2026-10-20:** the whole bottom corner is cleared of mesh (B2 decision), so this
 pad would get no mesh: it is removed altogether, with its trace and the two M
-solder pads (`data/pcb_corner_A_remove.csv`). The mesh is contacted through the
+solder pads. **2026-10-26:** the line and the M pads are kept as the drift feed
+(`data/pcb_corner_A_drift.csv`). The mesh is contacted through the
 existing pad at the top corner; no bigger pad is needed. The study below is kept for reference.
 
 **Today:**

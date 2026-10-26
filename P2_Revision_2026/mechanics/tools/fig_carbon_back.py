@@ -113,14 +113,14 @@ def corner():
             f"new outer edge r = {rg.CB_R_OUT:g}\n({rg.CONN_MARGIN:g} mm before the connector pads)", color=C_DIM)
     callout(a1, (632, 25), (636, 47), "connectors FX20-140P\n(back side, r 627–637)", color=C_CONN)
     callout(a1, (645, 30), (643, 5), "extension removed", color=C_OPEN)
-    tr = np.array(rg.B2_TRACE_BCU)
-    a1.plot(*tr.T, color="#c0392b", lw=2.2, zorder=6)
-    callout(a1, tuple(tr[2]), (589, -17), "drift HV trace on the back copper (~800 V)\n"
-            "insulation under the carbon: PLACEHOLDER,\nto be discussed – full carbon plane for now", color="#c0392b")
+    tr = np.array(rg.DRIFT_FEED)
+    a1.plot(*tr.T, color="#c0392b", lw=2.2, ls=(0, (3, 1.5)), zorder=6)
+    callout(a1, tuple(tr[2]), (589, -17), "drift feed on the FRONT copper (today's mesh line):\n"
+            "no drift HV on the back any more, nothing to insulate\nunder the carbon", color="#c0392b")
     h = [Patch(fc=C_CB, ec=C_CB_EC, alpha=.85, label="carbon back"),
          Patch(fc="none", ec=C_OPEN, ls="--", hatch="\\\\\\", label="REMOVED: extension"),
          Patch(fc=C_CONN, alpha=.25, label="connectors (back of the PCB)"),
-         Line2D([], [], color="#c0392b", lw=2.2, label="B2 drift trace (back copper)"),
+         Line2D([], [], color="#c0392b", lw=2.2, ls=(0, (3, 1.5)), label="drift feed (front copper, other side of the PCB)"),
          Line2D([], [], marker="o", ls="none", mfc="white", mec="black", label="Ø3.5 screw holes (frame pattern)")]
     fig.legend(handles=h, loc="lower center", ncol=5, fontsize=8.5, frameon=False)
     fig.suptitle(f"Carbon back – corner A: extension removed, {rg.CONN_MARGIN:g} mm margin to the connectors", fontsize=14, y=.98)
