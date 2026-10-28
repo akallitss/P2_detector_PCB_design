@@ -247,12 +247,13 @@ def fig_cross(k, F, B, E, M2):
     return v.svg()
 
 
-def corner_skip(mparts):
+def corner_skip(mparts, hv):
     """Copper not on the 2026 board, in the B2 patched Gerbers: today's mesh net (drawn as vectors
-    instead), the first B2 pad, its F.Cu stub, the two vias and the B.Cu route with its GND cut."""
+    instead), the old D pads and the top GND pad, the first B2 pad, its F.Cu stub, the two vias and
+    the B.Cu route with its GND cut."""
     from shapely.geometry import LineString, box
     route = LineString(rg.B2_TRACE_BCU).buffer(0.8)
-    mb = [g.bounds for g in mparts]
+    mb = [g.bounds for g in mparts] + [g.bounds for g in list(hv["d"]) + [hv["gnd_top"]]]
     ox, oy, _ = rg.B2_PAD_OLD
     _, H = rg.read_drill()
     screws = [(x, y) for k in (3, 6) for x, y in H[k]]
@@ -274,15 +275,18 @@ def corner_skip(mparts):
             return True
         if type(p).__name__ == "Circle" and any(math.hypot(p.x - x, p.y - y) < 0.05 for x, y in screws):
             return True                       # pad of a screw hole that goes away
+        if type(p).__name__ == "Line" and abs(p.width - 0.3) < 1e-3 and any(
+                box(*fp.HV_LABELS_A[k]).contains(bb.centroid) for k in fp.LABELS_GONE):
+            return True                       # copper text M / top GND
         return route.contains(bb) or (not getattr(p, "polarity_dark", True) and bb.intersects(route))
     return skip
 
 
 def fig_corner():
-    win = (583.0, 631.0, -1.5, 17.5)
+    win = (583.0, 638.0, -1.5, 24.5)
     v = View(*win, 20, "Corner A: drift pad at the corner centre, fed by today's mesh line")
     mnet, mparts = fp.m_net_A(C)
-    added, removed, kept, m_pads = fp.drift_net_A(mparts)
+    added, removed, kept, hv = fp.drift_net_A(mparts)
     F = q.load(os.path.join(b2.FAB_OUT, "Gerber", "P2_BASKET-F_Cu.gbr"))
     B = q.load(os.path.join(b2.FAB_OUT, "Gerber", "P2_BASKET-B_Cu.gbr"))
     E = q.load(os.path.join(b2.FAB, "Gerber", "P2_BASKET-Edge_Cuts.gbr"))
@@ -291,7 +295,7 @@ def fig_corner():
     screws = [(x, y) for k in (3, 6) for x, y in H[k]]            # today's screw holes: replaced
     keep = lambda x, y, dd: (math.hypot(x - sig1_hole[0], y - sig1_hole[1]) > 0.05
                              and min(math.hypot(x - a, y - b) for a, b in screws) > 0.05)
-    v.image(copper_bg(win, 0.025, F, B, E, skip=corner_skip(mparts), keep_hole=keep))
+    v.image(copper_bg(win, 0.025, F, B, E, skip=corner_skip(mparts, hv), keep_hole=keep))
     del F, B
     for _, hx, hy, _ in rg.new_frame_holes()[0]:
         if win[0] - 3 < hx < win[1] + 3 and win[2] - 3 < hy < win[3] + 3:
@@ -313,12 +317,14 @@ def fig_corner():
     v.pline([(598.1, y1), (598.1, win[3])], "meshedge")
     v.dim((rg.B2_CUT[0], y), (x - s / 2, y), f"{x - s / 2 - rg.B2_CUT[0]:.2f}", side=1, off=-16)
     v.dim((x, y + s / 2), (x, y1), f"{y1 - y - s / 2:.1f}", side=-1, off=-16)
-    mp = sorted(m_pads, key=lambda g: g.centroid.x)
+    dc = hv["d_new"].centroid
     v.badge(x, y, 1, -40, -40)
     v.badge(596.5, 6.8, 2, 10, 40)
     v.badge(611.0, 9.2, 3, 0, 40)
-    v.badge(mp[0].centroid.x, mp[0].centroid.y, 4, -10, -44)
-    v.badge(mp[1].centroid.x, mp[1].centroid.y, 4, 30, 30)
+    v.top.append(f'<text class="dlabel" x="{v.X(dc.x):.1f}" y="{v.Y(dc.y) + 7:.1f}" text-anchor="middle">D</text>')
+    v.badge(dc.x + 2.0, dc.y - 2.5, 4, 40, 34)
+    gt = hv["gnd_top"].centroid
+    v.badge(gt.x, gt.y, 5, 30, -24)
     v.badge(597.2, 2.7, 5, 26, 34)
     v.badge(rg.B2_CUT[0], 15.0, 6, -24, -16)
     v.badge(589.0, 14.0, 7, 0, -26)
@@ -326,6 +332,15 @@ def fig_corner():
     v.badge(ox - 1.5, oy + 1.5, 9, -26, -20)
     v.scalebar(5)
     return v.svg()
+
+
+def png_uri(name, width=1600):
+    """A figure of ../figures (written by fig_pcb.py) as an inline data URI, scaled down."""
+    im = Image.open(os.path.join(OUT, "figures", name)).convert("RGB")
+    im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
+    b = io.BytesIO()
+    im.save(b, "PNG", optimize=True)
+    return "data:image/png;base64," + base64.b64encode(b.getvalue()).decode()
 
 
 def corner_rows():
@@ -349,7 +364,7 @@ def main():
     E = q.load(os.path.join(am.FAB, "Gerber", "P2_BASKET-Edge_Cuts.gbr"))
     M2 = None
     figs = {"overview": fig_overview(), "corner": fig_corner(), "corner_rows": corner_rows(),
-            "holes": fig_holes(), "hole_rows": hole_rows()}
+            "holes": fig_holes(), "hole_rows": hole_rows(), "steps_png": png_uri("pcb_corner_A_steps.png")}
     for k in range(4):
         figs[f"cross{k + 1}"] = fig_cross(k, F, B, E, M2)
     tpl = open(os.path.join(am.HERE, "page_template.html")).read()

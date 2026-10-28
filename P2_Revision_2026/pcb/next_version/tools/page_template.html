@@ -83,6 +83,7 @@ svg text { font-family: var(--f-body); }
 .hrem { stroke: var(--drift); stroke-width: 2.4; }
 .hnum { fill: var(--ink); font: 10px var(--f-mono); }
 .hnumadd { font-weight: 700; }
+.dlabel { fill: #5a3d00; font: 700 20px var(--f-body); }
 .act-reremove, .act-remove { color: var(--drift); }
 details { margin-top: 1rem; } summary { cursor: pointer; }
 table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform: uppercase; white-space: nowrap; }
@@ -172,8 +173,8 @@ table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform
 <ul>
   <li><b>Drift pad:</b> 3 × 3 mm, gold, at the centre of the cleared corner, {{pad}}.</li>
   <li><b>Feed, all on F.Cu:</b> a {{trace_w}} mm segment from the pad to the bend of today's mesh line at {{bend}}, then today's line as it is, under the frame, to the two M solder pads.</li>
-  <li><b>HV pads:</b> the two M solder pads become the drift HV pads (silkscreen M → D). The drift cable is soldered there.</li>
-  <li><b>Removed:</b> Sig1; the mesh pad and the line's first stub (pad → bend).</li>
+  <li><b>HV pads:</b> the two M and the two D solder pads merge into one bigger pad, labelled D (8.4 × 6.9 mm, the envelope of the four), for the drift cable. The top GND pad is removed; the bottom GND pad stays, 3.26 mm from the D pad.</li>
+  <li><b>Removed:</b> Sig1 (pad, via and back-copper trace; its connector pin is left floating); the mesh pad and the line's first stub (pad → bend); the top GND pad.</li>
   <li><b>No via, no back copper.</b> The first B2 patch put the pad at {{pad_old}} with a via and a back-copper route. That is not used any more.</li>
   <li><b>Frame and carbon:</b> the frame fills this corner at its lower level, with a slot for the foam centred on the pad, and the carbon flap rests on it.</li>
 </ul>
@@ -187,8 +188,8 @@ table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform
       <li><span class="b">1</span><span>NEW drift pad 3 × 3 mm, gold; M1/M2 window 3.6 × 3.6 mm (blue)</span></li>
       <li><span class="b">2</span><span>NEW {{trace_w}} mm segment, pad → bend of the mesh line</span></li>
       <li><span class="b">3</span><span>KEPT: today's mesh line, now the drift line</span></li>
-      <li><span class="b">4</span><span>KEPT: the two M solder pads, now drift HV (relabel D)</span></li>
-      <li><span class="b">5</span><span>REMOVED: the mesh pad and the line's first stub (red dashed)</span></li>
+      <li><span class="b">4</span><span>NEW D pad: the 2 M + 2 D solder pads merged into one (8.4 × 6.9 mm), drift HV, label D</span></li>
+      <li><span class="b">5</span><span>REMOVED: the mesh pad, the line's first stub and the top GND pad (red dashed)</span></li>
       <li><span class="b">6</span><span>Mesh cut lines: no mesh for x ≥ 585.5, y ≤ 15 (red dashed)</span></li>
       <li><span class="b">7</span><span>Resist island in M1/M2 (green), unchanged from B2</span></li>
       <li><span class="b">8</span><span>3 mm keep-out round the drift net, for the GND pour (green dashed)</span></li>
@@ -212,7 +213,12 @@ table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform
 </table></div>
 <p class="fsub">Boxes are (x0, y0) – (x1, y1); tracks are start → end. Same table as <code>data/pcb_corner_A_drift.csv</code>.</p>
 
-<div class="callout warn"><b>To check on the HV side.</b> The M solder pads keep their spacing to the neighbouring D and GND pads, which was chosen for the mesh voltage. Please check it is enough for the drift voltage. The old D pads of this corner are no longer needed: keep or remove them as you prefer.</div>
+<div class="callout warn"><b>To check on the HV side.</b> The new D pad is 3.26 mm from the remaining GND pad. On its outer side it reaches the board edge, as today's pads do.</div>
+
+<figure>
+  <div class="draw"><img src="{{steps_png}}" alt="Corner A, step by step" style="width:100%;height:auto"></div>
+  <figcaption><div class="ftitle">Corner A, step by step</div><div class="fsub">1 Sig1 · 2 mesh contact · 3 HV pads · 4 drift contact; each panel shows the board after the previous steps.</div></figcaption>
+</figure>
 
 <h2>3 · Screw holes</h2>
 <p>All screw holes become <b>Ø3.5</b>, at the same positions in the PCB, the drift frame and the carbon back (the numbers below are the same in all three).</p>
@@ -249,8 +255,6 @@ table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform
   <li>Cross line width (0.3 mm proposed); keep the crosses on both F.Cu and B.Cu, as today, or only on the side used for mask alignment?</li>
   <li>Resist squares of crosses 1 and 2: 12.5 mm (reaching r ≈ 113) or 10 mm.</li>
   <li>The GND-pour keep-out round the drift net (3 mm proposed), and the HV-pad spacing for the drift voltage, and screw hole 13 (610.30, 14.50): kept on the outer arc, its plated pad is 2.65 mm from the drift line (non-plated: 3.2 mm).</li>
-  <li>The old D pads at corner A: keep or remove.</li>
-  <li>The Sig1 connector pin: to GND or floating.</li>
   <li>Plating of the 22 new screw holes (the 15 kept ones stay as today).</li>
 </ol>
 <p>The insulation masks (M1, M2) and the mesh-cut template for all of this are already generated: <code>Insulation_masks/V3B_final_2026/</code>.</p>

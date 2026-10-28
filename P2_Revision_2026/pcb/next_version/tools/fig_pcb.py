@@ -267,23 +267,70 @@ def overview(C, conns, mk):
     plt.close(fig)
 
 
+def hv_pads_A():
+    """Corner-A HV solder pads (ENIG), along the chamfer from the board corner: GND (bottom), the
+    two M pads, the two D pads, GND (top). 2026: the top GND goes and the M + D pads merge into one
+    D pad (decided 2026-10-28), 3.26 mm from the remaining GND."""
+    p = sorted(rg.hv_pads()["A"], key=lambda g: g.centroid.y)
+    from shapely.ops import unary_union
+    return {"gnd_bottom": p[0], "m": p[1:3], "d": p[3:5], "gnd_top": p[5],
+            "d_new": unary_union(p[1:5]).minimum_rotated_rectangle}
+
+
 def drift_net_A(mparts):
-    """Corner A drift contact (decided 2026-10-26): today's mesh line and M solder pads carry the
-    drift; the mesh pad and the line's first stub go; a 3 x 3 mm pad at the centre of the cleared
-    corner, joined to the line's bend by a straight segment of the same width.
-    Returns (added, removed, kept, m_pads) as shapely geometries."""
+    """Corner A drift contact (decided 2026-10-26, pads 2026-10-28): today's mesh line carries the
+    drift into one D pad that replaces the two M and the two D solder pads; the mesh pad and the
+    line's first stub go, and so does the top GND pad; a 3 x 3 mm pad at the centre of the cleared
+    corner is joined to the line's bend by a straight segment of the same width.
+    Returns (added, removed, kept, hv) as shapely geometries + the pad dict."""
     from shapely.geometry import LineString, Point, box
     from shapely.ops import unary_union
+    hv = hv_pads_A()
     x, y, s = rg.B2_PAD
     pad = box(x - s / 2, y - s / 2, x + s / 2, y + s / 2)
     ext = LineString([(x, y), rg.M_TRACE_BEND]).buffer(rg.M_TRACE_W / 2, cap_style=2)
     parts = sorted(mparts, key=lambda g: g.bounds[0])
-    mesh_pad, trace, m_pads = parts[0], max(parts, key=lambda g: g.area), [g for g in parts[1:] if g.area < 10]
+    mesh_pad, trace = parts[0], max(parts, key=lambda g: g.area)
     stub = LineString(rg.M_TRACE_STUB).buffer(rg.M_TRACE_W, cap_style=2).difference(Point(rg.M_TRACE_BEND).buffer(rg.M_TRACE_W / 2))
-    removed = unary_union([mesh_pad, trace.intersection(stub)])
-    kept = unary_union([trace.difference(stub)] + m_pads)
-    added = unary_union([pad, ext, Point(rg.M_TRACE_BEND).buffer(rg.M_TRACE_W / 2)])
-    return added, removed, kept, m_pads
+    removed = unary_union([mesh_pad, trace.intersection(stub), hv["gnd_top"]])
+    kept = trace.difference(stub).difference(hv["d_new"])
+    added = unary_union([pad, ext, Point(rg.M_TRACE_BEND).buffer(rg.M_TRACE_W / 2), hv["d_new"]])
+    return added, removed, kept, hv
+
+
+# copper text (F.Cu, 0.3 mm strokes) next to the corner-A HV pads, from today's Gerber
+HV_LABELS_A = {"GND bottom": (615.37, 3.74, 619.46, 8.69), "M": (615.98, 12.86, 618.97, 15.68),
+               "D": (618.75, 17.99, 621.47, 20.45), "GND top": (624.97, 20.47, 629.06, 25.42)}
+LABELS_GONE = ("M", "GND top")             # the D text stays and now labels the merged pad
+
+
+def is_label_gone(q):
+    """Quad of a removed copper-text stroke (M, top GND)."""
+    from shapely.geometry import Point, box
+    a = np.asarray(q)
+    return len(a) == 4 and any(box(*HV_LABELS_A[k]).contains(Point(*a.mean(0))) for k in LABELS_GONE)
+
+
+def in_pads(q, pads):
+    """F.Cu polygon q belongs to one of the pads (same copper)."""
+    from shapely.geometry import Point
+    c = Point(*np.asarray(q).mean(0))
+    return any(P.buffer(0.1).contains(c) for P in pads)
+
+
+def sig1_polys(F_now, B_now, b2):
+    """Today's Sig1 copper that the B2 patch removed (pad zone, pad via, B.Cu trace)."""
+    from shapely.geometry import Point, box
+    zone = box(575, 3, 622, 27.5)
+
+    def keys(L):
+        return {tuple(np.round(np.asarray(q).mean(0), 2)) for q in L}
+    out = []
+    for L, L2 in ((F_now, b2["F_Cu"]), (B_now, b2["B_Cu"])):
+        k2 = keys(L2)
+        out.append([q for q in L if zone.contains(Point(*np.asarray(q).mean(0)))
+                    and tuple(np.round(np.asarray(q).mean(0), 2)) not in k2])
+    return out
 
 
 def is_b2_patch(q):
@@ -304,8 +351,10 @@ def corner_A(C, conns):
     now_f, now_b = copper_polys(C["gerb"]["F_Cu"], win), copper_polys(C["gerb"]["B_Cu"], win)
     new = load_b2(win)
     mnet, mparts = m_net_A(C)
-    added, removed, kept, m_pads = drift_net_A(mparts)
-    new["F_Cu"] = [q for q in new["F_Cu"] if not is_b2_patch(q) and not mnet.buffer(0.05).contains(rg.Point(*np.asarray(q).mean(0)))]
+    added, removed, kept, hv = drift_net_A(mparts)
+    gone = list(hv["d"]) + [hv["gnd_top"]]
+    new["F_Cu"] = [q for q in new["F_Cu"] if not is_b2_patch(q) and not in_pads(q, gone) and not is_label_gone(q)
+                   and not mnet.buffer(0.05).contains(rg.Point(*np.asarray(q).mean(0)))]
     new["B_Cu"] = [q for q in new["B_Cu"] if not is_b2_patch(q)]
     _, window, _ = rg.frame_top()
     base = window.buffer(-3.0, join_style=2)
@@ -340,6 +389,8 @@ def corner_A(C, conns):
     a1.add_patch(poly_patch(kept, fc=C_DRIFT, ec="#8a6a00", lw=.8, zorder=8))
     a1.add_patch(poly_patch(added, fc=C_DRIFT, ec="#1b7a2e", lw=1.6, zorder=8))
     a1.add_patch(poly_patch(removed, fc="none", ec=C_OPEN, lw=1.4, hatch="xxxx", zorder=8))
+    dc = hv["d_new"].centroid
+    a1.text(dc.x, dc.y, "D", fontsize=13, weight="bold", ha="center", va="center", color="#5a3d00", zorder=9)
     a0.set_title("NOW", fontsize=13, weight="bold", loc="left")
     a1.set_title("NEW", fontsize=13, weight="bold", loc="left", color=C_EXT_EC)
     a0.set_ylabel("y [mm]", fontsize=8)
@@ -356,13 +407,14 @@ def corner_A(C, conns):
     callout(a1, (597.2, 2.7), (579, -9), "REMOVE the mesh pad and the\nline's first stub (pad → bend)", color=C_OPEN)
     callout(a1, (612, 9.7), (603, -12.5), "KEEP today's mesh line → now DRIFT\n(dashed: 3 mm keep-out in the GND pour)",
             color="#8a6a00")
-    mp = max(m_pads, key=lambda g: g.centroid.x).centroid
-    callout(a1, (mp.x, mp.y), (633, 3), "the two M solder pads → drift HV\n(relabel M → D; mesh: corner B only)", color="#8a6a00")
+    callout(a1, (dc.x + 2.2, dc.y - 1.0), (636, 3), "NEW D pad = the 2 M + 2 D pads\nmerged (6.9 × 8.4 mm), drift HV",
+            color="#1b7a2e")
+    gt = hv["gnd_top"].centroid
+    callout(a1, (gt.x, gt.y), (636, 26), "REMOVE the top GND pad", color=C_OPEN)
     callout(a1, (586.5, 13.5), (612, 31.5), "mesh cut: no mesh for x ≥ 585.5, y ≤ 15", color=C_OPEN)
-    callout(a1, (632, 30), (634, -11.5), "connector moves to the BACK\n(same position)", color=C_CONN)
     h = [Patch(fc=C_FCU, alpha=.75, label="F.Cu"), Patch(fc=C_BCU, alpha=.45, label="B.Cu"),
-         Patch(fc=C_DRIFT, ec="#1b7a2e", lw=1.6, label="NEW drift copper (F.Cu, pad + ENIG)"),
-         Patch(fc=C_DRIFT, ec="#8a6a00", label="kept: today's mesh line + M pads, now drift"),
+         Patch(fc=C_DRIFT, ec="#1b7a2e", lw=1.6, label="NEW drift copper (pads gold)"),
+         Patch(fc=C_DRIFT, ec="#8a6a00", label="kept: today's mesh line, now drift"),
          Patch(fc="none", ec=C_OPEN, hatch="xxxx", label="REMOVE"),
          Patch(fc=C_MESH, ec="0.5", hatch="....", alpha=.55, label="mesh (laminated last)"),
          Line2D([], [], color=C_OPEN, ls="--", label="mesh cut lines"),
@@ -370,12 +422,113 @@ def corner_A(C, conns):
          Patch(fc="none", ec=C_CONN, ls="--", label="connector on the back"),
          Line2D([], [], color="0.35", ls=":", label="frame inner wall")]
     fig.legend(handles=h, loc="lower center", ncol=5, fontsize=8.5, frameon=False)
-    fig.suptitle("PCB – corner A (bottom right): drift pad at the corner centre, fed by today's mesh line; "
-                 "mesh corner cleared", fontsize=13.5, y=.985)
+    fig.suptitle("PCB – corner A (bottom right): drift pad at the corner centre, fed by today's mesh line into one "
+                 "big D pad; mesh corner cleared", fontsize=13, y=.985)
     fig.tight_layout(rect=(0, 0.08, 1, 0.95))
     fig.savefig(os.path.join(FIG, "pcb_corner_A.png"), dpi=130)
     plt.close(fig)
-    return added, removed, kept, m_pads
+    corner_A_steps(now_f, now_b, new_b2=load_b2(win), mparts=mparts, mnet=mnet, hv=hv,
+                   added=added, removed=removed, kept=kept)
+    return added, removed, kept, hv
+
+
+def corner_A_steps(now_f, now_b, new_b2, mparts, mnet, hv, added, removed, kept):
+    """The corner-A edits one at a time, each panel showing the board after the previous steps."""
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+    win = (582, 640, -11, 30)
+    sig_f, sig_b = sig1_polys(now_f, now_b, new_b2)
+    ids = {id(q) for q in sig_f + sig_b}
+    F1 = [q for q in now_f if id(q) not in ids]
+    B1 = [q for q in now_b if id(q) not in ids]
+    F2 = [q for q in F1 if not mnet.buffer(0.05).contains(Point(*np.asarray(q).mean(0)))]
+    F3 = [q for q in F2 if not in_pads(q, list(hv["d"]) + [hv["gnd_top"]]) and not is_label_gone(q)]
+    parts = sorted(mparts, key=lambda g: g.bounds[0])
+    trace = max(parts, key=lambda g: g.area)
+    stub = LineString(rg.M_TRACE_STUB).buffer(rg.M_TRACE_W, cap_style=2).difference(
+        Point(rg.M_TRACE_BEND).buffer(rg.M_TRACE_W / 2))
+    line_kept = trace.difference(stub)
+    _, window, _ = rg.frame_top()
+    base = window.buffer(-3.0, join_style=2)
+    x, y, s = rg.B2_PAD
+    dn = hv["d_new"]
+    poly = lambda L: unary_union([rg.Polygon(q).buffer(0) for q in L])
+    steps = [
+        ("1 · Sig1: remove the readout pad (zone), its via and its B.Cu trace.\n"
+         "The connector pin stays, with nothing connected to it (floating).", now_f, now_b),
+        ("2 · Mesh contact: remove the mesh pad and the first stub of its line.\n"
+         "The mesh is cleared from the corner (x ≥ 585.5, y ≤ 15); mesh contact at corner B only.", F1, B1),
+        ("3 · HV pads: remove the top GND pad and the M / top GND texts; merge the 2 M + 2 D\n"
+         f"pads into ONE pad, label D (8.4 × 6.9 mm), {dn.distance(hv['gnd_bottom']):.2f} mm from the remaining GND pad.", F2, B1),
+        (f"4 · Drift contact: {s:g} × {s:g} mm pad at the corner centre ({x:g}, {y:g}), {rg.M_TRACE_W:g} mm segment to\n"
+         "the line's bend; the line carries the drift into the D pad. GND pour 3 mm away (dashed).", F3, B1),
+    ]
+    fig, axs = plt.subplots(2, 2, figsize=(16, 12.5))
+    for i, (ax, (title, F, B)) in enumerate(zip(axs.flat, steps)):
+        board(ax)
+        ax.add_collection(PolyCollection(B, fc=C_BCU, ec="none", alpha=.45, zorder=1))
+        ax.add_collection(PolyCollection(F, fc=C_FCU, ec="none", alpha=.75, zorder=2))
+        ax.plot(*np.asarray(base.exterior.coords).T, color="0.35", lw=.7, ls=":", zorder=4)
+        if i == 0:
+            ax.add_patch(poly_patch(poly(sig_f + sig_b), fc="none", ec=C_OPEN, lw=1.2, hatch="xxxx", zorder=8))
+            callout(ax, (589.2, 11.0), (584, 26), "Sig1 pad zone + via (F.Cu)", color=C_OPEN)
+            callout(ax, (612, 21.5), (606, 27.5), "its B.Cu trace", color=C_OPEN)
+        if i == 1:
+            ax.add_patch(poly_patch(removed.difference(hv["gnd_top"]), fc="none", ec=C_OPEN, lw=1.4, hatch="xxxx", zorder=8))
+            c = rg.B2_CUT
+            ax.plot([c[0], c[0], 600.5], [win[2], c[3], c[3]], color=C_OPEN, lw=1.6, ls="--", zorder=7)
+            ax.add_patch(poly_patch(line_kept, fc=C_FCU, ec="#a0522d", lw=.6, zorder=6))
+            callout(ax, (597.2, 2.7), (584, -8), "mesh pad + first stub", color=C_OPEN)
+            callout(ax, (586, 13), (584, 24), "mesh cut lines", color=C_OPEN)
+        if i == 2:
+            ax.add_patch(poly_patch(line_kept, fc=C_FCU, ec="#a0522d", lw=.6, zorder=6))
+            ax.add_patch(poly_patch(hv["gnd_top"], fc="none", ec=C_OPEN, lw=1.4, hatch="xxxx", zorder=8))
+            for k in LABELS_GONE:
+                ax.add_patch(Rectangle(HV_LABELS_A[k][:2], HV_LABELS_A[k][2] - HV_LABELS_A[k][0],
+                                       HV_LABELS_A[k][3] - HV_LABELS_A[k][1], fc="none", ec=C_OPEN, lw=1.2, ls="--", zorder=9))
+            callout(ax, (617.5, 14.3), (603, 21), "copper text M and GND (top):\nremove; the D text stays", color=C_OPEN)
+            for P in list(hv["m"]) + list(hv["d"]):
+                ax.add_patch(poly_patch(P, fc="none", ec="0.3", lw=.7, ls="--", zorder=9))
+            ax.add_patch(poly_patch(dn, fc=C_DRIFT, ec="#1b7a2e", lw=1.8, alpha=.85, zorder=8))
+            dc = dn.centroid
+            ax.text(dc.x, dc.y, "D", fontsize=16, weight="bold", ha="center", va="center", color="#5a3d00", zorder=10)
+            a, b = [np.asarray(p.coords[0]) for p in __import__("shapely.ops", fromlist=["x"]).nearest_points(dn, hv["gnd_bottom"])]
+            dim(ax, tuple(a), tuple(b), (-1.2, 0.7), f"{dn.distance(hv['gnd_bottom']):.2f}", fs=8)
+            gt = hv["gnd_top"].centroid
+            callout(ax, (gt.x, gt.y), (618, 27), "top GND pad: remove", color=C_OPEN)
+            callout(ax, (dc.x + 2.5, dc.y - 1.5), (632, 0.5), "M M + D D (dashed)\n→ one D pad", color="#1b7a2e")
+            gb = hv["gnd_bottom"].centroid
+            callout(ax, (gb.x, gb.y), (606, -8), "bottom GND pad: stays", color="0.2")
+        if i == 3:
+            net = kept.union(added)
+            ax.add_patch(poly_patch(net.buffer(rg.CLEAR_HV).difference(net.buffer(0.05)), fc="none", ec="#1b7a2e",
+                                    lw=.8, ls=(0, (2, 2)), zorder=8))
+            ax.add_patch(poly_patch(kept, fc=C_DRIFT, ec="#8a6a00", lw=.8, zorder=8))
+            ax.add_patch(poly_patch(added, fc=C_DRIFT, ec="#1b7a2e", lw=1.6, zorder=8))
+            dc = dn.centroid
+            ax.text(dc.x, dc.y, "D", fontsize=16, weight="bold", ha="center", va="center", color="#5a3d00", zorder=10)
+            ax.add_patch(poly_patch(rg.mesh_area(), fc=C_MESH, ec="0.5", lw=.5, hatch="....", alpha=.55, zorder=3))
+            callout(ax, (x, y), (584, 24), f"drift pad {s:g} × {s:g}", color="#1b7a2e")
+            callout(ax, (597, 6.6), (600, 25), f"{rg.M_TRACE_W:g} mm segment", color="#1b7a2e")
+            callout(ax, (612, 9.7), (604, -8), "today's mesh line = drift line", color="#8a6a00")
+        ax.set_xlim(win[0], win[1])
+        ax.set_ylim(win[2], win[3])
+        ax.set_aspect("equal")
+        ax.grid(lw=.25, alpha=.4)
+        ax.tick_params(labelsize=7)
+        ax.set_title(title, fontsize=10.5, loc="left", weight="bold", color="0.1")
+    h = [Patch(fc=C_FCU, alpha=.75, label="F.Cu"), Patch(fc=C_BCU, alpha=.45, label="B.Cu"),
+         Patch(fc="none", ec=C_OPEN, hatch="xxxx", label="REMOVE (this step)"),
+         Patch(fc=C_DRIFT, ec="#1b7a2e", lw=1.6, label="NEW drift copper"),
+         Patch(fc=C_DRIFT, ec="#8a6a00", label="kept line, now drift"),
+         Line2D([], [], color="#1b7a2e", ls=(0, (2, 2)), label=f"{rg.CLEAR_HV:g} mm keep-out"),
+         Line2D([], [], color="0.35", ls=":", label="frame inner wall")]
+    fig.legend(handles=h, loc="lower center", ncol=7, fontsize=9, frameon=False)
+    fig.suptitle("PCB – corner A step by step (each panel = the board after the previous steps; "
+                 "coordinates in pcb_corner_A_drift.csv)", fontsize=13.5, y=.99)
+    fig.tight_layout(rect=(0, 0.035, 1, 0.97), h_pad=3.5)
+    fig.savefig(os.path.join(FIG, "pcb_corner_A_steps.png"), dpi=130)
+    plt.close(fig)
 
 
 def marks_fig(mk):
@@ -489,29 +642,38 @@ def tables(conns, mk):
             w.writerow([k, f"{x:.2f}", f"{y:.2f}", t])
 
 
-def drift_table(added, removed, kept, m_pads):
-    """Corner A changes for the KiCad designer (pcb_corner_A_drift.csv)."""
-    from shapely.ops import unary_union
+def drift_table(added, removed, kept, hv):
+    """Corner A changes for the KiCad designer (pcb_corner_A_drift.csv), in the order of the steps."""
     x, y, sd = rg.B2_PAD
+    dn = hv["d_new"]
+    corners = " ".join(f"({a:.2f}, {b:.2f})" for a, b in list(dn.exterior.coords)[:4])
     b = rg.M_TRACE_BEND
     rows = [
-        ["remove", "readout pad /Sector0/Sig1: zone, pad via, B.Cu trace to the via at (619.97, 26.00)",
-         "F.Cu + B.Cu + drill", "", "", "", "", "as in drift_pad_B2/CHANGES.txt; its connector-side copper stays"],
-        ["remove", "mesh-contact pad (gold)", "F.Cu + ENIG", *[f"{v:.2f}" for v in rg.M_PAD_A],
-         "no mesh in this corner any more"],
-        ["remove", f"first stub of the mesh line ({rg.M_TRACE_W:g} mm), mesh pad -> bend", "F.Cu",
+        ["remove", "step 1: readout pad /Sector0/Sig1: zone, pad via, B.Cu trace to the via at (619.97, 26.00)",
+         "F.Cu + B.Cu + drill", "", "", "", "",
+         "as in drift_pad_B2/CHANGES.txt; the connector pin stays, nothing connected (floating)"],
+        ["remove", "step 2: mesh-contact pad (gold)", "F.Cu + ENIG", *[f"{v:.2f}" for v in rg.M_PAD_A],
+         "no mesh in this corner any more; mesh contact at corner B only"],
+        ["remove", f"step 2: first stub of the mesh line ({rg.M_TRACE_W:g} mm), mesh pad -> bend", "F.Cu",
          *[f"{v:.2f}" for p in rg.M_TRACE_STUB for v in p], "start and end points (not a box); the rest of the line is kept"],
-        ["add", f"drift pad {sd:g} x {sd:g} mm, net DRIFT_A (SMD, gold)", "F.Cu + ENIG",
+        ["remove", "step 3: copper text 'M' (0.3 mm strokes)", "F.Cu", *[f"{v:.2f}" for v in HV_LABELS_A["M"]],
+         "the 'D' text stays and labels the new pad"],
+        ["remove", "step 3: copper text 'GND' next to the top GND pad", "F.Cu", *[f"{v:.2f}" for v in HV_LABELS_A["GND top"]],
+         "goes with its pad"],
+        ["remove", "step 3: top GND solder pad (gold), the one towards the connector", "F.Cu + ENIG",
+         *[f"{v:.2f}" for v in hv["gnd_top"].bounds], "the bottom GND pad stays"],
+        ["change", "step 3: the 2 M + 2 D solder pads -> ONE pad, silkscreen D, net DRIFT_A (gold)", "F.Cu + ENIG",
+         *[f"{v:.2f}" for v in dn.bounds],
+         f"rotated rectangle 8.38 x 6.86 mm (sides along / across the chamfer), corners {corners}; "
+         f"= envelope of the 4 old pads; {dn.distance(hv['gnd_bottom']):.2f} mm from the bottom GND pad; drift cable here"],
+        ["add", f"step 4: drift pad {sd:g} x {sd:g} mm, net DRIFT_A (SMD, gold)", "F.Cu + ENIG",
          f"{x - sd / 2:.2f}", f"{y - sd / 2:.2f}", f"{x + sd / 2:.2f}", f"{y + sd / 2:.2f}",
          f"centre ({x:g}, {y:g}) = centre of the cleared corner"],
-        ["add", f"trace {rg.M_TRACE_W:g} mm, pad centre -> bend of today's mesh line", "F.Cu",
+        ["add", f"step 4: trace {rg.M_TRACE_W:g} mm, pad centre -> bend of today's mesh line", "F.Cu",
          f"{x:.2f}", f"{y:.2f}", f"{b[0]:.2f}", f"{b[1]:.2f}", "start and end points (not a box); same width as the mesh line"],
-        ["keep", "today's mesh line from the bend to the M solder pads, renamed net DRIFT_A", "F.Cu",
-         *[f"{v:.2f}" for v in kept.difference(unary_union(m_pads)).bounds], "now carries the drift HV"],
+        ["keep", "step 4: today's mesh line from the bend to the new D pad, renamed net DRIFT_A", "F.Cu",
+         *[f"{v:.2f}" for v in kept.bounds], "now carries the drift HV"],
     ]
-    for g in sorted(m_pads, key=lambda g: g.centroid.x):
-        rows.append(["keep", "M solder pad -> drift HV solder pad (silkscreen M -> D)", "F.Cu + ENIG",
-                     *[f"{v:.2f}" for v in g.bounds], "drift cable soldered here; mesh cable at corner B only"])
     rows += [
         ["change", f"GND pour (F.Cu): {rg.CLEAR_HV:g} mm keep-out round the whole DRIFT_A net", "F.Cu", "", "", "", "",
          "today the mesh line is 0.5 mm from the GND pour"],

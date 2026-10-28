@@ -23,7 +23,8 @@ Figures and tables only; the changes go into the KiCad project. Made by
 | `pcb_overview.png` | the whole board NOW vs NEW: screw holes, connectors to the back, crosses |
 | `pcb_screw_holes.png` | screw holes NOW → NEW: today's holes (plated / not) with the 25 that go crossed out; the new 37, KEEP (15, grey) and ADD (22, white), numbered as the frame and carbon back |
 | `pcb_screw_holes_unrolled.png` | the same, edge by edge: today's holes (plated / not) above, the new pattern below, with spacings |
-| `pcb_corner_A.png` | bottom-right corner: Sig1 removed, drift pad at the corner centre fed by today's mesh line and M pads, mesh corner cleared |
+| `pcb_corner_A.png` | bottom-right corner NOW → NEW: Sig1 removed, drift pad at the corner centre fed by today's mesh line into one big D pad (the old M + D pads), top GND pad removed, mesh corner cleared |
+| `pcb_corner_A_steps.png` | the same, step by step: 1 Sig1, 2 mesh contact, 3 HV pads (top GND and the M / top GND texts removed, M + D merged into one D pad), 4 drift pad and line |
 | `pcb_alignment_marks.png` | bigger crosses; crosses 1 and 2 moved clear of the new screw holes |
 | `pcb_connectors_back.png` | FX20-140P connectors move to the back side (pin order mirrors!) |
 
@@ -33,7 +34,7 @@ Figures and tables only; the changes go into the KiCad project. Made by
 | `pcb_alignment_marks.csv` | 4 crosses, now / new centres and sizes |
 | `pcb_connectors.csv` | the 10 connector centres and angles (same position, now on B.Cu) |
 | `pcb_mesh_cut.csv` | the two mesh cut lines of the cleared corner |
-| `pcb_corner_A_drift.csv` | corner A, every edit: remove Sig1, the mesh pad and the line's first stub; add the drift pad (592.75, 7.5) and a 0.8 mm segment to the line's bend; keep the line and the M pads as drift; 3 mm GND keep-out; mask windows |
+| `pcb_corner_A_drift.csv` | corner A, every edit in the order of the steps: remove Sig1 (connector pin left floating), the mesh pad and the line's first stub, the top GND pad and the M / top GND copper texts; merge the 2 M + 2 D pads into one D pad (corners given); add the drift pad (592.75, 7.5) and a 0.8 mm segment to the line's bend; 3 mm GND keep-out; mask windows |
 | `../drift_pad_B2/CHANGES.txt` | the Sig1 removal (the rest of that first B2 patch is not used, see below) |
 
 **Insulation masks (made here, not in KiCad):** `Insulation_masks/V3B_final_2026/`
@@ -61,16 +62,22 @@ top corner (B); mesh corner x ≥ 585.5, y ≤ 15 cleared.
 Decision (2026-10-26), corner A drift contact: the drift pad (3 × 3 mm) sits at
 the centre of the cleared corner, (592.75, 7.5), and is fed on F.Cu by today's
 mesh line: a 0.8 mm segment from the pad to the line's bend (599.58, 6.13), then
-the line as it is to the two M solder pads, which become the drift HV pads
-(silkscreen M → D). Removed: Sig1, the mesh pad and the line's first stub. The
+the line as it is to the HV solder pads. Removed: Sig1 (pad, via, B.Cu trace; its
+connector pin stays, floating), the mesh pad and the line's first stub.
+
+Decision (2026-10-28), HV solder pads: the two M and the two D pads merge into
+one bigger pad, labelled D (8.38 × 6.86 mm, the envelope of the four; outer side
+at the board edge as today), for the drift cable. The top GND pad and its copper
+text go, and the copper text "M" goes; the "D" text stays. The bottom GND pad
+stays, 3.26 mm from the D pad. The masks have nothing over these pads. The
 first B2 patch's pad at (590.5, 10.0), its two vias and the B.Cu route are not
 used: no drift copper on the back, so nothing to insulate under the carbon back.
 Clearances: 5.75 mm to the bare mesh, 7.8 mm to the nearest readout pad, 2.9 mm
 in plan to the B.Cu readout traces (was 0.24 mm). Today the mesh line is only
 0.5 mm from the F.Cu GND pour: pull the pour back to 3 mm round the whole drift
 net. The foam slot of the frame is centred on the new pad
-(`../../mechanics/figures/foam_slot_*.png`). Open: plating of the screw holes; Sig1 pin to GND or
-floating; symmetric Ø3.2 support holes; the 4 Ø2.2 holes next to the HV pads.
+(`../../mechanics/figures/foam_slot_*.png`). Open: plating of the new screw holes; symmetric Ø3.2
+support holes; the 4 Ø2.2 holes next to the HV pads.
 
 ## 1. Bigger alignment crosses
 

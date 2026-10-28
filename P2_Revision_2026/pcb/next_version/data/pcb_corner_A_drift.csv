@@ -1,12 +1,14 @@
 action,item,layer,x0_mm,y0_mm,x1_mm,y1_mm,note
-remove,"readout pad /Sector0/Sig1: zone, pad via, B.Cu trace to the via at (619.97, 26.00)",F.Cu + B.Cu + drill,,,,,as in drift_pad_B2/CHANGES.txt; its connector-side copper stays
-remove,mesh-contact pad (gold),F.Cu + ENIG,595.77,1.29,598.70,4.10,no mesh in this corner any more
-remove,"first stub of the mesh line (0.8 mm), mesh pad -> bend",F.Cu,597.99,3.41,599.58,6.13,start and end points (not a box); the rest of the line is kept
-add,"drift pad 3 x 3 mm, net DRIFT_A (SMD, gold)",F.Cu + ENIG,591.25,6.00,594.25,9.00,"centre (592.75, 7.5) = centre of the cleared corner"
-add,"trace 0.8 mm, pad centre -> bend of today's mesh line",F.Cu,592.75,7.50,599.58,6.13,start and end points (not a box); same width as the mesh line
-keep,"today's mesh line from the bend to the M solder pads, renamed net DRIFT_A",F.Cu,599.18,5.73,626.47,12.95,now carries the drift HV
-keep,M solder pad -> drift HV solder pad (silkscreen M -> D),F.Cu + ENIG,621.57,9.08,625.42,12.98,drift cable soldered here; mesh cable at corner B only
-keep,M solder pad -> drift HV solder pad (silkscreen M -> D),F.Cu + ENIG,625.06,7.07,628.91,10.97,drift cable soldered here; mesh cable at corner B only
+remove,"step 1: readout pad /Sector0/Sig1: zone, pad via, B.Cu trace to the via at (619.97, 26.00)",F.Cu + B.Cu + drill,,,,,"as in drift_pad_B2/CHANGES.txt; the connector pin stays, nothing connected (floating)"
+remove,step 2: mesh-contact pad (gold),F.Cu + ENIG,595.77,1.29,598.70,4.10,no mesh in this corner any more; mesh contact at corner B only
+remove,"step 2: first stub of the mesh line (0.8 mm), mesh pad -> bend",F.Cu,597.99,3.41,599.58,6.13,start and end points (not a box); the rest of the line is kept
+remove,step 3: copper text 'M' (0.3 mm strokes),F.Cu,615.98,12.86,618.97,15.68,the 'D' text stays and labels the new pad
+remove,step 3: copper text 'GND' next to the top GND pad,F.Cu,624.97,20.47,629.06,25.42,goes with its pad
+remove,"step 3: top GND solder pad (gold), the one towards the connector",F.Cu + ENIG,627.18,16.67,634.66,22.86,the bottom GND pad stays
+change,"step 3: the 2 M + 2 D solder pads -> ONE pad, silkscreen D, net DRIFT_A (gold)",F.Cu + ENIG,621.54,7.03,631.68,17.72,"rotated rectangle 8.38 x 6.86 mm (sides along / across the chamfer), corners (621.54, 10.47) (625.73, 17.72) (631.68, 14.29) (627.49, 7.03); = envelope of the 4 old pads; 3.26 mm from the bottom GND pad; drift cable here"
+add,"step 4: drift pad 3 x 3 mm, net DRIFT_A (SMD, gold)",F.Cu + ENIG,591.25,6.00,594.25,9.00,"centre (592.75, 7.5) = centre of the cleared corner"
+add,"step 4: trace 0.8 mm, pad centre -> bend of today's mesh line",F.Cu,592.75,7.50,599.58,6.13,start and end points (not a box); same width as the mesh line
+keep,"step 4: today's mesh line from the bend to the new D pad, renamed net DRIFT_A",F.Cu,599.18,5.73,622.46,12.46,now carries the drift HV
 change,GND pour (F.Cu): 3 mm keep-out round the whole DRIFT_A net,F.Cu,,,,,today the mesh line is 0.5 mm from the GND pour
 check,"screw hole 13 (610.30, 14.50), kept on the outer arc, plated today (pad Ø4.56)",F.Cu + B.Cu,607.98,12.18,612.62,16.82,"pad 2.65 mm from the drift line (< 3 mm); non-plated, no pad: 3.2 mm to the hole edge"
 mask,"M1, M2: window over the drift pad moves with the pad (resist island unchanged)",M1 + M2,590.95,5.70,594.55,9.30,"3.6 x 3.6 mm, as for the first B2 pad"
