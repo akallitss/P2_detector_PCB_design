@@ -204,8 +204,99 @@ def tables(G, d):
             w.writerow([i, f"{x:.3f}", f"{y:.3f}"])
 
 
+def square(c, s, th):
+    from shapely import affinity
+    P = Polygon([(-s / 2, -s / 2), (s / 2, -s / 2), (s / 2, s / 2), (-s / 2, s / 2)])
+    return affinity.translate(affinity.rotate(P, th), *c)
+
+
+def square_options(G):
+    """Square mesh pads inside the frame opening, CLEAR_RO from every readout pad (2026-10-28: the
+    user went back to a square pad). Search over centre (±4 mm round today's) and angle:
+    'largest' = biggest side, 'contact' = most area under the mesh."""
+    free, others, mesh, pn = G["base"].buffer(1e-3), G["others"], G["mesh"], G["pad_now"]
+    ok = lambda P: free.contains(P) and P.distance(others) >= CLEAR_RO
+    cx0, cy0 = pn.centroid.coords[0]
+    res = []
+    for th in np.arange(-60, 31, 5):
+        for dx in np.arange(-4, 4.01, 0.25):
+            for dy in np.arange(-4, 4.01, 0.25):
+                c = (cx0 + dx, cy0 + dy)
+                if not ok(square(c, 0.5, th)):
+                    continue
+                lo, hi = 0.0, 12.0
+                for _ in range(16):
+                    m = (lo + hi) / 2
+                    lo, hi = (m, hi) if ok(square(c, m, th)) else (lo, m)
+                lo = math.floor(lo * 100) / 100                          # 0.01 mm grid, stays inside
+                res.append((lo, square(c, lo, th).intersection(mesh).area, c, th))
+    big = max(res, key=lambda r: (r[0], r[1]))
+    con = max(res, key=lambda r: (round(r[1], 2), r[0]))
+    xy = np.asarray(pn.exterior.coords)[:4]
+    th_now = math.degrees(math.atan2(*(xy[1] - xy[0])[::-1]))
+    out = {"today": (float(np.hypot(*(xy[1] - xy[0]))), pn, pn.centroid.coords[0], th_now)}
+    for k, (s, u, c, th) in (("contact", con), ("largest", big)):
+        out[k] = (s, square(c, s, th), c, th)
+    return out
+
+
+def options_figure(G, O):
+    zx = (290, 313, 503, 522)
+    fig, axs = plt.subplots(1, 3, figsize=(19, 7.4))
+    names = {"today": "TODAY", "contact": "OPTION 1 – most contact with the mesh",
+             "largest": "OPTION 2 – largest square"}
+    for ax, k in zip(axs, ("today", "contact", "largest")):
+        s, P, c, th = O[k]
+        fp.board(ax)
+        ax.add_collection(PolyCollection([q for q in G["Fq"] if not Polygon(q).buffer(0).equals(G["pad_now"])],
+                                         fc=fp.C_FCU, ec="none", alpha=.75, zorder=2))
+        ax.add_patch(fp.poly_patch(G["mesh"], fc=fp.C_MESH, ec="0.4", lw=.6, hatch="....", alpha=.45, zorder=3))
+        ax.plot(*np.asarray(G["base"].exterior.coords).T, color="0.3", lw=.9, ls=":", zorder=4)
+        ax.add_patch(fp.poly_patch(P, fc=C_MESHPAD if k != "today" else "#e2b82a", ec="#1b7a2e", lw=1.6, alpha=.9, zorder=6))
+        ax.add_patch(fp.poly_patch(P.intersection(G["mesh"]), fc="none", ec="#11461d", lw=0, hatch="////", zorder=7))
+        ax.add_patch(fp.poly_patch(P.buffer(CLEAR_RO).difference(P.buffer(.02)), fc="none", ec="#c0392b", lw=.8,
+                                   ls=(0, (2, 2)), zorder=7))
+        if k != "today":
+            ax.add_patch(fp.poly_patch(G["pad_now"], fc="none", ec="0.15", lw=1.0, ls=":", zorder=8))
+        d = P.distance(G["others"])
+        u = P.intersection(G["mesh"]).area
+        ax.text(zx[0] + .3, zx[2] + .3,
+                f"side {s:.2f} mm, rotated {th:.0f}°, centre ({c[0]:.2f}, {c[1]:.2f})\n"
+                f"copper {P.area:.1f} mm², under the mesh {u:.1f} mm² (hatched)\n"
+                f"{d:.2f} mm to the nearest readout pad",
+                fontsize=9, va="bottom", bbox=dict(fc="white", ec=fp.C_EXT_EC, alpha=.92, boxstyle="round,pad=.4"), zorder=9)
+        ax.set_xlim(zx[0], zx[1])
+        ax.set_ylim(zx[2], zx[3])
+        ax.set_aspect("equal")
+        ax.grid(lw=.25, alpha=.4)
+        ax.tick_params(labelsize=7)
+        ax.set_xlabel("x [mm]", fontsize=8)
+        ax.set_title(names[k], fontsize=12, weight="bold", loc="left", color="black" if k == "today" else fp.C_EXT_EC)
+    axs[0].set_ylabel("y [mm]", fontsize=8)
+    fp.callout(axs[0], (304, 508), (305.5, 505.5), "readout pads", color="0.2")
+    fp.callout(axs[0], (296.5, 512.5), (291, 519.5), "mesh: stops 1.9 mm\nbefore the frame wall", color="0.3")
+    h = [Patch(fc=C_MESHPAD, ec="#1b7a2e", label="mesh-contact pad (square)"),
+         Patch(fc="none", ec="#11461d", hatch="////", label="part of the pad under the mesh (the contact)"),
+         Patch(fc=fp.C_MESH, ec="0.4", hatch="....", alpha=.45, label="mesh"),
+         Line2D([], [], color="#c0392b", ls=(0, (2, 2)), label=f"{CLEAR_RO:g} mm round the pad"),
+         Line2D([], [], color="0.15", ls=":", label="today's pad (dotted)"),
+         Line2D([], [], color="0.3", ls=":", label="frame inner wall"),
+         Patch(fc=fp.C_FCU, alpha=.75, label="F.Cu")]
+    fig.legend(handles=h, loc="lower center", ncol=7, fontsize=9, frameon=False)
+    fig.suptitle(f"PCB – corner B: square mesh-contact pad, {CLEAR_RO:g} mm from the readout pads, inside the frame "
+                 "opening – two options", fontsize=13.5, y=.98)
+    fig.tight_layout(rect=(0, 0.05, 1, 0.95))
+    fig.savefig(os.path.join(fp.FIG, "pcb_corner_B_pad_options.png"), dpi=130)
+    plt.close(fig)
+
+
 def main():
     G = geometry()
+    O = square_options(G)
+    options_figure(G, O)
+    for k, (s, P, c, th) in O.items():
+        print(f"{k}: side {s:.2f}, angle {th:.0f}, centre ({c[0]:.2f}, {c[1]:.2f}), copper {P.area:.1f}, "
+              f"under mesh {P.intersection(G['mesh']).area:.1f}, to readout {P.distance(G['others']):.2f}")
     d, a_now, a_new = figure(G)
     tables(G, d)
     print(f"mesh pad: {G['pad_new'].area:.1f} mm2, {len(G['pad_new'].exterior.coords) - 1} vertices, "
