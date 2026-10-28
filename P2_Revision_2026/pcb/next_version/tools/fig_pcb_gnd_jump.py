@@ -262,4 +262,7 @@ def main():
 
 
 if __name__ == "__main__":
+    import i18n                     # P2_LANG=fr: French figure, see i18n.py
+    i18n.setup()
     main()
+    i18n.finish()

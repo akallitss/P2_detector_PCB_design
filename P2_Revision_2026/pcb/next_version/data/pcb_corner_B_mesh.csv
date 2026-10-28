@@ -1,0 +1,8 @@
+action,item,layer,x0_mm,y0_mm,x1_mm,y1_mm,note
+remove,the two D solder pads (gold),F.Cu + ENIG,325.21,532.94,328.15,539.89,no drift at corner B (the drift contact is at corner A)
+remove,GND solder pad at x 315 (gold),F.Cu + ENIG,313.41,533.18,316.65,539.81,the GND pad at x 332.6 stays
+remove,copper text 'D',F.Cu,325.87,526.58,327.93,529.28,
+remove,copper text 'GND' next to the removed GND pad,F.Cu,311.60,530.33,316.80,533.03,
+change,"the 2 M + 2 D solder pads -> ONE pad, silkscreen M, net mesh (gold)",F.Cu + ENIG,319.76,532.94,328.15,539.89,"rotated rectangle 8.39 x 6.96 mm; corners (319.76, 532.94) (319.76, 539.89) (328.15, 539.89) (328.15, 532.94); envelope of the 4 old pads; 2.86 mm from the remaining GND pad; mesh cable here; the 'M' text stays"
+change,"mesh-contact pad (active area) -> polygon pad, net mesh (gold)",F.Cu + ENIG,289.85,498.83,318.60,518.91,vertices in pcb_corner_B_mesh_pad.csv; area 145.4 mm2; 1.51 mm from the nearest readout pad (today 1.50); its trace to the M pad is unchanged; re-pour the F.Cu GND hatch round it (keep-out as today)
+mask,"M1, M2: today's window over the mesh pad -> windows over the new pad (part under the mesh)",M1 + M2,289.85,498.83,318.60,518.91,0.3 mm (M1) / 0.45 mm (M2) inside the pad; made by make_masks_2026.py

@@ -17,7 +17,7 @@ import matplotlib.text
 HERE = os.path.dirname(os.path.abspath(__file__))
 LANG = os.environ.get("P2_LANG", "en")
 WANTED = {"pcb_overview", "pcb_corner_A", "pcb_corner_A_steps", "pcb_alignment_marks",
-          "pcb_alignment_marks_outer", "pcb_screw_holes"}
+          "pcb_alignment_marks_outer", "pcb_screw_holes", "pcb_corner_B", "pcb_corner_A_gnd_jump"}
 SEEN = []
 
 

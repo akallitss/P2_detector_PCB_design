@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from scipy import ndimage
 
 import make_masks_2026 as mm
+from shapely.geometry import box
 
 qc, rg, fp = mm.qc, mm.rg, mm.fp
 WIN = (30.0, 655.0, -15.0, 545.0)
@@ -42,6 +43,8 @@ def expected_boxes():
     out.append(("corner-A mesh window", mm.MESH_WIN_A))
     out.append(("drift-pad window old", mm.drift_window(mm.PAD_OLD)))
     out.append(("drift-pad window new", mm.drift_window(mm.PAD_NEW)))
+    pad_b = mm.corner_B()[0]
+    out.append(("corner-B mesh-pad window", pad_b.union(box(299.5, 513.5, 302.8, 516.8)).bounds))   # old + new
     return out
 
 
@@ -92,7 +95,8 @@ def main():
 def figure():
     marks, _ = fp.marks_new()
     wins = {"cross 1": (63, 79, 58, 84), "cross 2": (86, 109, 15, 37), "cross 3": (627, 644, 75, 93),
-            "corner A": (582, 612, -12, 20), "screw holes (bottom side)": (130, 165, -14, 4)}
+            "corner A": (582, 612, -12, 20), "corner B": (286, 320, 496, 522),
+            "screw holes (bottom side)": (130, 165, -14, 4)}
     fig, axs = plt.subplots(4, len(wins), figsize=(3.4 * len(wins), 13))
     for j, (name, w) in enumerate(wins.items()):
         for i, (layer, tag) in enumerate((("M1", "NOW"), ("M1", "NEW"), ("M2", "NOW"), ("M2", "NEW"))):

@@ -138,6 +138,26 @@ def cross_outlines(objs, aps):
     return out
 
 
+MESH_PAD_B_C = (301.1, 515.2)            # centre of today's corner-B mesh-pad windows
+_CB = None
+
+
+def corner_B():
+    """New corner-B mesh pad and its (M1, M2) windows, from fig_pcb_corner_B (computed once)."""
+    global _CB
+    if _CB is None:
+        import fig_pcb_corner_B as cb
+        G = cb.geometry()
+        _CB = (G["pad_new"],) + cb.windows(G)
+    return _CB
+
+
+def mesh_windows_B(objs):
+    return [o for o in objs if o["kind"] == "region" and o["pol"] == "D"
+            and math.hypot(o["c"][0] - MESH_PAD_B_C[0], o["c"][1] - MESH_PAD_B_C[1]) < 1.0
+            and max(o["bbox"][2] - o["bbox"][0], o["bbox"][3] - o["bbox"][1]) < 4]
+
+
 def mesh_windows_A(objs):
     x0, y0, x1, y1 = MESH_WIN_A
     return [o for o in objs if o["kind"] == "region" and o["pol"] == "D" and x0 < o["c"][0] < x1 and y0 < o["c"][1] < y1
@@ -216,6 +236,10 @@ def make(layer, log):
     assert len(dw) == 1, dw
     drop += dw
     log.append(f"{layer}: removed the drift-pad window at the first B2 pad {tuple(round(v, 2) for v in dw[0]['bbox'])}")
+    bw = mesh_windows_B(objs)
+    assert len(bw) == 1, bw
+    drop += bw
+    log.append(f"{layer}: removed the corner-B mesh-pad window {tuple(round(v, 2) for v in bw[0]['bbox'])}")
     kill = sorted({i for o in drop for i in o["lines"]})
     kill = set(kill)
     L = [l for i, l in enumerate(L) if i not in kill]
@@ -250,6 +274,11 @@ def make(layer, log):
     block += ["G04 drift pad at the corner centre: window over the pad*", "%LPD*%"] + mk.rect_region(*w)
     log.append(f"{layer}: {2 * mk.WIN_H:.1f} x {2 * mk.WIN_H:.1f} mm window over the drift pad at {PAD_NEW} "
                f"(inside the B2 resist island {mk.ISLAND})")
+    pad_b, w1, w2 = corner_B()
+    wb = w1 if layer == "M1" else w2
+    block += ["G04 corner B: window over the enlarged mesh-contact pad (its part under the mesh)*", "%LPD*%"]
+    block += poly_region(wb)
+    log.append(f"{layer}: corner-B mesh-pad window {wb.area:.1f} mm2, bounds {tuple(round(v, 2) for v in wb.bounds)}")
     block += ["%LPD*%"]
     L = mk.insert_before_m02(L, block)
     i = next(k for k, l in enumerate(L) if l.startswith("%FS"))

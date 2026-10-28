@@ -48,7 +48,7 @@ section 0 of its README).
 |---|---|---|
 | 1 | Homogenised screw holes: 37 × Ø3.5 (`pcb_screw_holes.csv`, figures `pcb_screw_holes*.png`): 15 of today's stay (the 13 on the outer arc, between the signal lines, and the 2 inner corners), 25 removed, 22 new | drawn; plating of the new ones? hole 13 pad 2.65 mm from the drift line |
 | 2 | Sacrificed pad for the drift: Sig1 removed, drift pad 3 × 3 mm at the centre of the cleared corner (592.75, 7.5) (26 Oct; first B2 patch: (590.5, 10.0)) | drawn (`pcb_corner_A_drift.csv`, `pcb_corner_A_steps.png`); Sig1's connector pin left floating (28 Oct) |
-| 3 | Mesh-contact pad | corner A: mesh pad removed; its line becomes the drift feed; the top-corner pad is the only mesh contact |
+| 3 | Mesh-contact pad | corner A: mesh pad removed; its line becomes the drift feed. Corner B (the only mesh contact, 28 Oct): D pads and the GND pad at x 315 removed, M + D merged into one M pad; the mesh-contact pad grown into a band along both walls, 145 mm² (68 mm² under the mesh, today 5), 1.5 mm from the readout pads (`pcb_corner_B.png`, `pcb_corner_B_mesh*.csv`); M1/M2 windows done |
 | 4 | Bigger alignment marks (9 mm, 12.5 mm resist square) | drawn; crosses 1, 2 moved to r = 104.25 (47.5°, 12.5°) |
 | 5 | Drift pad connected to the HV pads | 26 Oct: on F.Cu through today's mesh line (0.8 mm segment pad → bend) into one big D pad (the 2 M + 2 D pads merged, 8.4 × 6.9 mm, 28 Oct; top GND pad removed, bottom GND 3.26 mm away); no via, no back copper; GND pour 3 mm away (today 0.5 mm) |
 | 6 | Connectors to the back side (same FX20-140P, same positions) | drawn; pin order mirrors: check the mating side |
