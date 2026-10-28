@@ -26,8 +26,8 @@ Figures and tables only; the changes go into the KiCad project. Made by
 
 | table (`data/`) | what |
 |---|---|
-| `pcb_screw_holes_new.csv` | 39 × Ø3.5, same positions as the frame and carbon back (plated: to decide) |
-| `pcb_screw_holes_remove.csv` | today's 40 screw holes; 37 go, 3 corner holes stay |
+| `pcb_screw_holes_new.csv` | 37 × Ø3.5, same positions as the frame and carbon back: 15 are today's holes, unchanged (the outer arc, between the signal lines, and the 2 inner corners); 22 new (plated: to decide) |
+| `pcb_screw_holes_remove.csv` | today's 40 screw holes; 25 go, 15 stay |
 | `pcb_alignment_marks.csv` | 4 crosses, now / new centres and sizes |
 | `pcb_connectors.csv` | the 10 connector centres and angles (same position, now on B.Cu) |
 | `pcb_mesh_cut.csv` | the two mesh cut lines of the cleared corner |
@@ -37,7 +37,8 @@ Figures and tables only; the changes go into the KiCad project. Made by
 **Insulation masks (made here, not in KiCad):** `Insulation_masks/V3B_final_2026/`
 (`P2_BASKET-Mask_M1_2026.gbr`, `..._M2_2026.gbr`, mesh-cut template), made by
 `tools/make_masks_2026.py` from V3B_final + B2:
-- M1: today's 40 screw-hole openings closed, 39 new Ø4.0 openings;
+- M1: the openings of the 25 screw holes that go are closed, 22 new Ø4.0
+  openings; the 15 kept holes keep today's openings (QC: unchanged);
 - M1, M2: alignment crosses 10 mm outline / 1.3 mm arms in 12.5 mm resist
   squares at the new positions (old outlines removed; in M2 the old squares of
   crosses 1, 2 opened again);
@@ -94,7 +95,7 @@ bigger cross.
   12.5 × 12.5 mm resist square.
 - **Crosses 3 and 4** stay where they are.
 - **Crosses 1 and 2** (superseded 2026-10-20): with the new screw-hole pattern
-  their positions are 3.7–4.2 mm from holes 38 / 39. They move to r = 104.25 mm
+  their positions are 3.7–4.2 mm from the new inner-arc holes. They move to r = 104.25 mm
   at 47.5° and 12.5° (mirror pair): (70.43, 76.86) and (101.78, 22.56), with
   7.1 mm free round the centre (`data/inner_marks_search.json`). The earlier
   proposal ((73.72, 68.92), (97.50, 29.66)) is dropped.

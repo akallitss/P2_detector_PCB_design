@@ -94,14 +94,25 @@ def cross(ax, c, size, lw, color, square=None, **kw):
 OLD_SCREW = None
 
 
+def in_new_pattern(x, y):
+    """A position of the new screw-hole pattern."""
+    return any(math.hypot(x - a, y - b) < 0.05 for _, a, b, _ in rg.new_frame_holes()[0])
+
+
+def is_kept_hole(x, y):
+    """A new screw hole that is today's hole (same position): the outer arc and the inner corners."""
+    _, H = rg.read_drill()
+    return any(math.hypot(x - a, y - b) < 0.05 for k in (3, 6) for a, b in H[k])
+
+
 def copper_polys(prims, win, drop_old_screw_pads=False):
     """Gerber primitives -> polygons cropped to win (keeps memory low). Clear-polarity primitives
     (clearances cut into the GND hatch) are not copper and are skipped."""
     from gerbonara.graphic_primitives import ArcPoly, Circle as GC, Line as GL, Rectangle as GR
     global OLD_SCREW
-    if OLD_SCREW is None:
+    if OLD_SCREW is None:                    # today's screw holes that go (the outer arc and corners stay)
         D, H = rg.read_drill()
-        OLD_SCREW = [(x, y) for k in (3, 6) for x, y in H[k]]
+        OLD_SCREW = [(x, y) for k in (3, 6) for x, y in H[k] if not in_new_pattern(x, y)]
     x0, x1, y0, y1 = win
     out = []
     for p in prims:
@@ -210,7 +221,7 @@ def overview(C, conns, mk):
     for x, y, d in rg.old_frame_holes(H):
         a0.plot(x, y, "o", ms=6, **({"mfc": "#1f5fbf", "mec": "#1f5fbf"} if d < 3.2 else {"mfc": "white", "mec": "#8e44ad", "mew": 1.8}), zorder=5)
     for no, x, y, _ in rg.new_frame_holes()[0]:
-        a1.plot(x, y, "o", ms=6, mfc="white", mec="black", mew=1.4, zorder=5)
+        a1.plot(x, y, "o", ms=6, mfc="0.6" if is_kept_hole(x, y) else "white", mec="black", mew=1.4, zorder=5)
     new, _ = mk
     for i, c in MARKS_NOW.items():
         a0.plot(*c, "+", ms=9, mew=1.6, color="#c0392b", zorder=6)
@@ -225,12 +236,16 @@ def overview(C, conns, mk):
         ax.text(52, 97, "zoom marks", color=C_DIM, fontsize=9)
     a0.set_title("NOW", fontsize=14, weight="bold", loc="left")
     a1.set_title("NEW", fontsize=14, weight="bold", loc="left", color=C_EXT_EC)
+    holes = rg.new_frame_holes()[0]
+    n_new, n_kept = len(holes), sum(1 for _, x, y, _ in holes if is_kept_hole(x, y))
     fig.text(0.04, 0.2, "today\n• connectors FX20-140P on the front (F.Cu)\n"
              "• 40 screw holes: 26 Ø3.5 plated + 14 Ø3.5 not plated,\n   irregular spacing\n"
              "• alignment crosses 3 × 3 mm\n• Sig1 readout pad in the bottom-right corner",
              fontsize=9.5, va="top", bbox=dict(fc="white", ec="0.6", boxstyle="round,pad=.5"))
     fig.text(0.52, 0.2, "1. outline UNCHANGED\n"
-             "2. 39 screw holes Ø3.5, equal pitch, mirror-symmetric (table pcb_screw_holes_new.csv)\n"
+             f"2. {n_new} screw holes Ø3.5 (table pcb_screw_holes_new.csv): {n_kept} stay as today (grey: the outer\n"
+             "    arc, between the signal lines, and the 2 inner corners), the rest at equal pitch on the\n"
+             "    straight sides and the inner arc\n"
              "3. connectors move to the BACK (B.Cu), same positions (dashed)\n"
              "4. alignment crosses 9 mm / 12.5 mm resist square; crosses 1, 2 move (zoom marks)\n"
              "5. corner A: drift pad at the corner centre, fed by today's mesh line; mesh cleared (zoom A)\n"
@@ -242,6 +257,7 @@ def overview(C, conns, mk):
          Line2D([], [], marker="o", ls="none", mfc="#1f5fbf", mec="#1f5fbf", label="Ø3.5 plated (today)"),
          Line2D([], [], marker="o", ls="none", mfc="white", mec="#8e44ad", mew=1.8, label="Ø3.5 not plated (today)"),
          Line2D([], [], marker="o", ls="none", mfc="white", mec="black", label="NEW Ø3.5 screw hole"),
+         Line2D([], [], marker="o", ls="none", mfc="0.6", mec="black", label="screw hole kept as today"),
          Line2D([], [], marker="P", ls="none", mfc="#c0392b", mec="white", ms=10, label="alignment cross"),
          Line2D([], [], marker="o", ls="none", color="0.4", ms=3, label="connector-support hole")]
     fig.legend(handles=h, loc="upper center", bbox_to_anchor=(0.5, 0.94), ncol=4, fontsize=8.5, frameon=False)
@@ -457,7 +473,12 @@ def tables(conns, mk):
         w = csv.writer(fh)
         w.writerow(["no", "x_mm", "y_mm", "diameter_mm", "edge", "plated", "note"])
         for no, x, y, e in rg.new_frame_holes()[0]:
-            w.writerow([no, f"{x:.2f}", f"{y:.2f}", rg.SCREW_D, e, "TO DECIDE", "same position in frame and carbon back"])
+            if is_kept_hole(x, y):
+                w.writerow([no, f"{x:.2f}", f"{y:.2f}", rg.SCREW_D, e, "as today", "today's hole, unchanged"
+                            + (" (outer arc: sits between the signal lines)" if "outer arc" in rg.edge_of((x, y)) else "")])
+            else:
+                w.writerow([no, f"{x:.2f}", f"{y:.2f}", rg.SCREW_D, e, "TO DECIDE",
+                            "new hole; same position in frame and carbon back"])
     with open(os.path.join(DATA, "pcb_screw_holes_remove.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["x_mm", "y_mm", "diameter_mm", "plating", "kept_in_new_pattern"])
@@ -513,6 +534,9 @@ def drift_table(added, removed, kept, m_pads):
     rows += [
         ["change", f"GND pour (F.Cu): {rg.CLEAR_HV:g} mm keep-out round the whole DRIFT_A net", "F.Cu", "", "", "", "",
          "today the mesh line is 0.5 mm from the GND pour"],
+        ["check", "screw hole 13 (610.30, 14.50), kept on the outer arc, plated today (pad Ø4.56)", "F.Cu + B.Cu",
+         "607.98", "12.18", "612.62", "16.82",
+         "pad 2.65 mm from the drift line (< 3 mm); non-plated, no pad: 3.2 mm to the hole edge"],
         ["mask", "M1, M2: window over the drift pad moves with the pad (resist island unchanged)", "M1 + M2",
          f"{x - 1.8:.2f}", f"{y - 1.8:.2f}", f"{x + 1.8:.2f}", f"{y + 1.8:.2f}", "3.6 x 3.6 mm, as for the first B2 pad"],
         ["mask", "window over the mesh pad: closed (resist)", "M2", *[f"{v:.2f}" for v in M_WIN_M2], "the pad is gone"],

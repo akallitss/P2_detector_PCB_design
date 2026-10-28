@@ -27,11 +27,13 @@ def expected_boxes():
     D, H = rg.read_drill()
     marks, _ = fp.marks_new()
     out = []
-    for k in (3, 6):
+    for k in (3, 6):                         # kept holes are not listed: their openings must not change
         for x, y in H[k]:
-            out.append(("old screw opening", (x - 3, y - 3, x + 3, y + 3)))
+            if not fp.in_new_pattern(x, y):
+                out.append(("old screw opening", (x - 3, y - 3, x + 3, y + 3)))
     for _, x, y, _ in rg.new_frame_holes()[0]:
-        out.append(("new screw opening", (x - 2.2, y - 2.2, x + 2.2, y + 2.2)))
+        if not fp.is_kept_hole(x, y):
+            out.append(("new screw opening", (x - 2.2, y - 2.2, x + 2.2, y + 2.2)))
     for i, c in fp.MARKS_NOW.items():
         out.append((f"old cross {i}", (c[0] - 7.5, c[1] - 7.5, c[0] + 7.5, c[1] + 7.5)))
     for i, c in marks.items():

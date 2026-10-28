@@ -30,11 +30,17 @@ sides and the inner arc (nothing may stick out in the basket).
 - HV openings at both outer corners: HV pads + 3 mm, from the PCB edge down to
   the frame wall (r 615). Opening B (top) also keeps the top gas inlet free.
 - Old drift-wire slot (bottom-right) removed: filled with frame material.
-- Screw holes: 39 × Ø3.5 (not threaded), equal pitch, mirror-symmetric about
-  30° (straight sides 46.0 mm, outer arc 46.7 mm, inner arc 38.7 mm). The
-  bottom-right corner hole moves 5 mm inward to mirror the top one (the top one
-  is fixed by the gas inlet). Straight sides y = −7.5 and inner arc r = 99.5 stay
-  on today's lines (O-ring groove); outer arc r 610.5 → 613.
+- Screw holes: 37 × Ø3.5, all not threaded (one kind everywhere).
+  - Outer arc: today's 13 positions are kept, corners included (decided
+    2026-10-28): they sit between the signal lines on the PCB. No holes are
+    added there. The 6 that are Ø3.0 threaded today become Ø3.5 not threaded.
+  - Straight sides and inner arc: equal pitch between the 4 corner holes, which
+    all stay where they are. Bottom side 46.5 mm, top side 46.0 mm (the top
+    corner is 5 mm in for the gas inlet, so the two sides are not mirror images
+    any more), inner arc 38.7 mm.
+  - Hole lines unchanged: straight sides y = −7.5, inner arc r = 99.5 (O-ring
+    groove), outer arc r = 610.5. Outer arc hole to the Ø2 bore in the STEP:
+    1.25 mm (1.50 mm today with Ø3.0).
 - O-ring groove untouched. HV filter box: no room on the extension, placed
   elsewhere. 5 mm drift gap: placeholder (step at z = 5, frame 9 mm).
 
@@ -70,7 +76,7 @@ size on carbon frame"; replaces the guide ring of the 20 Oct figures if agreed)
 **Carbon back**
 - Thickness 3 mm; outline = PCB outline; window unchanged.
 - Extension removed: outer edge r = 616.9, 10 mm before the connector pads.
-- 39 × Ø3.5, same pattern as the frame. Screws M3 × 16: head on the frame,
+- 37 × Ø3.5, same pattern as the frame (outer arc: today's positions). Screws M3 × 16: head on the frame,
   washer + nut on the carbon side.
 - "#" ribs across the window: principle only (designer chooses).
 - No drift copper on the back any more (26 Oct: the drift is fed on the front

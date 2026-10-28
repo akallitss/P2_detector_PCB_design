@@ -20,8 +20,10 @@ folder (`../Version_Apr26`, `../Version_Sept26`, `../DRIFT_P2_261124`,
 
 **Drift frame** (`mechanics/`) – extension behind the connectors (full height,
 to the PCB edge R650) with 40 connector-support holes; HV openings at both outer
-corners (also frees the top gas inlet); old wire slot removed; 39 × Ø3.5 screw
-holes, equal pitch, mirror-symmetric; outline flush with the unchanged PCB;
+corners (also frees the top gas inlet); old wire slot removed; 37 × Ø3.5 screw
+holes, all not threaded: today's 13 positions kept on the outer arc (between
+the PCB signal lines, 28 Oct), equal pitch on the straight sides and the inner
+arc; outline flush with the unchanged PCB;
 O-ring untouched. HV filter box: no room on the extension. 5 mm drift gap:
 placeholder.
 
@@ -34,7 +36,7 @@ the guide ring (`mechanics/figures/foam_slot_*.png`). The slot is centred on
 the drift pad, now at the centre of the corner (592.75, 7.5).
 
 **Carbon back** (`mechanics/`) – 3 mm; extension removed, edge 10 mm before the
-connectors (r 616.9); same 39-hole pattern; "#" ribs as principle; M3 × 16,
+connectors (r 616.9); same 37-hole pattern; "#" ribs as principle; M3 × 16,
 head on the frame, washer + nut on the carbon side.
 
 **PCB and insulation masks** – the next step. From the PDF and the work above:
@@ -44,7 +46,7 @@ section 0 of its README).
 
 | # | item | state |
 |---|---|---|
-| 1 | Homogenised screw holes: 39 × Ø3.5 (`pcb_screw_holes_new.csv`), 37 of today's 40 removed | drawn; plated or not? |
+| 1 | Homogenised screw holes: 37 × Ø3.5 (`pcb_screw_holes_new.csv`): 15 of today's stay (the 13 on the outer arc, between the signal lines, and the 2 inner corners), 25 removed, 22 new | drawn; plating of the new ones? hole 13 pad 2.65 mm from the drift line |
 | 2 | Sacrificed pad for the drift: Sig1 removed, drift pad 3 × 3 mm at the centre of the cleared corner (592.75, 7.5) (26 Oct; first B2 patch: (590.5, 10.0)) | drawn (`pcb_corner_A_drift.csv`); Sig1 pin to GND or floating? (question for Irakli) |
 | 3 | Mesh-contact pad | corner A: mesh pad removed; its line and the 2 M pads become the drift feed; the top-corner pad is the only mesh contact |
 | 4 | Bigger alignment marks (9 mm, 12.5 mm resist square) | drawn; crosses 1, 2 moved to r = 104.25 (47.5°, 12.5°) |

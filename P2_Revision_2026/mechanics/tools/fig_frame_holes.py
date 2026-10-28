@@ -74,12 +74,11 @@ def overview(G, old, new, pitch, edges):
         else:
             t = (x * (r - 16) / r, y * (r - 16) / r)
         a1.text(*t, str(no), fontsize=7, ha="center", va="center", color="0.15")
-    br = rg.CORNERS["bottom-right"]
-    a1.plot(*br, "o", ms=12, mfc="none", mec=C_EXT_EC, mew=2)
-    a1.annotate(f"corner hole moved {rg.CORNERS_NOW['bottom-right'][0] - br[0]:.1f} mm inward\n"
-                "= mirror of the top corner hole", br, (430, 45), fontsize=9, color=C_EXT_EC,
+    a1.annotate("outer arc: today's 13 positions KEPT\n(between the PCB signal lines),\nall now Ø3.5 not threaded",
+                (594.28, 139.8), (300, 40), fontsize=9, color=C_EXT_EC,
                 arrowprops=dict(arrowstyle="->", color=C_EXT_EC))
     n3 = sum(1 for h in old if h[2] < 3.2)
+    n_out = sum(1 for h in new if "outer arc" in rg.edge_of(h[1:3]))
     a0.set_title("NOW", fontsize=14, weight="bold", loc="left")
     a1.set_title("NEW", fontsize=14, weight="bold", loc="left", color="#b8650a")
     a0.text(215, 265, f"{len(old)} holes, 2 kinds:\n"
@@ -87,17 +86,17 @@ def overview(G, old, new, pitch, edges):
             "spacing irregular: 18 – 73 mm", fontsize=10, va="top",
             bbox=dict(fc="white", ec="0.6", boxstyle="round,pad=.5"))
     a1.text(185, 265, f"{len(new)} holes, all Ø{rg.SCREW_D:g} (not threaded)\n"
-            f"equal spacing on each edge:\n"
-            f"  • straight sides: {pitch['straight sides']:.1f} mm\n"
-            f"  • outer arc: {pitch['outer arc']:.1f} mm\n"
-            f"  • inner arc: {pitch['inner arc']:.1f} mm\n"
-            "the whole pattern is mirror-symmetric (30° axis)\n"
+            f"  • outer arc: today's {n_out} positions kept\n"
+            "     (between the PCB signal lines)\n"
+            f"  • bottom side: equal pitch {pitch['bottom side']:.1f} mm\n"
+            f"  • top side: equal pitch {pitch['top side']:.1f} mm\n"
+            f"  • inner arc: equal pitch {pitch['inner arc']:.1f} mm\n"
+            "all 4 corner holes stay where they are\n"
             "frame and PCB outline unchanged (flush, no widening)\n"
-            f"hole lines: straight sides y = {rg.Y_SIDE:g}, inner arc r = {rg.R_IN:g}\n"
-            f"  (unchanged, set by the O-ring); outer arc r = {rg.R_OUT_NOW:g} → {rg.R_OUT:g}\n"
-            "  (nut + washer must sit on the cut-back carbon back)",
+            f"hole lines unchanged: straight sides y = {rg.Y_SIDE:g},\n"
+            f"  inner arc r = {rg.R_IN:g} (O-ring), outer arc r = {rg.R_OUT:g}",
             fontsize=10, va="top", bbox=dict(fc="white", ec="#b8650a", boxstyle="round,pad=.5"))
-    h = [Line2D([], [], marker="o", ls="none", ms=7, mfc=C_THR, mec=C_THR, label="Ø3.0 threaded (removed)"),
+    h = [Line2D([], [], marker="o", ls="none", ms=7, mfc=C_THR, mec=C_THR, label="Ø3.0 threaded (today)"),
          Line2D([], [], marker="o", ls="none", ms=7, mfc="white", mec=C_CLR, mew=2, label="Ø3.5 not threaded (today)"),
          Line2D([], [], marker="o", ls="none", ms=7, mfc="white", mec=C_NEW, mew=1.6, label="NEW Ø3.5 not threaded (numbered, see table)"),
          Patch(fc=C_FRAME, ec=C_FRAME_EC, label="drift frame (top face)"),
@@ -119,7 +118,10 @@ def unrolled(old, new, pitch):
               "top side": "inner-top corner", "inner arc": "inner-bottom corner"}
     ends = {"bottom side": "bottom-right corner", "outer arc": "top corner",
             "top side": "top corner", "inner arc": "inner-top corner"}
-    pk = {"bottom side": "straight sides", "top side": "straight sides", "outer arc": "outer arc", "inner arc": "inner arc"}
+    pk = {"bottom side": "new pitch {:.1f} mm".format(pitch["bottom side"]),
+          "top side": "new pitch {:.1f} mm".format(pitch["top side"]),
+          "outer arc": "today's positions kept: they sit between the PCB signal lines",
+          "inner arc": "new pitch {:.1f} mm".format(pitch["inner arc"])}
     fig, axs = plt.subplots(4, 1, figsize=(15, 10.5))
     for ax, e in zip(axs, EDGES):
         o = sorted((rg.s_on(e, (x, y), now=True), d) for x, y, d in old if e in rg.edge_of((x, y)))
@@ -146,14 +148,15 @@ def unrolled(old, new, pitch):
         for sp in ("left", "right", "top"):
             ax.spines[sp].set_visible(False)
         ax.tick_params(labelsize=7)
-        ax.set_title(f"{e}  —  from the {starts[e]} to the {ends[e]}   (new pitch {pitch[pk[e]]:.1f} mm)",
+        ax.set_title(f"{e}  —  from the {starts[e]} to the {ends[e]}   ({pk[e]})",
                      fontsize=10, loc="left")
         ax.set_xlabel("position along the edge [mm]", fontsize=8)
         if e == "bottom side":
-            ax.annotate("corner hole moved 5 mm inward (mirror of the top corner hole,\nwhich must stay clear of the gas inlet): both sides now 506 mm",
-                        (n[-1], -1.3), (0.40 * L, -2.55), fontsize=8, color="#b8650a", va="center",
+            ax.annotate("corner hole stays (it is on the outer arc): this side is 511 mm, the top side 506 mm\n"
+                        "(top corner 5 mm in, clear of the gas inlet), so each side has its own pitch",
+                        (n[-1], -1.3), (0.30 * L, -2.55), fontsize=8, color="#b8650a", va="center",
                         arrowprops=dict(arrowstyle="->", color="#b8650a", lw=.8))
-    h = [Line2D([], [], marker="o", ls="none", ms=8, mfc=C_THR, mec=C_THR, label="Ø3.0 threaded (removed)"),
+    h = [Line2D([], [], marker="o", ls="none", ms=8, mfc=C_THR, mec=C_THR, label="Ø3.0 threaded (today)"),
          Line2D([], [], marker="o", ls="none", ms=8, mfc="white", mec=C_CLR, mew=2, label="Ø3.5 not threaded (today)"),
          Line2D([], [], marker="o", ls="none", ms=8, mfc="white", mec=C_NEW, mew=1.6, label="NEW Ø3.5 not threaded")]
     fig.legend(handles=h, loc="lower center", ncol=3, fontsize=9, frameon=False)
@@ -172,17 +175,18 @@ def write_ext_csv(G):
             w.writerow([f"{x:.2f}", f"{y:.2f}", d, "connector-support hole, same position and Ø as the PCB"])
 
 
-def write_csv(new):
+def write_csv(new, old):
     with open(os.path.join(rg.OUT, "data", "frame_holes_new.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["no", "x_mm", "y_mm", "diameter_mm", "edge", "note"])
         for no, x, y, e in new:
-            if e != "corner":
+            d_now = next((d for xo, yo, d in old if np.hypot(xo - x, yo - y) < 0.05), None)
+            if d_now is None:
                 note = "new position"
-            elif (round(x, 2), round(y, 2)) == rg.CORNERS["bottom-right"]:
-                note = "corner hole moved 5.0 mm inward (mirror of the top corner hole)"
+            elif d_now < 3.2:
+                note = "today's position kept; today Ø3.0 threaded -> Ø3.5 not threaded"
             else:
-                note = "kept (existing corner hole)"
+                note = "today's position and Ø kept"
             w.writerow([no, f"{x:.2f}", f"{y:.2f}", rg.SCREW_D, e, note])
 
 
@@ -192,7 +196,7 @@ def main():
     new, pitch = rg.new_frame_holes()
     overview(G, old, new, pitch, pcb_edges())
     unrolled(old, new, pitch)
-    write_csv(new)
+    write_csv(new, old)
     write_ext_csv(G)
     print("written frame_overview.png, frame_holes_unrolled.png, data/frame_holes_new.csv, data/extension_holes.csv")
 

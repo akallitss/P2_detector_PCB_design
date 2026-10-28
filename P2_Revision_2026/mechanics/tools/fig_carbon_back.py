@@ -175,7 +175,7 @@ def screw_assembly():
     bx = fig.add_axes([0.66, 0.12, 0.33, 0.76])
     bx.axis("off")
     txt = ("Where the hardware fits\n\n"
-           f"Outer arc (holes moved to r = {rg.R_OUT:g}):\n"
+           f"Outer arc (today's holes kept, r = {rg.R_OUT:g}):\n"
            f"  washer + nut on the carbon back, edge r = {rg.CB_R_OUT:g}\n"
            f"  ({rg.CONN_MARGIN:g} mm before the connectors)  ✓\n\n"
            f"Inner arc (r = {rg.R_IN:g}, edge R{rg.R_IN_EDGE_NOW:g}):  ✓\n\n"

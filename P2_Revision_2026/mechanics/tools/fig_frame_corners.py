@@ -188,7 +188,7 @@ def fig_A(G, edges):
             callout(a1, (x, y), (619, 51.5) if d > 3 else (589, 45), f"Ø{d:g} at ({x:.1f}, {y:.1f})")
     for no, x, y, e in rg.new_frame_holes()[0]:
         if win[0] < x < win[1] and win[2] < y < win[3] and e != "corner":
-            callout(a1, (x, y), (626, 33), f"frame screw hole {no}\nØ{rg.SCREW_D:g}, r = {rg.R_OUT:g}")
+            callout(a1, (x, y), (626, 33), f"frame screw hole {no}, Ø{rg.SCREW_D:g}\n(today's position, r = {rg.R_OUT:g})")
     callout(a1, (645, 47), (648, 22), "outer edge =\nPCB edge (R650)", color=C_EXT_EC)
     key_plan(fig, [0.005, 0.70, 0.11, 0.23], G, win)
     legend(fig)

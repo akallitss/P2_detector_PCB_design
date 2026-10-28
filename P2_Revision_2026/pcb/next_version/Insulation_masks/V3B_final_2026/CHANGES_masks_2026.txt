@@ -1,9 +1,9 @@
-M1: removed 40 of 40 old screw-hole openings
+M1: removed 25 of 25 old screw-hole openings
 M1: removed 48 outline tracks of the 4 old alignment crosses
 M1: removed the corner-A mesh-contact window (595.52, 2.12, 597.86, 4.36)
 M1: removed the drift-pad window at the first B2 pad (588.7, 8.2, 592.3, 11.8)
 M1: 4 crosses, 10 mm outline / 1.3 mm arms in 12.5 mm resist squares at [(70.43, 76.86), (101.78, 22.56), (635.63, 83.91), (391.22, 507.0)]
-M1: 39 new screw-hole openings Ø4
+M1: 22 new screw-hole openings Ø4; the 15 kept holes keep today's openings
 M1: 3.6 x 3.6 mm window over the drift pad at (592.75, 7.5) (inside the B2 resist island (584.6, 4.4, 595.4, 16.0))
 M2: removed 60 outline tracks of the 4 old alignment crosses
 M2: removed the corner-A mesh-contact window (595.77, 2.12, 597.8, 4.11)

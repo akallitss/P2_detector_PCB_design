@@ -5,8 +5,9 @@ Insulation masks (M1, M2) for the 2026 PCB, from V3B_final + B2 drift pad
 clear = resist.
 
 Changes:
-  * screw holes (M1): today's 40 openings removed; 39 new Ø4.0 openings at the new pattern
-    (P2_Revision_2026/mechanics, same positions as frame and carbon back)
+  * screw holes (M1): the openings of today's holes that go are removed, and Ø4.0 openings are added
+    at the new positions (P2_Revision_2026/mechanics, same positions as frame and carbon back); the
+    kept holes (outer arc, between the signal lines, and the inner corners) keep today's openings
   * alignment crosses (M1, M2): old 3 mm outlines removed; new 10 mm outlines (1.3 mm arms)
     in a 12.5 x 12.5 mm resist square at the new positions (crosses 1, 2 moved, 3, 4 in place);
     in M2 the old resist squares of crosses 1, 2 are opened again
@@ -117,8 +118,8 @@ def apertures(L):
 
 
 def old_screw_openings(objs):
-    D, H = rg.read_drill()
-    holes = [(x, y) for k in (3, 6) for x, y in H[k]]
+    """Openings of today's screw holes that go (the kept ones, outer arc + inner corners, stay as they are)."""
+    holes = [(x, y) for k in (3, 6) for x, y in rg.read_drill()[1][k] if not fp.in_new_pattern(x, y)]
     out = []
     for o in objs:
         b = o["bbox"]
@@ -240,9 +241,11 @@ def make(layer, log):
                f"{fp.SQUARE_NEW:g} mm resist squares at {[tuple(round(v, 2) for v in marks[i]) for i in (1, 2, 3, 4)]}")
     if layer == "M1":
         block += [f"G04 new screw-hole openings, diameter {HOLE_OPEN_D:g} mm*", "%LPD*%"]
-        for _, x, y, _ in rg.new_frame_holes()[0]:
+        added = [(x, y) for _, x, y, _ in rg.new_frame_holes()[0] if not fp.is_kept_hole(x, y)]
+        for x, y in added:
             block += ring_region(Point(x, y).buffer(HOLE_OPEN_D / 2, 32).exterior)
-        log.append(f"{layer}: {len(rg.new_frame_holes()[0])} new screw-hole openings Ø{HOLE_OPEN_D:g}")
+        log.append(f"{layer}: {len(added)} new screw-hole openings Ø{HOLE_OPEN_D:g}; the "
+                   f"{len(rg.new_frame_holes()[0]) - len(added)} kept holes keep today's openings")
     w = drift_window(PAD_NEW)
     block += ["G04 drift pad at the corner centre: window over the pad*", "%LPD*%"] + mk.rect_region(*w)
     log.append(f"{layer}: {2 * mk.WIN_H:.1f} x {2 * mk.WIN_H:.1f} mm window over the drift pad at {PAD_NEW} "

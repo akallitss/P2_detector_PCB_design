@@ -13,8 +13,9 @@ Changes modelled (NEW):
     (it must not stick out in the basket), so only the outer side grows:
   * extension behind the connectors, out to the PCB edge (R650), full frame height
   * HV openings at both outer corners (pads + margin), down to today's outer wall
-  * screw holes: one diameter (Ø3.5, not threaded), equal pitch, mirror-symmetric,
-    straight sides / inner arc on today's lines (O-ring), outer arc moved for the carbon-back washer
+  * screw holes: one diameter (Ø3.5, not threaded). Outer arc: today's 13 positions kept (they sit
+    between the PCB signal lines, decided 2026-10-28). Straight sides and inner arc: equal pitch
+    on today's lines (O-ring)
 """
 import collections
 import json
@@ -51,8 +52,8 @@ R_IN_EDGE_NEW = R_IN_WALL - ARC_NEW              # 95
 Y_SIDE_NOW, R_OUT_NOW, R_IN_NOW = -7.5, 610.5, 99.5
 Y_SIDE = Y_SIDE_NOW                              # cannot move: 0.26 mm from the O-ring groove
 R_IN = R_IN_NOW                                  # unchanged
-R_OUT = 613.0                                    # moved in, so the nut + washer sit on the carbon back
-                                                 # (its edge is 10 mm before the connectors)
+R_OUT = R_OUT_NOW                                # unchanged: the outer-arc holes keep today's positions,
+                                                 # between the PCB signal lines (2026-10-28; was 613)
 
 # chamfer at the bottom-right corner of the PCB / carbon back (today it starts at y = -10)
 _CH0_NOW, CH1 = np.array([617.77, -10.0]), np.array([648.56, 43.33])
@@ -252,9 +253,18 @@ CORNERS_NOW = {                     # existing corner holes (Ø3.5)
     "inner-bottom": (99.31, -6.00), "bottom-right": (610.44, -6.00),
     "top": (297.52, 527.32), "inner-top": (44.46, 89.00)}
 CORNERS = dict(CORNERS_NOW)
-# the top corner hole sits 5 mm inside its mirror position (the gas inlet is there): move the
-# bottom-right one to the mirror of the top one, so both straight sides have the same length
-CORNERS["bottom-right"] = tuple(round(v, 2) for v in mirror30(CORNERS["top"]))
+# All four corners stay. The two outer ones are on the outer arc, whose holes cannot move
+# (2026-10-28). The top one sits 5 mm inside its mirror position (gas inlet), so the two straight
+# sides differ in length and are not mirror images: each gets its own equal pitch.
+TOP_SIDE_VIRTUAL_END = tuple(round(v, 2) for v in mirror30(CORNERS["top"]))   # (605.43, -6.0)
+
+
+def outer_arc_holes_now():
+    """Today's holes between the two outer corners (PCB T3 + T6 on r 610.5), by angle."""
+    _, H = read_drill()
+    a0, a1 = deg(CORNERS["bottom-right"]), deg(CORNERS["top"])
+    pts = [(x, y) for k in (3, 6) for x, y in H[k] if math.hypot(x, y) > 603 and a0 + 0.1 < deg((x, y)) < a1 - 0.1]
+    return sorted(pts, key=deg)
 
 
 def old_frame_holes(H):
@@ -298,25 +308,28 @@ def n_segments(length):
 
 
 def new_frame_holes():
-    """Equal pitch on every edge, corners fixed, mirror-symmetric.
+    """Corners fixed; outer arc = today's holes; straight sides and inner arc at equal pitch.
     Returns ([(no, x, y, edge)], pitch) numbered round the frame."""
     cb, cr, ct, ci = (CORNERS[k] for k in ("inner-bottom", "bottom-right", "top", "inner-top"))
     L = cr[0] - cb[0]
     n = n_segments(L)
-    side = [(cb[0] + k * L / n, Y_SIDE) for k in range(1, n)]
-    a0, a1 = deg(cr), deg(ct)
-    m = n_segments(R_OUT * math.radians(a1 - a0))
-    outer = [(R_OUT * math.cos(math.radians(a0 + k * (a1 - a0) / m)), R_OUT * math.sin(math.radians(a0 + k * (a1 - a0) / m)))
-             for k in range(1, m)]
+    bottom = [(cb[0] + k * L / n, Y_SIDE) for k in range(1, n)]
+    # top side: equal pitch between its corners, on today's line (the mirror of y = Y_SIDE)
+    Lt = TOP_SIDE_VIRTUAL_END[0] - mirror30(ci)[0]
+    nt = n_segments(Lt)
+    top = [mirror30((mirror30(ci)[0] + k * Lt / nt, Y_SIDE)) for k in range(nt - 1, 0, -1)]
+    outer = outer_arc_holes_now()
     b0, b1 = deg(cb), deg(ci)
     q = n_segments(R_IN * math.radians(b1 - b0))
     inner = [(R_IN * math.cos(math.radians(b0 + k * (b1 - b0) / q)), R_IN * math.sin(math.radians(b0 + k * (b1 - b0) / q)))
              for k in range(1, q)]
-    seq = [(cb, "corner")] + [(p, "bottom side") for p in side] + [(cr, "corner")] \
+    seq = [(cb, "corner")] + [(p, "bottom side") for p in bottom] + [(cr, "corner")] \
         + [(p, "outer arc") for p in outer] + [(ct, "corner")] \
-        + [(mirror30(p), "top side") for p in reversed(side)] + [(ci, "corner")] \
+        + [(p, "top side") for p in top] + [(ci, "corner")] \
         + [(p, "inner arc") for p in reversed(inner)]
-    pitch = {"straight sides": L / n, "outer arc": R_OUT * math.radians(a1 - a0) / m,
+    arc_pitch = [R_OUT * math.radians(deg(b) - deg(a)) for a, b in zip([cr] + outer, outer + [ct])]
+    pitch = {"bottom side": L / n, "top side": Lt / nt,
+             "outer arc (today's, min-max)": (min(arc_pitch), max(arc_pitch)),
              "inner arc": R_IN * math.radians(b1 - b0) / q}
     return [(i + 1, p[0], p[1], e) for i, (p, e) in enumerate(seq)], pitch
 

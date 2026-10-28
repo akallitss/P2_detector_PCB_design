@@ -1,13 +1,12 @@
-[M1] changed areas: 187, all inside an intended change: True
+[M1] changed areas: 90, all inside an intended change: True
    corner-A mesh window    : 0 changed area(s)
    drift-pad window new    : 1 changed area(s)
    drift-pad window old    : 1 changed area(s)
    new cross               : 3 changed area(s)
-   new screw opening       : 36 changed area(s)
+   new screw opening       : 23 changed area(s)
    old cross               : 37 changed area(s)
-   old screw opening       : 108 changed area(s)
-   merged new screw opening + old screw opening: 1 area(s)
-   area opened 487.3 mm2, closed 858.3 mm2
+   old screw opening       : 25 changed area(s)
+   area opened 316.4 mm2, closed 644.8 mm2
 [M2] changed areas: 25, all inside an intended change: True
    corner-A mesh window    : 1 changed area(s)
    drift-pad window new    : 1 changed area(s)
