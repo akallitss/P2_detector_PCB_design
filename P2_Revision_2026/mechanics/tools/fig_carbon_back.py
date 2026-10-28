@@ -131,7 +131,7 @@ def corner():
 
 def screw_assembly():
     """Section across a straight side through a screw: head on the frame top, washer + nut under
-    the carbon back. Shows the 2.5 mm strip between the hole and the PCB edge."""
+    the carbon back. The frame now overhangs the PCB / carbon back by rg.OVERHANG on this side."""
     P = straight_profile()
     th = rg.Y_SIDE
     hole = box(th - rg.SCREW_D / 2, -1, th + rg.SCREW_D / 2, rg.FRAME_H + 1)
@@ -139,6 +139,7 @@ def screw_assembly():
     fig = plt.figure(figsize=(15, 7.2))
     ax = fig.add_axes([0.05, 0.1, 0.58, 0.8])
     ax.add_patch(poly_patch(P.difference(hole), fc=C_FRAME, ec=C_FRAME_EC, lw=1.0, zorder=2))
+    ax.add_patch(Rectangle((-rg.SIDE_NEW, 0), rg.OVERHANG, rg.FRAME_H, fc=C_WIDE, ec=C_EXT_EC, lw=.8, zorder=2))
     zc = -rg.PCB_T - rg.CB_T
     ax.add_patch(Rectangle((-rg.SIDE_NOW, -rg.PCB_T), 25, rg.PCB_T, fc="#2e7d32", alpha=.5, zorder=2))
     ax.add_patch(Rectangle((-rg.SIDE_NOW, zc), 25, rg.CB_T, fc=C_CB, alpha=.85, zorder=2))
@@ -150,15 +151,19 @@ def screw_assembly():
     zw = zc - rg.WASHER_T
     ax.add_patch(Rectangle((th - rg.WASHER_OD / 2, zw), rg.WASHER_OD, rg.WASHER_T, fc="#f1c40f", ec="black", lw=.8, zorder=5))
     ax.add_patch(Rectangle((th - rg.NUT_AF / 2, zw - rg.NUT_T), rg.NUT_AF, rg.NUT_T, fc="#7f8c8d", ec="black", lw=.8, zorder=5))
-    ax.axvline(-rg.SIDE_NOW, color="#c0392b", lw=1.2, ls="--", zorder=6)
-    ax.text(-rg.SIDE_NOW - 0.3, 12.3, "PCB / frame edge\n(basket limit)", color="#c0392b", fontsize=8.5, ha="right", va="top")
-    over = rg.HEAD_D / 2 - (th + rg.SIDE_NOW)
-    for z in (zt + head_t / 2, zw - rg.NUT_T / 2):
-        dim(ax, (th - rg.HEAD_D / 2, z), (-rg.SIDE_NOW, z), (0, 0), "", fs=8, color="#c0392b")
-    dim(ax, (-rg.SIDE_NOW, rg.FRAME_H), (th, rg.FRAME_H), (0, 4.6), f"{th + rg.SIDE_NOW:g}", fs=8)
-    for xy, xyt, t, c in (((th + 2.75, zt + 1.5), (-1.5, 11.4), f"M3 head Ø{rg.HEAD_D:g} on the frame top: {over:.2f} mm past the edge", "#c0392b"),
-                          ((th + 2.75, zw - 1.2), (-1.5, -7.6), f"M3 nut (AF {rg.NUT_AF:g}, flats parallel to the edge): {over:.2f} mm past;"
-                                                                 f"\nwasher Ø{rg.WASHER_OD:g}: {rg.WASHER_OD / 2 - (th + rg.SIDE_NOW):.2f} mm past", "#c0392b"),
+    ax.axvline(-rg.SIDE_NEW, color="#c0392b", lw=1.2, ls="--", zorder=6)
+    ax.text(-rg.SIDE_NEW - 0.3, 12.3, "NEW frame edge\n(outermost part)", color="#c0392b", fontsize=8.5, ha="right", va="top")
+    ax.axvline(-rg.SIDE_NOW, color="0.4", lw=1.0, ls=":", zorder=6)
+    ax.text(-rg.SIDE_NOW + 0.3, -8.6, "PCB / carbon-back edge (unchanged)", color="0.3", fontsize=8, ha="left")
+    head_in = (th + rg.SIDE_NEW) - rg.HEAD_D / 2              # head inside the new frame edge
+    nut_over = rg.NUT_AF / 2 - (th + rg.SIDE_NOW)             # nut past the carbon-back edge
+    dim(ax, (th - rg.HEAD_D / 2, zt + head_t / 2), (-rg.SIDE_NEW, zt + head_t / 2), (0, 0), "", fs=8, color=C_DIM)
+    dim(ax, (th - rg.NUT_AF / 2, zw - rg.NUT_T / 2), (-rg.SIDE_NOW, zw - rg.NUT_T / 2), (0, 0), "", fs=8, color="#c0392b")
+    dim(ax, (-rg.SIDE_NEW, rg.FRAME_H), (th, rg.FRAME_H), (0, 3.6), f"{th + rg.SIDE_NEW:g}", fs=8)
+    for xy, xyt, t, c in (((th + 2.75, zt + 1.5), (-1.5, 11.4), f"M3 head Ø{rg.HEAD_D:g} on the frame top: {head_in:.2f} mm inside the new edge  ✓", C_DIM),
+                          ((th + 2.75, zw - 1.2), (-1.5, -7.6), f"M3 nut (AF {rg.NUT_AF:g}, flats parallel to the edge): {nut_over:.2f} mm past the\n"
+                                                                 f"carbon back, still {rg.OVERHANG - nut_over:.2f} mm inside the frame edge", "#c0392b"),
+                          ((-rg.SIDE_NEW + .75, 6.5), (-15.5, 9.8), f"NEW +{rg.OVERHANG:g} mm", C_EXT_EC),
                           ((th + 1.5, 2.0), (2.0, 6.6), f"Ø{rg.SCREW_D:g} hole, {rg.Y_SIDE_NOW:g} from the axis: cannot move,\n"
                                                         "already 0.26 mm from the O-ring groove", "black"),
                           ((4.0, zc + 1.5), (6.0, -2.6), f"carbon back {rg.CB_T:g} mm", "black"),
@@ -178,16 +183,15 @@ def screw_assembly():
            f"Outer arc (today's holes kept, r = {rg.R_OUT:g}):\n"
            f"  washer + nut on the carbon back, edge r = {rg.CB_R_OUT:g}\n"
            f"  ({rg.CONN_MARGIN:g} mm before the connectors)  ✓\n\n"
-           f"Inner arc (r = {rg.R_IN:g}, edge R{rg.R_IN_EDGE_NOW:g}):  ✓\n\n"
-           f"Straight sides (y = {rg.Y_SIDE:g}, edge y = −{rg.SIDE_NOW:g}):\n"
-           "  only 2.5 mm from the hole axis to the edge,\n"
-           f"  so any M3 head or nut sticks out {over:.2f} mm\n"
-           "  (nut corners 0.68 mm). Today's screw heads\n"
-           "  have the same problem.\n\n"
-           "  Options for the straight sides:\n"
-           "  • M2.5 (head Ø4.5, nut AF 5.0): flush\n"
-           "  • low-profile square nut / nut plate\n"
-           "  • accept 0.25 mm (flats parallel to the edge)")
+           f"Inner arc (r = {rg.R_IN:g}, frame edge now R{rg.R_IN_EDGE_NEW:g}):  ✓\n\n"
+           f"Straight sides (y = {rg.Y_SIDE:g}): the frame now goes to\n"
+           f"  y = −{rg.SIDE_NEW:g}, {rg.OVERHANG:g} mm past the PCB (y = −{rg.SIDE_NOW:g}):\n"
+           f"  • M3 head on the frame: {head_in:.2f} mm inside  ✓\n"
+           f"  • M3 nut on the carbon back: {nut_over:.2f} mm past the\n"
+           f"    carbon edge (corners 0.68 mm), but inside the\n"
+           f"    frame's outline, so nothing sticks out of the\n"
+           f"    detector any more  ✓\n"
+           "  • a smaller nut (M2.5, AF 5.0) would be flush")
     bx.text(0, 1, txt, va="top", fontsize=10, family="DejaVu Sans",
             bbox=dict(fc="white", ec=C_EXT_EC, boxstyle="round,pad=.6"))
     fig.suptitle("Screws: head on the frame top, washer + nut on the carbon-back side", fontsize=13, y=.985)

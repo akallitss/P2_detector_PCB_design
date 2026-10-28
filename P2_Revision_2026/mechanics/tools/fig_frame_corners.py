@@ -145,6 +145,7 @@ def legend(fig):
     from matplotlib.lines import Line2D
     h = [Patch(fc=C_FRAME, ec=C_FRAME_EC, label="existing frame (top face)"),
          Patch(fc=C_EXT, ec=C_EXT_EC, label="NEW: extension to the PCB edge, 8 mm high"),
+         Patch(fc=C_WIDE, ec=C_EXT_EC, label="NEW: frame +1.5 mm outward, past the PCB edge"),
          Patch(fc="none", ec=C_OPEN, ls="--", hatch="////", label="NEW: HV opening, no material"),
          Patch(fc=C_PAD, ec="#8a6a00", label="PCB HV solder pads (for reference)"),
          Line2D([], [], marker="o", ls="none", mfc="white", mec="black", label="NEW: through hole in the extension"),
@@ -178,7 +179,7 @@ def fig_A(G, edges):
     dim(a1, rg.from_uv(u0, 0), rg.from_uv(u1, 0), out, f"{u1 - u0:.1f}")
     a1.plot(*rg.CH0, "o", ms=4, color=C_DIM, zorder=9)
     callout(a1, rg.CH0, (626, -21), f"reference: start of the chamfer\n({rg.CH0[0]:.1f}, {rg.CH0[1]:.1f})", color=C_DIM)
-    callout(a1, (600, -10), (589, -21), "frame flush with the PCB edge\n(PCB outline unchanged)", color=C_DIM)
+    callout(a1, (600, -11.5), (589, -21), f"frame +{rg.OVERHANG:g} mm past the PCB edge\n(PCB outline unchanged)", color=C_DIM)
     callout(a1, rg.from_uv((u0 + u1) / 2, 12), (589, 30.5),
             f"HV opening: {u1 - u0:.1f} mm along the chamfer,\nfrom the PCB edge down to the frame wall (r = 615)\n"
             f"(pads + {rg.HV_MARGIN:g} mm on each side)", color=C_OPEN)

@@ -19,10 +19,18 @@ original files, nothing in them is modified.
 
 ## Decisions (agreed with the physicist)
 
-**PCB outline unchanged.** The frame stays flush with the PCB on the straight
-sides and the inner arc (nothing may stick out in the basket).
+**PCB outline unchanged.** The carbon back keeps the PCB outline.
 
 **Drift frame**
+- Wider by 1.5 mm outward on both straight sides and the inner arc (decided
+  2026-10-28): straight sides 10 → 11.5 mm (edge y = −11.5), inner arc
+  15 → 16.5 mm (edge r = 93.5). The PCB outline does not change, so the frame
+  overhangs the PCB (and the carbon back) by 1.5 mm on these three sides; it is
+  the outermost part there. At corner A the chamfer line is simply continued
+  down to y = −11.5. Screw-hole lines unchanged. The inner gas-inlet bore gets
+  1.5 mm longer (it now leaves the frame at x = 93.5). M3 heads on the straight
+  sides now sit 1.25 mm inside the frame edge; the nuts stay 0.25 mm past the
+  carbon-back edge but inside the frame outline.
 - Extension behind the connectors, full frame height (8 mm), out to the PCB
   edge (R650). The connectors move to the back of the PCB.
 - 40 connector-support holes in the extension, at the PCB positions
@@ -81,8 +89,9 @@ size on carbon frame"; replaces the guide ring of the 20 Oct figures if agreed)
 - "#" ribs across the window: principle only (designer chooses).
 - No drift copper on the back any more (26 Oct: the drift is fed on the front
   by today's mesh line), so nothing to insulate under the carbon.
-- Placeholder: straight-side hardware (an M3 head/nut is 0.25 mm wider than the
-  2.5 mm strip to the PCB edge, as today).
+- Straight-side hardware: the M3 nut (AF 5.5) is 0.25 mm wider than the
+  2.5 mm strip to the carbon-back edge, but stays 1.25 mm inside the widened
+  frame's outline; an M2.5 nut would be flush.
 
 ## Running
 

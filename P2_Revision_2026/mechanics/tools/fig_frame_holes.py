@@ -92,7 +92,7 @@ def overview(G, old, new, pitch, edges):
             f"  • top side: equal pitch {pitch['top side']:.1f} mm\n"
             f"  • inner arc: equal pitch {pitch['inner arc']:.1f} mm\n"
             "all 4 corner holes stay where they are\n"
-            "frame and PCB outline unchanged (flush, no widening)\n"
+            f"frame +{rg.OVERHANG:g} mm outward on the straight sides and the inner\n  arc, past the unchanged PCB outline\n"
             f"hole lines unchanged: straight sides y = {rg.Y_SIDE:g},\n"
             f"  inner arc r = {rg.R_IN:g} (O-ring), outer arc r = {rg.R_OUT:g}",
             fontsize=10, va="top", bbox=dict(fc="white", ec="#b8650a", boxstyle="round,pad=.5"))
@@ -101,11 +101,12 @@ def overview(G, old, new, pitch, edges):
          Line2D([], [], marker="o", ls="none", ms=7, mfc="white", mec=C_NEW, mew=1.6, label="NEW Ø3.5 not threaded (numbered, see table)"),
          Patch(fc=C_FRAME, ec=C_FRAME_EC, label="drift frame (top face)"),
          Patch(fc=C_EXT, ec=C_EXT_EC, alpha=.85, label="NEW: extension to the PCB edge (8 mm high)"),
+         Patch(fc=C_WIDE, ec=C_EXT_EC, label="NEW: +1.5 mm outward, past the PCB edge"),
          Patch(fc="none", ec=C_OPEN, ls="--", hatch="////", label="NEW: HV openings (see corners A, B)"),
          Line2D([], [], marker="o", ls="none", ms=4, mfc="white", mec="#5a2d00", label=f"NEW: {len(G['holes'])} connector-support holes (PCB pattern, table)"),
          Line2D([], [], color="0.35", lw=.8, label="PCB outline (NOW: solid, NEW: dashed)")]
     fig.legend(handles=h, loc="lower center", ncol=4, fontsize=8.5, frameon=False)
-    fig.suptitle("Drift frame – whole part: extension, HV openings, screw holes; outline flush with the unchanged PCB  (hole symbols enlarged)",
+    fig.suptitle("Drift frame – whole part: extension, HV openings, screw holes; +1.5 mm outward on the other 3 sides  (hole symbols enlarged)",
                  fontsize=14, y=.985)
     fig.tight_layout(rect=(0, 0.075, 1, 0.95))
     fig.savefig(os.path.join(FIG, "frame_overview.png"), dpi=130)

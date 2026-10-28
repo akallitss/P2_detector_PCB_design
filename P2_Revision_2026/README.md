@@ -23,8 +23,8 @@ to the PCB edge R650) with 40 connector-support holes; HV openings at both outer
 corners (also frees the top gas inlet); old wire slot removed; 37 × Ø3.5 screw
 holes, all not threaded: today's 13 positions kept on the outer arc (between
 the PCB signal lines, 28 Oct), equal pitch on the straight sides and the inner
-arc; outline flush with the unchanged PCB;
-O-ring untouched. HV filter box: no room on the extension. 5 mm drift gap:
+arc; 1.5 mm wider outward on the straight sides and the inner arc, so it
+overhangs the unchanged PCB by 1.5 mm there (28 Oct); O-ring untouched. HV filter box: no room on the extension. 5 mm drift gap:
 placeholder.
 
 **Carbon drift piece** (`mechanics/`) – 2 mm thick, outline unchanged; flap at

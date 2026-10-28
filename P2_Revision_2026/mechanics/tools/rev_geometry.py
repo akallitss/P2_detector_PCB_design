@@ -37,16 +37,17 @@ SLICES = os.path.join(OUT, "data", "frame_slices.json")
 # ---------------------------------------------------------------- design inputs
 FRAME_H = 8.0          # frame / extension height (4 mm drift gap; 9.0 for the 5 mm option)
 HV_MARGIN = 3.0        # free space kept around the HV solder pads [mm]
-WIDEN = 1.0            # PCB outline fixed: no widening of the straight sides / inner arc (option B)
+OVERHANG = 1.5         # frame grows outward on both straight sides and the inner arc; the PCB outline
+                       # does not change, so the frame overhangs the PCB by this much there (2026-10-28)
 R_EXT = 650.0          # outer radius of the extension (= today's PCB / carbon back)
 
 # today's frame (STEP): straight sides 10 mm, both arcs 15 mm
 SIDE_NOW, ARC_NOW = 10.0, 15.0
 R_OUT_EDGE_NOW, R_IN_EDGE_NOW = 615.0, 95.0      # outer edge of the outer arc / of the inner arc
 R_OUT_WALL, R_IN_WALL = 600.0, 110.0             # walls facing the active area (unchanged)
-SIDE_NEW, ARC_NEW = SIDE_NOW * WIDEN, ARC_NOW * WIDEN
-R_OUT_EDGE_NEW = R_OUT_WALL + ARC_NEW            # 615 (outside it: the extension)
-R_IN_EDGE_NEW = R_IN_WALL - ARC_NEW              # 95
+SIDE_NEW = SIDE_NOW + OVERHANG                   # 11.5
+R_OUT_EDGE_NEW = R_OUT_EDGE_NOW                  # 615 (outside it: the extension, out to R650)
+R_IN_EDGE_NEW = R_IN_EDGE_NOW - OVERHANG         # 93.5
 
 # screw-hole lines
 Y_SIDE_NOW, R_OUT_NOW, R_IN_NOW = -7.5, 610.5, 99.5
@@ -72,7 +73,7 @@ def chamfer_start(off):
     return _CH0_NOW + (-off - _CH0_NOW[1]) / CH_U[1] * CH_U
 
 
-CH0 = chamfer_start(SIDE_NEW)
+CH0 = chamfer_start(SIDE_NOW)                    # PCB reference point (617.77, -10)
 
 
 def arc(r, a0, a1, n=400):
@@ -101,8 +102,9 @@ def top_corner(off):
     return tuple(t * U60 + off * N150)
 
 
-def pcb_outline(off=SIDE_NEW, r_in=R_IN_EDGE_NEW):
-    """PCB = carbon-back outline. off = 10, r_in = 95 reproduce today's parts."""
+def pcb_outline(off=SIDE_NOW, r_in=R_IN_EDGE_NOW):
+    """PCB = carbon-back outline (unchanged). With off = SIDE_NEW, r_in = R_IN_EDGE_NEW: the outer
+    contour of the new frame, which overhangs the PCB by OVERHANG on the straight sides and inner arc."""
     xb = math.sqrt(r_in ** 2 - off ** 2)
     pin = tuple(math.sqrt(r_in ** 2 - off ** 2) * U60 + off * N150)
     p = [(xb, -off), tuple(chamfer_start(off)), tuple(CH1)]
@@ -121,12 +123,18 @@ def frame_top():
     return outer, window, holes
 
 
+def frame_outline():
+    """Outer contour of the new frame: the PCB outline grown by OVERHANG on the straight sides and
+    the inner arc (R650 arc and chamfer lines as the PCB)."""
+    return pcb_outline(SIDE_NEW, R_IN_EDGE_NEW)
+
+
 def frame_outer_new(outer_now):
-    """Today's outline grown outward on every side, clipped to the new PCB outline."""
+    """Today's outline grown outward by OVERHANG on the straight sides and the inner arc."""
     half = box(-1000, -SIDE_NEW, 1000, 1000)
     wedge = half.intersection(mirror_poly(half))
     ann = Point(0, 0).buffer(R_OUT_EDGE_NEW, 4096).difference(Point(0, 0).buffer(R_IN_EDGE_NEW, 1024))
-    return outer_now.union(wedge.intersection(ann)).intersection(pcb_outline()).buffer(0)
+    return outer_now.union(wedge.intersection(ann)).intersection(frame_outline()).buffer(0)
 
 
 def read_drill():
@@ -219,7 +227,7 @@ def build():
     outer_new = frame_outer_new(outer)
     openings = unary_union([op["A"], op["B"]])
     band = clean(outer_new.difference(outer).difference(openings))          # wider frame
-    ext = clean(pcb_outline().difference(outer_new).difference(openings), 20)  # extension
+    ext = clean(frame_outline().difference(outer_new).difference(openings), 20)  # extension
     ext_full = clean(pcb_outline().difference(outer), 20)
     holes = new_holes(band.union(ext), D, H)
     return dict(outer=outer, outer_new=outer_new, band=band, window=window, fholes=fholes, D=D, H=H,
@@ -344,7 +352,7 @@ if __name__ == "__main__":
     G = build()
     op = G["op"]
     new, pitch = new_frame_holes()
-    print(f"sides: straight {SIDE_NOW:g} -> {SIDE_NEW:g}, arcs {ARC_NOW:g} -> {ARC_NEW:g}; "
+    print(f"sides: straight {SIDE_NOW:g} -> {SIDE_NEW:g}, overhang {OVERHANG:g}; "
           f"outer edge r {R_OUT_EDGE_NOW:g} -> {R_OUT_EDGE_NEW:g}, inner edge r {R_IN_EDGE_NOW:g} -> {R_IN_EDGE_NEW:g}")
     print("hole lines: y", Y_SIDE, " r_out", R_OUT, " r_in", R_IN)
     print("areas cm2: wider frame", round(G["band"].area / 100, 1), " extension", round(G["ext"].area / 100, 1))
@@ -352,7 +360,7 @@ if __name__ == "__main__":
           " top corner", np.round(top_corner(SIDE_NEW), 2))
     print("gas top exit", np.round(G["gas"], 2), "in opening B:", op["B"].buffer(0.5).contains(Point(G["gas"])))
     print("gas inner exit now", np.round(G["gas_in"], 2), " new", np.round(G["gas_in_new"], 2))
-    print("frame holes", len(new), {k: round(v, 2) for k, v in pitch.items()},
+    print("frame holes", len(new), {k: np.round(v, 2).tolist() for k, v in pitch.items()},
           "sym err", round(symmetry_error([h[1:3] for h in new]), 3))
     print("connector-support holes in new material:", len(G["holes"]))
 
@@ -467,8 +475,8 @@ def cb_ribs():
 
 
 def cb_new():
-    ann = Point(0, 0).buffer(CB_R_OUT, 4096).difference(Point(0, 0).buffer(R_IN_EDGE_NEW, 1024))
-    P = _wedge(SIDE_NEW).intersection(ann).intersection(pcb_outline()).difference(cb_window()).union(cb_ribs())
+    ann = Point(0, 0).buffer(CB_R_OUT, 4096).difference(Point(0, 0).buffer(R_IN_EDGE_NOW, 1024))
+    P = _wedge(SIDE_NOW).intersection(ann).intersection(pcb_outline()).difference(cb_window()).union(cb_ribs())
     for _, x, y, _ in new_frame_holes()[0]:
         P = P.difference(Point(x, y).buffer(SCREW_D / 2, 32))
     return P.buffer(0)
