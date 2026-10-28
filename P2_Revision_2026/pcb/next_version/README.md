@@ -15,19 +15,21 @@ Nothing in the original folders is modified.
 ## 0. For the KiCad designer (revision 2026) – start here
 
 Figures and tables only; the changes go into the KiCad project. Made by
-`tools/fig_pcb.py` (and `tools/search_inner_marks.py` for the cross positions).
+`tools/fig_pcb.py`, `tools/fig_pcb_holes.py` (screw holes) and
+`tools/search_inner_marks.py` (cross positions).
 
 | figure (`figures/`) | what |
 |---|---|
 | `pcb_overview.png` | the whole board NOW vs NEW: screw holes, connectors to the back, crosses |
+| `pcb_screw_holes.png` | screw holes on the board: KEEP (15, grey), REMOVE (25, red ×), ADD (22, white), numbered as the frame and carbon back |
+| `pcb_screw_holes_unrolled.png` | the same, edge by edge: today's holes (plated / not) above, the new pattern below, with spacings |
 | `pcb_corner_A.png` | bottom-right corner: Sig1 removed, drift pad at the corner centre fed by today's mesh line and M pads, mesh corner cleared |
 | `pcb_alignment_marks.png` | bigger crosses; crosses 1 and 2 moved clear of the new screw holes |
 | `pcb_connectors_back.png` | FX20-140P connectors move to the back side (pin order mirrors!) |
 
 | table (`data/`) | what |
 |---|---|
-| `pcb_screw_holes_new.csv` | 37 × Ø3.5, same positions as the frame and carbon back: 15 are today's holes, unchanged (the outer arc, between the signal lines, and the 2 inner corners); 22 new (plated: to decide) |
-| `pcb_screw_holes_remove.csv` | today's 40 screw holes; 25 go, 15 stay |
+| `pcb_screw_holes.csv` | every screw hole with its action: KEEP 15 (today's hole, unchanged: the 13 on the outer arc, which sit between the signal lines, and the 2 inner corners), REMOVE 25, ADD 22 (Ø3.5, equal pitch between the corners: bottom side 46.5 mm, top side 46.0 mm, inner arc 38.7 mm; plating to decide). 37 holes in the end, same positions as the frame and carbon back |
 | `pcb_alignment_marks.csv` | 4 crosses, now / new centres and sizes |
 | `pcb_connectors.csv` | the 10 connector centres and angles (same position, now on B.Cu) |
 | `pcb_mesh_cut.csv` | the two mesh cut lines of the cleared corner |

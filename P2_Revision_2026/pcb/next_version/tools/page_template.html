@@ -78,6 +78,13 @@ svg text { font-family: var(--f-body); }
 .meshedge { fill: none; stroke: #2c6bb3; stroke-width: 1.6; stroke-dasharray: 2 3; }
 .newhole { fill: none; stroke: var(--ink); stroke-width: 1.6; }
 .holedot { fill: none; stroke: var(--ink); stroke-width: 1; }
+.hkeep { fill: #8c8c8c; stroke: #111; stroke-width: 1.4; }
+.hadd { fill: #fff; stroke: #111; stroke-width: 1.6; }
+.hrem { stroke: var(--drift); stroke-width: 2.4; }
+.hnum { fill: var(--ink); font: 10px var(--f-mono); }
+.hnumadd { font-weight: 700; }
+.act-reremove, .act-remove { color: var(--drift); }
+details { margin-top: 1rem; } summary { cursor: pointer; }
 table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform: uppercase; white-space: nowrap; }
 .act-remove { color: var(--drift); } .act-add { color: var(--ok); } .act-keep { color: var(--warn); }
 .lead { stroke: var(--ink); stroke-width: 1; }
@@ -93,8 +100,8 @@ table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform
 <body>
 <div class="wrap">
 <div class="eyebrow">P2 basket Micromegas · PCB next version · items to include · state of 26 Oct 2026</div>
-<h1>Next PCB version: alignment crosses and the corner-A drift contact</h1>
-<p>Two changes for the next version of the P2 basket PCB and its insulation masks. Everything here was measured on the current fabrication Gerbers, the V3B_final masks and the drift-frame drawing. The other revision items (screw holes, connectors on the back, outline) are in the figures and tables of <code>P2_Revision_2026/pcb/next_version/</code>.</p>
+<h1>Next PCB version: alignment crosses, the corner-A drift contact and the screw holes</h1>
+<p>Three changes for the next version of the P2 basket PCB and its insulation masks. Everything here was measured on the current fabrication Gerbers, the V3B_final masks and the drift-frame drawing. The other revision items (connectors on the back, outline) are in the figures and tables of <code>P2_Revision_2026/pcb/next_version/</code>.</p>
 
 <figure>
   <div class="draw">{{overview}}</div>
@@ -207,6 +214,36 @@ table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform
 
 <div class="callout warn"><b>To check on the HV side.</b> The M solder pads keep their spacing to the neighbouring D and GND pads, which was chosen for the mesh voltage. Please check it is enough for the drift voltage. The old D pads of this corner are no longer needed: keep or remove them as you prefer.</div>
 
+<h2>3 · Screw holes</h2>
+<p>All screw holes become <b>Ø3.5</b>, at the same positions in the PCB, the drift frame and the carbon back (the numbers below are the same in all three).</p>
+<ul>
+  <li><b>Outer arc: today's holes stay where they are.</b> They sit between the signal lines on the PCB, so they cannot move, and no holes are added on that arc. That is 13 holes, including the two outer corners.</li>
+  <li><b>The two inner corners</b> stay as well.</li>
+  <li><b>Straight sides and inner arc:</b> today's holes go, and new ones come at an equal pitch between the corner holes: bottom side 46.5 mm, top side 46.0 mm, inner arc 38.7 mm. The two straight sides differ in length by 5 mm (the top corner hole sits 5 mm in, clear of the gas inlet), so they are not exact mirror images. The two inner-arc holes are a mirror pair about the 30° axis.</li>
+</ul>
+
+<figure>
+  <div class="draw">{{holes}}</div>
+  <figcaption>
+    <div class="ftitle">Screw holes on the board</div>
+    <p style="margin:.4rem 0 0">
+      <span class="sw"><i style="background:#8c8c8c;border:1.5px solid #111;border-radius:50%;width:10px"></i>KEEP: today's hole, unchanged (15)</span>
+      <span class="sw"><i style="background:#fff;border:1.5px solid #111;border-radius:50%;width:10px"></i>ADD: new hole Ø3.5, number in bold (22)</span>
+      <span class="sw"><b style="color:var(--drift)">×</b>REMOVE: today's hole (25)</span>
+    </p>
+  </figcaption>
+</figure>
+
+<div class="callout warn"><b>Hole 13</b> (610.30, 14.50), kept on the outer arc, is plated today. Its pad is 2.65 mm from the corner-A drift line, under the 3 mm we aim for. Without plating (no pad) it is 3.2 mm from the hole edge.</div>
+
+<details>
+  <summary><b>Every screw hole, with coordinates (mm)</b> – same as <code>data/pcb_screw_holes.csv</code></summary>
+  <div class="tbl"><table class="edits">
+  <tr><th>Action</th><th>No</th><th>Centre</th><th>Edge</th><th>Plating today</th><th>Plating new</th><th>Note</th></tr>
+  {{hole_rows}}
+  </table></div>
+</details>
+
 <h2>To decide with the PCB designers</h2>
 <ol>
   <li>Cross line width (0.3 mm proposed); keep the crosses on both F.Cu and B.Cu, as today, or only on the side used for mask alignment?</li>
@@ -214,10 +251,11 @@ table.edits td:first-child { font: 600 0.76rem/1.5 var(--f-mono); text-transform
   <li>The GND-pour keep-out round the drift net (3 mm proposed), and the HV-pad spacing for the drift voltage, and screw hole 13 (610.30, 14.50): kept on the outer arc, its plated pad is 2.65 mm from the drift line (non-plated: 3.2 mm).</li>
   <li>The old D pads at corner A: keep or remove.</li>
   <li>The Sig1 connector pin: to GND or floating.</li>
+  <li>Plating of the 22 new screw holes (the 15 kept ones stay as today).</li>
 </ol>
 <p>The insulation masks (M1, M2) and the mesh-cut template for all of this are already generated: <code>Insulation_masks/V3B_final_2026/</code>.</p>
 
-<footer>Measured on <code>Version_Apr26/FABRICATION_P2</code>, <code>Version_Sept26/Insulation_masks/V3B_final</code>, the drift-frame STL and the B2 patch. Scripts: <code>P2_Revision_2026/pcb/next_version/tools/</code> (<code>fig_pcb.py</code>, <code>make_page.py</code>).</footer>
+<footer>Measured on <code>Version_Apr26/FABRICATION_P2</code>, <code>Version_Sept26/Insulation_masks/V3B_final</code>, the drift-frame STL and the B2 patch. Scripts: <code>P2_Revision_2026/pcb/next_version/tools/</code> (<code>fig_pcb.py</code>, <code>fig_pcb_holes.py</code>, <code>make_page.py</code>).</footer>
 </div>
 </body>
 </html>

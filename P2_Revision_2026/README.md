@@ -46,7 +46,7 @@ section 0 of its README).
 
 | # | item | state |
 |---|---|---|
-| 1 | Homogenised screw holes: 37 × Ø3.5 (`pcb_screw_holes_new.csv`): 15 of today's stay (the 13 on the outer arc, between the signal lines, and the 2 inner corners), 25 removed, 22 new | drawn; plating of the new ones? hole 13 pad 2.65 mm from the drift line |
+| 1 | Homogenised screw holes: 37 × Ø3.5 (`pcb_screw_holes.csv`, figures `pcb_screw_holes*.png`): 15 of today's stay (the 13 on the outer arc, between the signal lines, and the 2 inner corners), 25 removed, 22 new | drawn; plating of the new ones? hole 13 pad 2.65 mm from the drift line |
 | 2 | Sacrificed pad for the drift: Sig1 removed, drift pad 3 × 3 mm at the centre of the cleared corner (592.75, 7.5) (26 Oct; first B2 patch: (590.5, 10.0)) | drawn (`pcb_corner_A_drift.csv`); Sig1 pin to GND or floating? (question for Irakli) |
 | 3 | Mesh-contact pad | corner A: mesh pad removed; its line and the 2 M pads become the drift feed; the top-corner pad is the only mesh contact |
 | 4 | Bigger alignment marks (9 mm, 12.5 mm resist square) | drawn; crosses 1, 2 moved to r = 104.25 (47.5°, 12.5°) |

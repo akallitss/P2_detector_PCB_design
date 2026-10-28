@@ -243,7 +243,7 @@ def overview(C, conns, mk):
              "• alignment crosses 3 × 3 mm\n• Sig1 readout pad in the bottom-right corner",
              fontsize=9.5, va="top", bbox=dict(fc="white", ec="0.6", boxstyle="round,pad=.5"))
     fig.text(0.52, 0.2, "1. outline UNCHANGED\n"
-             f"2. {n_new} screw holes Ø3.5 (table pcb_screw_holes_new.csv): {n_kept} stay as today (grey: the outer\n"
+             f"2. {n_new} screw holes Ø3.5 (table pcb_screw_holes.csv): {n_kept} stay as today (grey: the outer\n"
              "    arc, between the signal lines, and the 2 inner corners), the rest at equal pitch on the\n"
              "    straight sides and the inner arc\n"
              "3. connectors move to the BACK (B.Cu), same positions (dashed)\n"
@@ -467,26 +467,7 @@ def connector_side():
 
 
 def tables(conns, mk):
-    D, H = rg.read_drill()
-    new, best = mk
-    with open(os.path.join(DATA, "pcb_screw_holes_new.csv"), "w", newline="") as fh:
-        w = csv.writer(fh)
-        w.writerow(["no", "x_mm", "y_mm", "diameter_mm", "edge", "plated", "note"])
-        for no, x, y, e in rg.new_frame_holes()[0]:
-            if is_kept_hole(x, y):
-                w.writerow([no, f"{x:.2f}", f"{y:.2f}", rg.SCREW_D, e, "as today", "today's hole, unchanged"
-                            + (" (outer arc: sits between the signal lines)" if "outer arc" in rg.edge_of((x, y)) else "")])
-            else:
-                w.writerow([no, f"{x:.2f}", f"{y:.2f}", rg.SCREW_D, e, "TO DECIDE",
-                            "new hole; same position in frame and carbon back"])
-    with open(os.path.join(DATA, "pcb_screw_holes_remove.csv"), "w", newline="") as fh:
-        w = csv.writer(fh)
-        w.writerow(["x_mm", "y_mm", "diameter_mm", "plating", "kept_in_new_pattern"])
-        newp = [(round(x, 2), round(y, 2)) for _, x, y, _ in rg.new_frame_holes()[0]]
-        for k, pl in ((3, "PTH"), (6, "NPTH")):
-            for x, y in H[k]:
-                kept = any(math.hypot(x - a, y - b) < 0.05 for a, b in newp)
-                w.writerow([f"{x:.2f}", f"{y:.2f}", D[k], pl, "yes (same place)" if kept else "no – remove"])
+    new, best = mk                          # screw holes: fig_pcb_holes.py (pcb_screw_holes.csv)
     with open(os.path.join(DATA, "pcb_alignment_marks.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["cross", "x_now", "y_now", "x_new", "y_new", "copper_cross_mm", "line_mm", "mask_resist_square_mm", "layers"])

@@ -1,0 +1,63 @@
+action,no,x_mm,y_mm,diameter_mm,edge,plating_today,plating_new,note
+KEEP,1,99.31,-6.00,3.5,corner,NPTH,NPTH,today's hole: keep as it is
+ADD,2,145.78,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,3,192.24,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,4,238.71,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,5,285.18,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,6,331.64,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,7,378.11,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,8,424.57,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,9,471.04,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,10,517.51,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,11,563.97,-7.50,3.5,bottom side,–,TO DECIDE,new hole; same position in frame and carbon back
+KEEP,12,610.44,-6.00,3.5,corner,NPTH,NPTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,13,610.30,14.50,3.5,outer arc,PTH,PTH,today's hole: keep as it is (outer arc: between the signal lines); plated pad 2.65 mm from the corner-A drift line (non-plated: 3.2 mm)
+KEEP,14,605.08,81.14,3.5,outer arc,PTH,PTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,15,594.28,139.80,3.5,outer arc,NPTH,NPTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,16,577.78,197.11,3.5,outer arc,PTH,PTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,17,555.82,252.56,3.5,outer arc,NPTH,NPTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,18,528.71,305.25,3.5,outer arc,PTH,PTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,19,496.63,355.07,3.5,outer arc,NPTH,NPTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,20,459.59,401.83,3.5,outer arc,PTH,PTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,21,418.21,444.76,3.5,outer arc,NPTH,NPTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,22,372.81,483.44,3.5,outer arc,PTH,PTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,23,317.71,521.29,3.5,outer arc,PTH,PTH,today's hole: keep as it is (outer arc: between the signal lines)
+KEEP,24,297.52,527.32,3.5,corner,NPTH,NPTH,today's hole: keep as it is (outer arc: between the signal lines)
+ADD,25,273.21,488.22,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,26,250.21,448.37,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,27,227.20,408.53,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,28,204.20,368.68,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,29,181.19,328.83,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,30,158.19,288.99,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,31,135.18,249.14,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,32,112.17,209.29,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,33,89.17,169.45,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,34,66.16,129.60,3.5,top side,–,TO DECIDE,new hole; same position in frame and carbon back
+KEEP,35,44.46,89.00,3.5,corner,NPTH,NPTH,today's hole: keep as it is
+ADD,36,74.92,65.48,3.5,inner arc,–,TO DECIDE,new hole; same position in frame and carbon back
+ADD,37,94.17,32.14,3.5,inner arc,–,TO DECIDE,new hole; same position in frame and carbon back
+REMOVE,,52.19,105.37,3.5,top side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,55.44,82.62,3.5,inner arc,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,79.67,152.97,3.5,top side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,86.17,49.75,3.5,inner arc,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,99.27,6.69,3.5,inner arc,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,116.16,216.19,3.5,top side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,117.30,-7.50,3.5,bottom side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,152.66,279.42,3.5,top side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,172.31,-7.50,3.5,bottom side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,189.16,342.63,3.5,top side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,225.66,405.85,3.5,top side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,245.31,-7.50,3.5,bottom side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,262.17,469.07,3.5,top side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,289.67,516.70,3.5,top side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,318.29,-7.50,3.5,bottom side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,391.31,-7.50,3.5,bottom side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,464.31,-7.50,3.5,bottom side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,537.30,-7.50,3.5,bottom side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,592.34,-7.50,3.5,bottom side,PTH,,"remove (pad, hole, mask opening)"
+REMOVE,,97.91,184.58,3.5,top side,NPTH,,"remove (pad, hole, mask opening)"
+REMOVE,,170.91,311.02,3.5,top side,NPTH,,"remove (pad, hole, mask opening)"
+REMOVE,,208.80,-7.50,3.5,bottom side,NPTH,,"remove (pad, hole, mask opening)"
+REMOVE,,243.91,437.46,3.5,top side,NPTH,,"remove (pad, hole, mask opening)"
+REMOVE,,354.81,-7.50,3.5,bottom side,NPTH,,"remove (pad, hole, mask opening)"
+REMOVE,,500.81,-7.50,3.5,bottom side,NPTH,,"remove (pad, hole, mask opening)"

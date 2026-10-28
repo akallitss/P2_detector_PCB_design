@@ -163,6 +163,49 @@ def fig_overview():
     v.pline(OUTER[::4], "frame", closed=True)
     v.pline(OPEN[::4], "open", closed=True)
     v.pline(ACT, "act", closed=True)
+    board_edges(v)
+    offs = [(-30, -20), (-34, 6), (-34, -24), (24, -16)]
+    for k, o in enumerate(offs, 1):
+        c = MARKS_NEW[k]
+        v.cross(c, 6, "mark")
+        v.badge(*c, k, *o)
+    for _, x, y, _ in rg.new_frame_holes()[0]:
+        v.circle((x, y), 2.4, "holedot")
+    v.badge(*rg.B2_PAD[:2], 5, -32, -28)
+    v.top.append(f'<text class="lab" x="{v.X(330):.0f}" y="{v.Y(250):.0f}" text-anchor="middle">active area</text>')
+    return v.svg()
+
+
+def fig_holes():
+    """Screw holes on the board: KEEP / REMOVE / ADD, numbered as the frame and carbon back."""
+    import fig_pcb_holes as ph
+    v = View(30, 655, -34, 552, 1.5, "P2 basket PCB: screw holes to keep, remove and add")
+    v.pline(OPEN[::4], "open", closed=True)
+    board_edges(v)
+    for act, no, x, y, e, pl in ph.plan():
+        if act == "REMOVE":
+            v.line((x - 2.2, y - 2.2), (x + 2.2, y + 2.2), "hrem")
+            v.line((x - 2.2, y + 2.2), (x + 2.2, y - 2.2), "hrem")
+            continue
+        v.circle((x, y), 2.6, "hkeep" if act == "KEEP" else "hadd")
+        tx, ty = ph.edge_label(no, x, y, e)
+        cls = "hnum hnumadd" if act == "ADD" else "hnum"
+        v.top.append(f'<text class="{cls}" x="{v.X(tx):.1f}" y="{v.Y(ty) + 4:.1f}" text-anchor="middle">{no}</text>')
+    v.top.append(f'<text class="lab" x="{v.X(330):.0f}" y="{v.Y(250):.0f}" text-anchor="middle">active area</text>')
+    return v.svg()
+
+
+def hole_rows():
+    """Rows of pcb_screw_holes.csv (written by fig_pcb_holes.py) as HTML."""
+    rows = list(csv.reader(open(os.path.join(OUT, "data", "pcb_screw_holes.csv"))))
+    out = []
+    for act, no, x, y, d, e, pl_now, pl_new, note in rows[1:]:
+        out.append(f'<tr><td class="act-{act.lower()}">{act}</td><td>{no}</td><td>({x}, {y})</td><td>{html.escape(e)}</td>'
+                   f'<td>{html.escape(pl_now)}</td><td>{html.escape(pl_new)}</td><td>{html.escape(note)}</td></tr>')
+    return "\n  ".join(out)
+
+
+def board_edges(v):
     for p in C["gerb"]["Edge_Cuts"]:
         if type(p).__name__ == "Line":
             v.line((p.x1, p.y1), (p.x2, p.y2), "edge")
@@ -174,16 +217,6 @@ def fig_overview():
                 da -= 2 * math.pi
             t = np.linspace(a0, a0 + da, 30)
             v.pline(np.c_[p.cx + r * np.cos(t), p.cy + r * np.sin(t)], "edge")
-    offs = [(-30, -20), (-34, 6), (-34, -24), (24, -16)]
-    for k, o in enumerate(offs, 1):
-        c = MARKS_NEW[k]
-        v.cross(c, 6, "mark")
-        v.badge(*c, k, *o)
-    for _, x, y, _ in rg.new_frame_holes()[0]:
-        v.circle((x, y), 2.4, "holedot")
-    v.badge(*rg.B2_PAD[:2], 5, -32, -28)
-    v.top.append(f'<text class="lab" x="{v.X(330):.0f}" y="{v.Y(250):.0f}" text-anchor="middle">active area</text>')
-    return v.svg()
 
 
 def fig_cross(k, F, B, E, M2):
@@ -315,7 +348,8 @@ def main():
     B = q.load(os.path.join(am.FAB, "Gerber", "P2_BASKET-B_Cu.gbr"))
     E = q.load(os.path.join(am.FAB, "Gerber", "P2_BASKET-Edge_Cuts.gbr"))
     M2 = None
-    figs = {"overview": fig_overview(), "corner": fig_corner(), "corner_rows": corner_rows()}
+    figs = {"overview": fig_overview(), "corner": fig_corner(), "corner_rows": corner_rows(),
+            "holes": fig_holes(), "hole_rows": hole_rows()}
     for k in range(4):
         figs[f"cross{k + 1}"] = fig_cross(k, F, B, E, M2)
     tpl = open(os.path.join(am.HERE, "page_template.html")).read()
