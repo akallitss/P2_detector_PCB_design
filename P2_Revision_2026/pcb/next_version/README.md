@@ -37,7 +37,8 @@ without the GND-jump rows.
 | `pcb_screw_holes_unrolled.png` | the same, edge by edge: today's holes (plated / not) above, the new pattern below, with spacings |
 | `pcb_corner_A.png` | bottom-right corner NOW → NEW: Sig1 removed, drift pad at the corner centre fed by today's mesh line into one big D pad (the old M + D pads), top GND pad removed, mesh corner cleared |
 | `pcb_corner_A_steps.png` | the same, step by step: 1 Sig1, 2 mesh contact, 3 HV pads (top GND and the M / top GND texts removed, M + D merged into one D pad), 4 drift pad and line |
-| `pcb_corner_B.png` | top corner, the only mesh contact (`tools/fig_pcb_corner_B.py`): the two D pads and the GND pad at x 315 (+ texts D, GND) removed; the 2 M + 2 D pads merged into one M pad; the mesh-contact pad in the active area grown into a band along both walls (145 mm², 68 mm² under the mesh instead of 5), 1.5 mm from every readout pad as today; zoom with the M1 window |
+| `pcb_corner_B.png` | top corner, the only mesh contact (`tools/fig_pcb_corner_B.py`): the two D pads and the GND pad at x 315 (+ texts D, GND) removed; the 2 M + 2 D pads merged into one M pad; the mesh-contact pad in the active area becomes the largest square that keeps 1.5 mm from every readout pad and stays inside the frame opening: 4.07 mm (today 2.75 mm), rotated 30° as today, centre (300.72, 516.72), 16.6 mm² of copper; zoom with the M1 window |
+| `pcb_corner_B_pad_options.png` | the square options compared (today / most contact / largest square), made with `fig_pcb_corner_B.py --options`; option 2, the largest square, was chosen |
 | `pcb_alignment_marks.png` | crosses 1 and 2 (inner arc), NOW → NEW: bigger, moved clear of the new screw holes |
 | `pcb_alignment_marks_outer.png` | crosses 3 and 4 (outer arc), NOW → NEW: same place, 9 mm copper cross, 10 mm mask outline in a 12.5 mm resist square, with the clearances |
 | `pcb_connectors_back.png` | FX20-140P connectors move to the back side (pin order mirrors!) |
@@ -49,8 +50,8 @@ without the GND-jump rows.
 | `pcb_connectors.csv` | the 10 connector centres and angles (same position, now on B.Cu) |
 | `pcb_mesh_cut.csv` | the two mesh cut lines of the cleared corner |
 | `pcb_corner_A_drift.csv` | corner A, every edit in the order of the steps: remove Sig1 (connector pin left floating), the mesh pad and the line's first stub, the top GND pad and the M / top GND copper texts; merge the 2 M + 2 D pads into one D pad (corners given); add the drift pad (592.75, 7.5) and a 0.8 mm segment to the line's bend; 3 mm GND keep-out; mask windows |
-| `pcb_corner_B_mesh.csv` | corner B, every edit: D pads, GND pad at x 315 and the texts D / GND removed; the M + D pads -> one M pad (corners given; 2.86 mm from the remaining GND); mesh-contact pad -> polygon; mask windows |
-| `pcb_corner_B_mesh_pad.csv` | the vertices of the new mesh-contact pad (polygon, custom-shape pad in KiCad) |
+| `pcb_corner_B_mesh.csv` | corner B, every edit: D pads, GND pad at x 315 and the texts D / GND removed; the M + D pads -> one M pad (corners given; 2.86 mm from the remaining GND); mesh-contact pad -> 4.07 mm square; mask windows |
+| `pcb_corner_B_mesh_pad.csv` | the 4 corners of the new mesh-contact pad (square rotated 30°) |
 | `../drift_pad_B2/CHANGES.txt` | the Sig1 removal (the rest of that first B2 patch is not used, see below) |
 
 **Insulation masks (made here, not in KiCad):** `Insulation_masks/V3B_final_2026/`

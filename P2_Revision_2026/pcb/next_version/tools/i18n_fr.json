@@ -133,5 +133,9 @@
  "NEW: GND jump (B.Cu strip + vias)": "NOUVEAU : pont GND",
  "drift net (line, pads)": "réseau de dérive (piste, pastilles)",
  "B.Cu GND hatch": "hachures GND B.Cu",
- "holes (+ pad of hole 13)": "trous (+ pastille du trou 13)"
+ "holes (+ pad of hole 13)": "trous (+ pastille du trou 13)",
+ "mesh-contact pad 2.75 × 2.75 mm\n(only ~5 mm² under the mesh)": "pastille de contact mesh 2,75 × 2,75 mm\n(seulement ~5 mm² sous le mesh)",
+ "NEW mesh-contact pad: largest\nsquare, 4.07 mm (zoom →)": "NOUVELLE pastille de contact mesh :\nplus grand carré, 4,07 mm (zoom →)",
+ "NEW mesh-contact pad: square 4.07 mm, rotated 30° as today,\ncentre (300.72, 516.72) (corners in pcb_corner_B_mesh_pad.csv)\ncopper 16.6 mm² (today 8.2), under the mesh 5.0 mm² (today 4.8)\nM1 window (blue dashed): the pad, 0.3 mm inside; M2: 0.45 mm inside.\nThe F.Cu GND hatch near the wall is re-poured round the pad (as today)": "NOUVELLE pastille de contact mesh : carré de 4,07 mm, tourné de 30° comme aujourd'hui,\ncentre (300.72, 516.72) (coins dans pcb_corner_B_mesh_pad.csv)\ncuivre 16,6 mm² (aujourd'hui 8,2), sous le mesh 5,0 mm² (aujourd'hui 4,8)\nfenêtre M1 (tirets bleus) : la pastille, 0,3 mm à l'intérieur ; M2 : 0,45 mm.\nLes hachures GND F.Cu près de la paroi sont refaites autour (comme aujourd'hui)",
+ "1.50 mm to the nearest readout pad\n(red dashed: 1.5 mm)": "1,50 mm de la pastille\nde lecture la plus proche\n(tirets rouges : 1,5 mm)"
 }

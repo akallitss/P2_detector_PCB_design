@@ -5,12 +5,14 @@ Corner B (top): the only mesh contact of the 2026 board (decided 2026-10-28).
 HV solder pads (outside the frame), along x: GND (x 315), two M pads, two D pads, GND (x 332.6).
   * the two D pads and the GND pad at x 315 go, with the copper texts "D" and that "GND";
   * the 2 M + 2 D pads merge into ONE pad, label M (the envelope of the four), for the mesh cable.
-Mesh-contact pad (active area, at the corner apex, today 3.9 x 3.9 mm, only ~8 mm2 under the mesh):
-  * grown into the free band along both frame walls, keeping 1.5 mm from every readout pad (as today),
-    along the two sides of the corner readout pad /Sector9/Sig128; polygon pad (custom shape);
-  * M1 / M2 windows follow the new pad (make_masks_2026.py).
+Mesh-contact pad (active area, at the corner apex; today a 2.75 mm square rotated 30 deg, ~5 mm2 under the mesh):
+  * the largest square that stays inside the frame opening and 1.5 mm from every readout pad (as today):
+    4.07 mm, same 30 deg orientation, moved 0.75 mm into the apex ("option 2", chosen 2026-10-28 from
+    pcb_corner_B_pad_options.png; a band along the walls was tried first and dropped);
+  * M1 / M2 windows: the new square, 0.3 / 0.45 mm inside (make_masks_2026.py).
 
 Writes ../figures/pcb_corner_B.png, ../data/pcb_corner_B_mesh.csv, ../data/pcb_corner_B_mesh_pad.csv
+(with --options also ../figures/pcb_corner_B_pad_options.png, the search behind MESH_PAD_NEW)
 Run with (ulimit -v 3500000; python3 fig_pcb_corner_B.py)
 """
 import csv
@@ -32,10 +34,8 @@ import fig_pcb as fp
 
 rg = fp.rg
 CLEAR_RO = 1.5                       # mesh pad <-> readout pads (as today)
-ARM = 5.0                            # band kept within this distance of the corner readout pad (+ clearance)
-OPEN_R = 1.0                         # thin slivers (< 2 mm) dropped
-SIMPLIFY = 0.05                      # polygon simplification for the table [mm]
-WIN_M1, WIN_M2 = 0.3, 0.45           # mask windows: the pad part under the mesh, shrunk by this
+MESH_PAD_NEW = ((300.72, 516.72), 4.07, -30.0)   # centre, side, angle: square_options() 'largest' (option 2)
+WIN_M1, WIN_M2 = 0.3, 0.45           # mask windows: the pad, shrunk by this
 MESH_PAD_NOW = (299.04, 514.02, 302.92, 517.92)    # bounds of today's (rotated) mesh pad
 HV_LABELS_B = {"GND left": (311.6, 530.33, 316.8, 533.03), "M": (319.7, 526.68, 321.9, 529.38),
                "D": (325.87, 526.58, 327.93, 529.28), "GND right": (330.79, 530.4, 335.99, 533.1)}
@@ -66,18 +66,16 @@ def geometry():
     base = window.buffer(-3.0, join_style=2)
     mesh = base.buffer(-rg.MESH_TRIM, join_style=2)
     corner_ro = min(readout, key=lambda g: g.distance(pad_now))
-    R = base.difference(others.buffer(CLEAR_RO + SIMPLIFY)).intersection(corner_ro.buffer(CLEAR_RO + ARM))
-    O = R.buffer(-OPEN_R).buffer(OPEN_R)
-    pad_new = unary_union([g for g in getattr(O, "geoms", [O]) if g.intersects(pad_now)] + [pad_now.intersection(base)])
-    pad_new = pad_new.simplify(SIMPLIFY).buffer(0)
+    pad_new = square(*MESH_PAD_NEW)
+    assert pad_new.distance(others) >= CLEAR_RO - 1e-3 and base.buffer(1e-3).contains(pad_new)
     return dict(Fq=Fq, Bq=Bq, F=F, pad_now=pad_now, trace=unary_union(trace), hv=hv, others=others, base=base,
                 mesh=mesh, corner_ro=corner_ro, pad_new=pad_new)
 
 
 def windows(G):
-    """New M1 / M2 windows over the mesh pad: its part under the mesh, shrunk a little."""
-    under = G["pad_new"].intersection(G["mesh"].buffer(0.3))
-    return under.buffer(-WIN_M1).buffer(0), under.buffer(-WIN_M2).buffer(0)
+    """New M1 / M2 windows over the mesh pad (as today: about the pad itself), shrunk a little."""
+    P = G["pad_new"]
+    return P.buffer(-WIN_M1, join_style=2), P.buffer(-WIN_M2, join_style=2)
 
 
 def is_label_gone_B(q):
@@ -119,16 +117,16 @@ def figure(G):
         ax.set_xlim(WIN[0], WIN[1])
         ax.set_ylim(WIN[2], WIN[3])
     a0.add_patch(fp.poly_patch(pnow, fc="none", ec="#1f5fbf", lw=1.4, zorder=6))
-    fp.callout(a0, pnow.centroid.coords[0], (286, 529), "mesh-contact pad 3.9 × 3.9 mm\n(only ~8 mm² under the mesh)", color="#1f5fbf")
+    fp.callout(a0, pnow.centroid.coords[0], (286, 529), "mesh-contact pad 2.75 × 2.75 mm\n(only ~5 mm² under the mesh)", color="#1f5fbf")
     fp.callout(a0, (304, 505), (306, 497), "readout pads (/Sector9/...)")
     fp.callout(a0, (323.9, 536.4), (318, 543.5), "HV pads GND / M M / D D / GND", color="0.2")
     gl, gr = hv["gnd_left"].centroid, hv["gnd_right"].centroid
     fp.callout(a1, (gl.x, gl.y), (287, 541), "REMOVE this GND pad\n(+ its GND text)", color=fp.C_OPEN)
     fp.callout(a1, (326.7, 534.4), (321, 520), "M M + D D (dashed) merged into ONE\nM pad (mesh cable); D text removed", color="#1b7a2e")
     fp.callout(a1, (gr.x, gr.y), (328, 544), "GND pad stays", color="0.2")
-    fp.callout(a1, (305, 516.6), (305, 506), "NEW mesh-contact pad: band along\nboth walls (zoom →)", color="#1b7a2e")
+    fp.callout(a1, (301.5, 516.5), (305, 506), "NEW mesh-contact pad: largest\nsquare, 4.07 mm (zoom →)", color="#1b7a2e")
     # zoom on the mesh pad with clearances and mask windows
-    zx = (286.5, 318.5, 495.5, 521.5)
+    zx = (290, 313, 503, 522)
     a2.set_xlim(zx[0], zx[1])
     a2.set_ylim(zx[2], zx[3])
     a2.add_patch(fp.poly_patch(w1, fc="none", ec="#1f5fbf", lw=1.0, ls="--", zorder=8))
@@ -137,14 +135,15 @@ def figure(G):
     a2.add_patch(fp.poly_patch(pn.buffer(CLEAR_RO).difference(pn.buffer(0.05)), fc="none", ec="#c0392b", lw=.7,
                                ls=(0, (2, 2)), zorder=7))
     d = pn.distance(G["others"])
-    fp.callout(a2, (300.0, 512.3), (305.5, 518.6), f"{d:.2f} mm to the nearest readout pad\n(red dashed: {CLEAR_RO:g} mm)", color="#c0392b")
-    fp.callout(a2, (pnow.centroid.x, pnow.centroid.y), (288, 519.5), "today's pad (dotted)", color="0.2")
+    fp.callout(a2, (301.6, 512.6), (304.5, 509.5), f"{d:.2f} mm to the nearest readout pad\n(red dashed: {CLEAR_RO:g} mm)", color="#c0392b")
+    fp.callout(a2, (pnow.centroid.x - .6, pnow.centroid.y - .3), (290.5, 520.5), "today's pad (dotted)", color="0.2")
     under_now, under_new = pnow.intersection(G["mesh"]).area, pn.intersection(G["mesh"]).area
     a2.text(zx[0] + .4, zx[2] + .4,
-            f"NEW mesh-contact pad (polygon, table pcb_corner_B_mesh_pad.csv)\n"
-            f"area {pn.area:.0f} mm², under the mesh {under_new:.0f} mm² (today {under_now:.0f} mm²)\n"
-            f"M1 window (blue dashed): the part under the mesh, {WIN_M1:g} mm inside;\nM2 the same, {WIN_M2:g} mm inside. "
-            "The F.Cu GND hatch near the wall is re-poured\nround the pad (keep-out, as round today's pad)",
+            f"NEW mesh-contact pad: square {MESH_PAD_NEW[1]:.2f} mm, rotated 30° as today,\n"
+            f"centre ({MESH_PAD_NEW[0][0]:.2f}, {MESH_PAD_NEW[0][1]:.2f}) (corners in pcb_corner_B_mesh_pad.csv)\n"
+            f"copper {pn.area:.1f} mm² (today {pnow.area:.1f}), under the mesh {under_new:.1f} mm² (today {under_now:.1f})\n"
+            f"M1 window (blue dashed): the pad, {WIN_M1:g} mm inside; M2: {WIN_M2:g} mm inside.\n"
+            "The F.Cu GND hatch near the wall is re-poured round the pad (as today)",
             fontsize=8.5, va="bottom", bbox=dict(fc="white", ec=fp.C_EXT_EC, alpha=.92, boxstyle="round,pad=.4"), zorder=9)
     a0.set_title("NOW", fontsize=13, weight="bold", loc="left")
     a1.set_title("NEW", fontsize=13, weight="bold", loc="left", color=fp.C_EXT_EC)
@@ -186,11 +185,12 @@ def tables(G, d):
          *[f"{v:.2f}" for v in mn.bounds],
          f"rotated rectangle {sides[0]:.2f} x {sides[1]:.2f} mm; corners {corners}; envelope of the 4 old pads; "
          f"{mn.distance(hv['gnd_right']):.2f} mm from the remaining GND pad; mesh cable here; the 'M' text stays"],
-        ["change", "mesh-contact pad (active area) -> polygon pad, net mesh (gold)", "F.Cu + ENIG",
-         *[f"{v:.2f}" for v in pn.bounds],
-         f"vertices in pcb_corner_B_mesh_pad.csv; area {pn.area:.1f} mm2; {d:.2f} mm from the nearest readout pad "
-         f"(today 1.50); its trace to the M pad is unchanged; re-pour the F.Cu GND hatch round it (keep-out as today)"],
-        ["mask", "M1, M2: today's window over the mesh pad -> windows over the new pad (part under the mesh)", "M1 + M2",
+        ["change", f"mesh-contact pad (active area) -> square {MESH_PAD_NEW[1]:.2f} mm rotated 30 deg (as today), net mesh (gold)",
+         "F.Cu + ENIG", *[f"{v:.2f}" for v in pn.bounds],
+         f"centre ({MESH_PAD_NEW[0][0]:.2f}, {MESH_PAD_NEW[0][1]:.2f}); corners in pcb_corner_B_mesh_pad.csv; "
+         f"{pn.area:.1f} mm2 (today 7.6); {d:.2f} mm from the nearest readout pad (today 1.59); inside the frame opening; "
+         f"its trace to the M pad stays connected; re-pour the F.Cu GND hatch round it (keep-out as today)"],
+        ["mask", "M1, M2: today's window over the mesh pad -> window over the new square", "M1 + M2",
          *[f"{v:.2f}" for v in pn.bounds], f"{WIN_M1:g} mm (M1) / {WIN_M2:g} mm (M2) inside the pad; made by make_masks_2026.py"],
     ]
     with open(os.path.join(fp.DATA, "pcb_corner_B_mesh.csv"), "w", newline="") as fh:
@@ -291,15 +291,17 @@ def options_figure(G, O):
 
 
 def main():
+    import sys
     G = geometry()
-    O = square_options(G)
-    options_figure(G, O)
-    for k, (s, P, c, th) in O.items():
-        print(f"{k}: side {s:.2f}, angle {th:.0f}, centre ({c[0]:.2f}, {c[1]:.2f}), copper {P.area:.1f}, "
-              f"under mesh {P.intersection(G['mesh']).area:.1f}, to readout {P.distance(G['others']):.2f}")
+    if "--options" in sys.argv:                  # the search behind MESH_PAD_NEW (slow, ~1 min)
+        O = square_options(G)
+        options_figure(G, O)
+        for k, (s, P, c, th) in O.items():
+            print(f"{k}: side {s:.2f}, angle {th:.0f}, centre ({c[0]:.2f}, {c[1]:.2f}), copper {P.area:.1f}, "
+                  f"under mesh {P.intersection(G['mesh']).area:.1f}, to readout {P.distance(G['others']):.2f}")
     d, a_now, a_new = figure(G)
     tables(G, d)
-    print(f"mesh pad: {G['pad_new'].area:.1f} mm2, {len(G['pad_new'].exterior.coords) - 1} vertices, "
+    print(f"mesh pad: {G['pad_new'].area:.1f} mm2, trace connected {G['pad_new'].intersects(G['trace'])}, "
           f"{d:.2f} mm to readout, under mesh {a_now:.1f} -> {a_new:.1f} mm2; "
           f"M pad to GND {G['hv']['m_new'].distance(G['hv']['gnd_right']):.2f} mm")
 
