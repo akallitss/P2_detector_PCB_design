@@ -18,6 +18,18 @@ Figures and tables only; the changes go into the KiCad project. Made by
 `tools/fig_pcb.py`, `tools/fig_pcb_holes.py` (screw holes) and
 `tools/search_inner_marks.py` (cross positions).
 
+**French versions** (`figures/*_fr.png`): `pcb_overview`, `pcb_corner_A`,
+`pcb_corner_A_steps`, `pcb_alignment_marks`, `pcb_alignment_marks_outer`,
+`pcb_screw_holes`. Made by the same scripts with `P2_LANG=fr` (texts in
+`tools/i18n_fr.json`; after changing a figure's text, run with
+`P2_LANG=collect` to list the texts, then add the new ones to the table). Then
+run `fig_pcb_gnd_jump.py` again: `fig_pcb.py` rewrites `pcb_corner_A_drift.csv`
+without the GND-jump rows.
+
+| figure | what |
+|---|---|
+| `pcb_corner_A_gnd_jump.png` | the GND jump across the drift line: GND vias on both sides (outside the 3 mm keep-out) joined by a B.Cu strip under the line; one at (604.4, 7.4), an optional second one if the bottom "GND" copper text moves (`tools/fig_pcb_gnd_jump.py`) |
+
 | figure (`figures/`) | what |
 |---|---|
 | `pcb_overview.png` | the whole board NOW vs NEW: screw holes, connectors to the back, crosses |
