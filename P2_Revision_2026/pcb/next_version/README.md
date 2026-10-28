@@ -25,7 +25,8 @@ Figures and tables only; the changes go into the KiCad project. Made by
 | `pcb_screw_holes_unrolled.png` | the same, edge by edge: today's holes (plated / not) above, the new pattern below, with spacings |
 | `pcb_corner_A.png` | bottom-right corner NOW → NEW: Sig1 removed, drift pad at the corner centre fed by today's mesh line into one big D pad (the old M + D pads), top GND pad removed, mesh corner cleared |
 | `pcb_corner_A_steps.png` | the same, step by step: 1 Sig1, 2 mesh contact, 3 HV pads (top GND and the M / top GND texts removed, M + D merged into one D pad), 4 drift pad and line |
-| `pcb_alignment_marks.png` | bigger crosses; crosses 1 and 2 moved clear of the new screw holes |
+| `pcb_alignment_marks.png` | crosses 1 and 2 (inner arc), NOW → NEW: bigger, moved clear of the new screw holes |
+| `pcb_alignment_marks_outer.png` | crosses 3 and 4 (outer arc), NOW → NEW: same place, 9 mm copper cross, 10 mm mask outline in a 12.5 mm resist square, with the clearances |
 | `pcb_connectors_back.png` | FX20-140P connectors move to the back side (pin order mirrors!) |
 
 | table (`data/`) | what |

@@ -581,6 +581,110 @@ def marks_fig(mk):
     plt.close(fig)
 
 
+def cross_shape(c, size, w):
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+    x, y = c
+    h = size / 2
+    return unary_union([LineString([(x - h, y), (x + h, y)]).buffer(w / 2, cap_style=2),
+                        LineString([(x, y - h), (x, y + h)]).buffer(w / 2, cap_style=2)])
+
+
+def marks_outer_fig(C, conns):
+    """Crosses 3 and 4 (outer arc, between connectors 1-2 and 9-10): they stay where they are and
+    become bigger. NOW vs NEW per cross, on today's copper, with the clearances of the new cross."""
+    from shapely.geometry import Point, Polygon, box
+    from shapely.ops import unary_union
+    D, H = rg.read_drill()
+    half = 10.0
+    fig, axs = plt.subplots(2, 2, figsize=(14.5, 14.2))
+    notes = []
+    for row, i in zip(axs, (3, 4)):
+        c = MARKS_NOW[i]
+        win = (c[0] - half, c[0] + half, c[1] - half, c[1] + half)
+        F, B = copper_polys(C["gerb"]["F_Cu"], win), copper_polys(C["gerb"]["B_Cu"], win)
+        is_old_cross = lambda q: Point(*np.asarray(q).mean(0)).distance(Point(c)) < 1.6 and Polygon(q).area < 1.0
+        F = [q for q in F if not is_old_cross(q)]
+        B = [q for q in B if not is_old_cross(q)]
+        hatch = lambda q: len(q) > 200 or Polygon(q).buffer(0).area > 150
+        holes = [Point(x, y).buffer(D[k] / 2, 32) for k in H for x, y in H[k]
+                 if win[0] - 3 < x < win[1] + 3 and win[2] - 3 < y < win[3] + 3]
+        cu_new = cross_shape(c, CROSS_NEW, LINE_NEW)
+        sq = box(c[0] - SQUARE_NEW / 2, c[1] - SQUARE_NEW / 2, c[0] + SQUARE_NEW / 2, c[1] + SQUARE_NEW / 2)
+        d_f = min(cu_new.distance(Polygon(q).buffer(0)) for q in F if not hatch(q))
+        d_b = min(cu_new.distance(Polygon(q).buffer(0)) for q in B if not hatch(q))
+        d_h = min(cu_new.distance(hg) for hg in holes)
+        d_sq_h = min(sq.distance(hg) for hg in holes)
+        d_sq_pad = min((sq.distance(Polygon(q).buffer(0)) for q in F if not hatch(q) and Polygon(q).buffer(0).area > 0.05
+                        and any(Point(*np.asarray(q).mean(0)).within(Polygon(conn_box(cc, a)).buffer(1)) for cc, a, _ in conns)),
+                       default=float("inf"))
+        notes.append((i, d_f, d_b, d_h, d_sq_h, d_sq_pad))
+        for ax, new in zip(row, (False, True)):
+            board(ax)
+            ax.add_collection(PolyCollection(B, fc=C_BCU, ec="none", alpha=.45, zorder=1))
+            ax.add_collection(PolyCollection(F, fc=C_FCU, ec="none", alpha=.75, zorder=2))
+            if new:
+                ax.annotate("today's GND-hatch cut-out round the\nsmall cross: re-poured round the new one",
+                            (c[0] + 1.6, c[1] + 1.2), (c[0] + 1.0, c[1] + 6.3), fontsize=7.5, color="0.3",
+                            arrowprops=dict(arrowstyle="->", color="0.4", lw=.6),
+                            bbox=dict(fc="white", ec="none", alpha=.85), zorder=9)
+            for hg in holes:
+                ax.add_patch(poly_patch(hg, fc="white", ec="0.35", lw=.7, zorder=3))
+            if not new:
+                cross(ax, c, CROSS_NOW, 1.4, "#c0392b", zorder=6)
+                # today's mask: rounded cross outline 2.9 mm / 1.16 mm arms in a 10 x 10 mm resist square
+                ax.add_patch(poly_patch(cross_shape(c, 2.9, 1.16), fc="none", ec="#1f5fbf", lw=1.0, ls="--", zorder=6))
+                ax.add_patch(Rectangle((c[0] - 5, c[1] - 5), 10, 10, fc="#1f5fbf", alpha=.08, ec="#1f5fbf", lw=1.0, zorder=5))
+                ax.annotate(f"cross {i} today: 3 × 3 mm, 0.12 mm lines\n({c[0]:.2f}, {c[1]:.2f})", c,
+                            (c[0] - 9.5, c[1] + 7.6), fontsize=8.5, color="#c0392b",
+                            arrowprops=dict(arrowstyle="->", color="#c0392b", lw=.7),
+                            bbox=dict(fc="white", ec="none", alpha=.85))
+                ax.text(c[0] + 5.2, c[1] - 6.5, "mask today: 2.9 mm outline\nin a 10 × 10 resist square", fontsize=8,
+                        color="#1f5fbf", bbox=dict(fc="white", ec="none", alpha=.85))
+            else:
+                for cc, a, _ in conns:
+                    ax.add_patch(MPoly(conn_box(cc, a), fc="none", ec=C_CONN, lw=1.4, ls="--", zorder=6))
+                ax.add_patch(poly_patch(cu_new, fc="#c0392b", ec="none", zorder=7))
+                ax.add_patch(poly_patch(cross_shape(c, 10.0, 1.3), fc="none", ec="#1f5fbf", lw=1.2, ls="--", zorder=7))
+                ax.add_patch(Rectangle((c[0] - SQUARE_NEW / 2, c[1] - SQUARE_NEW / 2), SQUARE_NEW, SQUARE_NEW,
+                                       fc="#1f5fbf", alpha=.08, ec="#1f5fbf", lw=1.2, zorder=5))
+                dim(ax, (c[0] - CROSS_NEW / 2, c[1] - CROSS_NEW / 2 - .8), (c[0] + CROSS_NEW / 2, c[1] - CROSS_NEW / 2 - .8),
+                    (0, 0), f"{CROSS_NEW:g} mm", fs=8, color="#c0392b")
+                dim(ax, (c[0] - SQUARE_NEW / 2, c[1] + SQUARE_NEW / 2), (c[0] + SQUARE_NEW / 2, c[1] + SQUARE_NEW / 2),
+                    (0, .9), f"{SQUARE_NEW:g} mm resist square", fs=8, color="#1f5fbf")
+                ax.text(win[0] + .4, win[2] + .4,
+                        f"same centre ({c[0]:.2f}, {c[1]:.2f})\n"
+                        f"new copper cross → nearest copper: F.Cu {d_f:.1f} mm, B.Cu {d_b:.1f} mm\n"
+                        f"                         → nearest hole: {d_h:.1f} mm\n"
+                        f"resist square → nearest hole: {d_sq_h:.1f} mm; connector pads: "
+                        f"{'none in view' if d_sq_pad == float('inf') else ('none under it, %.1f mm' % d_sq_pad if d_sq_pad > 0 else 'OVERLAP')}\n"
+                        "(GND hatch not counted: it is re-poured round the cross)",
+                        fontsize=8, va="bottom", bbox=dict(fc="white", ec=C_EXT_EC, alpha=.92, boxstyle="round,pad=.4"),
+                        zorder=9)
+            ax.set_xlim(win[0], win[1])
+            ax.set_ylim(win[2], win[3])
+            ax.set_aspect("equal")
+            ax.grid(lw=.25, alpha=.4)
+            ax.tick_params(labelsize=7)
+            ax.set_xlabel("x [mm]", fontsize=8)
+            ax.set_ylabel("y [mm]", fontsize=8)
+            where = "between connectors 1 and 2" if i == 3 else "between connectors 9 and 10"
+            ax.set_title(f"cross {i} – {'NOW' if not new else 'NEW'}  ({where})", fontsize=11.5, weight="bold", loc="left",
+                         color=C_EXT_EC if new else "black")
+    h = [Line2D([], [], color="#c0392b", lw=3, label=f"copper cross (F.Cu + B.Cu): NEW {CROSS_NEW:g} mm, {LINE_NEW:g} mm lines"),
+         Line2D([], [], color="#1f5fbf", ls="--", label="mask cross outline (M1, M2): NEW 10 mm, 1.3 mm arms"),
+         Patch(fc="#1f5fbf", alpha=.15, ec="#1f5fbf", label=f"mask resist square: NEW {SQUARE_NEW:g} mm"),
+         Patch(fc="none", ec=C_CONN, ls="--", label="connector footprint (moves to the BACK)"),
+         Patch(fc=C_FCU, alpha=.75, label="F.Cu"), Patch(fc=C_BCU, alpha=.45, label="B.Cu"),
+         Patch(fc="white", ec="0.35", label="holes")]
+    fig.legend(handles=h, loc="lower center", ncol=4, fontsize=9, frameon=False)
+    fig.suptitle("PCB – alignment crosses 3 and 4 (outer arc): same place, bigger cross and mask outline", fontsize=14, y=.99)
+    fig.tight_layout(rect=(0, 0.05, 1, 0.97))
+    fig.savefig(os.path.join(FIG, "pcb_alignment_marks_outer.png"), dpi=130)
+    plt.close(fig)
+    return notes
+
+
 def connector_side():
     """Radial section through a connector: NOW on the front, NEW on the back."""
     fig, (a0, a1) = plt.subplots(2, 1, figsize=(13, 8.4))
@@ -698,12 +802,14 @@ def main():
     mk = marks_new()
     overview(C, conns, mk)
     drift_table(*corner_A(C, conns))
+    print('outer crosses (no, F.Cu, B.Cu, hole, square-hole, square-pads):',
+          [tuple(round(v, 2) for v in n) for n in marks_outer_fig(C, conns)])
     del C
     gc.collect()
     marks_fig(mk)
     connector_side()
     tables(conns, mk)
-    print("written pcb_overview, pcb_corner_A, pcb_alignment_marks, pcb_connectors_back + data/pcb_*.csv")
+    print("written pcb_overview, pcb_corner_A(_steps), pcb_alignment_marks(_outer), pcb_connectors_back + data/pcb_*.csv")
 
 
 if __name__ == "__main__":
