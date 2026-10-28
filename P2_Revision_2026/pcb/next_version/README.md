@@ -21,7 +21,7 @@ Figures and tables only; the changes go into the KiCad project. Made by
 | figure (`figures/`) | what |
 |---|---|
 | `pcb_overview.png` | the whole board NOW vs NEW: screw holes, connectors to the back, crosses |
-| `pcb_screw_holes.png` | screw holes on the board: KEEP (15, grey), REMOVE (25, red ×), ADD (22, white), numbered as the frame and carbon back |
+| `pcb_screw_holes.png` | screw holes NOW → NEW: today's holes (plated / not) with the 25 that go crossed out; the new 37, KEEP (15, grey) and ADD (22, white), numbered as the frame and carbon back |
 | `pcb_screw_holes_unrolled.png` | the same, edge by edge: today's holes (plated / not) above, the new pattern below, with spacings |
 | `pcb_corner_A.png` | bottom-right corner: Sig1 removed, drift pad at the corner centre fed by today's mesh line and M pads, mesh corner cleared |
 | `pcb_alignment_marks.png` | bigger crosses; crosses 1 and 2 moved clear of the new screw holes |

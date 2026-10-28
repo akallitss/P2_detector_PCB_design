@@ -61,46 +61,66 @@ def edge_label(no, x, y, e):
 
 
 def hole_map(P):
-    fig, ax = plt.subplots(figsize=(14, 12.5))
-    fp.board(ax)
-    ax.add_patch(fp.poly_patch(rg.frame_top()[1].buffer(-3.0, join_style=2), fc="white", ec="0.6", lw=.5, ls=":", zorder=0))
+    fig, (a0, a1) = plt.subplots(1, 2, figsize=(19, 10.5))
+    for ax in (a0, a1):
+        fp.board(ax)
+        ax.add_patch(fp.poly_patch(rg.frame_top()[1].buffer(-3.0, join_style=2), fc="white", ec="0.6", lw=.5, ls=":",
+                                   zorder=0))
+        ax.set_xlim(15, 675)
+        ax.set_ylim(-35, 570)
+        ax.set_aspect("equal")
+        ax.axis("off")
+    # NOW: today's 40 holes, plated / not plated; the ones that go crossed out
+    for act, no, x, y, e, pl in P:
+        if act == "ADD":
+            continue
+        ax_kw = dict(mfc=C_PTH, mec=C_PTH) if pl == "PTH" else dict(mfc="white", mec=C_NPTH)
+        a0.plot(x, y, "o", ms=10, mew=2, zorder=5, **ax_kw)
+        if act == "REMOVE":
+            a0.plot(x, y, "x", ms=13, mew=2.4, color=C_REM, zorder=6)
+    # NEW: the 37 holes, kept (grey) or new (white), numbered
     for act, no, x, y, e, pl in P:
         if act == "REMOVE":
-            ax.plot(x, y, "x", ms=9, mew=2.2, color=C_REM, zorder=6)
             continue
-        ax.plot(x, y, "o", ms=10, mfc=C_KEEP if act == "KEEP" else C_ADD, mec="black", mew=1.6, zorder=5)
-        ax.text(*edge_label(no, x, y, e), str(no), fontsize=8, ha="center", va="center", zorder=7,
+        a1.plot(x, y, "o", ms=10, mfc=C_KEEP if act == "KEEP" else C_ADD, mec="black", mew=1.6, zorder=5)
+        a1.text(*edge_label(no, x, y, e), str(no), fontsize=8, ha="center", va="center", zorder=7,
                 weight="bold" if act == "ADD" else "normal")
     new, pitch = rg.new_frame_holes()
     n = {a: sum(1 for p in P if p[0] == a) for a in ("KEEP", "REMOVE", "ADD")}
-    ax.text(230, 300, f"today: 40 holes Ø3.5 (26 plated, 14 not plated)\n"
-            f"NEW: {len(new)} holes Ø3.5, same positions as frame and carbon back\n\n"
+    n_pth = sum(1 for p in P if p[0] != "ADD" and p[5] == "PTH")
+    a0.set_title("NOW", fontsize=15, weight="bold", loc="left")
+    a1.set_title("NEW", fontsize=15, weight="bold", loc="left", color="#b8650a")
+    a0.text(215, 300, f"today: {n['KEEP'] + n['REMOVE']} holes, all Ø3.5\n"
+            f"  • {n_pth} plated, {n['KEEP'] + n['REMOVE'] - n_pth} not plated\n"
+            "  • spacing irregular (18 – 73 mm)\n\n"
+            f"REMOVE {n['REMOVE']} (red ×): the straight sides\n"
+            "and the inner arc, except the corners\n\n"
+            f"KEEP {n['KEEP']} (not crossed): the outer arc\n"
+            "and the 2 inner corners",
+            fontsize=10.5, va="top", bbox=dict(fc="white", ec="0.6", boxstyle="round,pad=.6"))
+    a1.text(200, 300, f"{len(new)} holes Ø3.5, same positions as\nthe frame and the carbon back\n\n"
             f"• KEEP {n['KEEP']} (grey): unchanged, plating as today\n"
-            f"    – outer arc: all 13 of today's holes; they sit between\n"
-            f"      the signal lines, so they cannot move, and none are added\n"
-            f"    – the 2 inner corners\n"
-            f"• REMOVE {n['REMOVE']} (red ×)\n"
-            f"• ADD {n['ADD']} (white): equal pitch between the corner holes\n"
+            "    – outer arc: all 13 of today's holes; they sit\n"
+            "      between the signal lines, none are added\n"
+            "    – the 2 inner corners\n"
+            f"• ADD {n['ADD']} (white, bold numbers): equal pitch\n"
+            "  between the corner holes\n"
             f"    – bottom side {pitch['bottom side']:.1f} mm, top side {pitch['top side']:.1f} mm\n"
             f"    – inner arc {pitch['inner arc']:.1f} mm (mirror pair about 30°)\n"
-            f"    plating of the new holes: to decide",
+            "    plating of the new holes: to decide",
             fontsize=10.5, va="top", bbox=dict(fc="white", ec="#b8650a", boxstyle="round,pad=.6"))
-    ax.annotate("outer arc: today's 13 holes kept\n(between the signal lines)", (577.78, 197.11), (440, 120),
-                fontsize=10, color="0.25", arrowprops=dict(arrowstyle="->", color="0.3"))
-    ax.annotate("hole 13: plated pad 2.65 mm from the\ncorner-A drift line (see pcb_corner_A_drift.csv)",
-                (610.30, 14.50), (470, 40), fontsize=9, color=C_REM, arrowprops=dict(arrowstyle="->", color=C_REM))
-    ax.set_xlim(15, 675)
-    ax.set_ylim(-35, 570)
-    ax.set_aspect("equal")
-    ax.axis("off")
-    h = [Line2D([], [], marker="o", ls="none", ms=10, mfc=C_KEEP, mec="black", mew=1.6, label="KEEP: today's hole, unchanged"),
-         Line2D([], [], marker="o", ls="none", ms=10, mfc=C_ADD, mec="black", mew=1.6, label="ADD: new hole Ø3.5 (number in bold)"),
-         Line2D([], [], marker="x", ls="none", ms=9, mew=2.2, color=C_REM, label="REMOVE: today's hole"),
+    a1.annotate("hole 13: plated pad 2.65 mm from the\ncorner-A drift line (pcb_corner_A_drift.csv)",
+                (610.30, 14.50), (420, 45), fontsize=9, color=C_REM, arrowprops=dict(arrowstyle="->", color=C_REM))
+    h = [Line2D([], [], marker="o", ls="none", ms=10, mfc=C_PTH, mec=C_PTH, mew=2, label="today: plated (PTH)"),
+         Line2D([], [], marker="o", ls="none", ms=10, mfc="white", mec=C_NPTH, mew=2, label="today: not plated (NPTH)"),
+         Line2D([], [], marker="x", ls="none", ms=11, mew=2.4, color=C_REM, label="REMOVE"),
+         Line2D([], [], marker="o", ls="none", ms=10, mfc=C_KEEP, mec="black", mew=1.6, label="NEW: kept, unchanged"),
+         Line2D([], [], marker="o", ls="none", ms=10, mfc=C_ADD, mec="black", mew=1.6, label="NEW: added, Ø3.5"),
          Patch(fc=fp.C_PCB, ec="0.3", label="PCB (outline unchanged)")]
-    fig.legend(handles=h, loc="lower center", ncol=4, fontsize=10, frameon=False)
-    fig.suptitle("PCB – screw holes: keep / remove / add (numbers = frame and carbon-back numbering; symbols enlarged)",
+    fig.legend(handles=h, loc="lower center", ncol=6, fontsize=10, frameon=False)
+    fig.suptitle("PCB – screw holes, NOW → NEW (numbers = frame and carbon-back numbering; symbols enlarged)",
                  fontsize=14, y=.985)
-    fig.tight_layout(rect=(0, 0.04, 1, 0.96))
+    fig.tight_layout(rect=(0, 0.05, 1, 0.96))
     fig.savefig(os.path.join(fp.FIG, "pcb_screw_holes.png"), dpi=130)
     plt.close(fig)
 
