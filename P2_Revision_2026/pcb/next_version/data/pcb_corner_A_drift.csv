@@ -14,3 +14,9 @@ check,"screw hole 13 (610.30, 14.50), kept on the outer arc, plated today (pad Ã
 mask,"M1, M2: window over the drift pad moves with the pad (resist island unchanged)",M1 + M2,590.95,5.70,594.55,9.30,"3.6 x 3.6 mm, as for the first B2 pad"
 mask,window over the mesh pad: closed (resist),M2,595.82,2.15,597.82,4.15,the pad is gone
 not used,"first B2 patch: pad at (590.5, 10.0), vias (590.5, 7.6) and (626.3, 15.8), B.Cu drift route",F.Cu + B.Cu + drill,,,,,"replaced by the F.Cu feed above: no via, no back copper"
+add,"GND jump 1: GND via (drill 0.4, pad 0.8)",F.Cu + B.Cu + drill,602.63,11.09,,,"via centre; in the F.Cu GND, outside the 3 mm keep-out"
+add,"GND jump 1: GND via (drill 0.4, pad 0.8)",F.Cu + B.Cu + drill,604.18,11.50,,,"via centre; in the F.Cu GND, outside the 3 mm keep-out"
+add,"GND jump 1: GND via (drill 0.4, pad 0.8)",F.Cu + B.Cu + drill,604.70,3.36,,,"via centre; in the F.Cu GND, outside the 3 mm keep-out"
+add,"GND jump 1: GND via (drill 0.4, pad 0.8)",F.Cu + B.Cu + drill,606.24,3.77,,,"via centre; in the F.Cu GND, outside the 3 mm keep-out"
+add,GND jump 1: GND strip 1.5 mm (+ via pads) under the drift line,B.Cu,603.40,11.29,605.47,3.56,start and end points (not a box); joins the F.Cu GND on both sides of the line
+optional,"GND jump 2 (optional): same as jump 1, vias (615.52, 14.53) (617.06, 14.94) (617.58, 6.80) (619.13, 7.22)",F.Cu + B.Cu + drill,,,,,"only if the bottom 'GND' copper text (615.37, 3.74)-(619.46, 8.69) moves ~2 mm away from the vias"
