@@ -11,7 +11,7 @@ KiCad files, rendered figures and pages) are deliberately not tracked; see
 | folder | what the code does |
 |---|---|
 | `Version_Sept26/` | Zoned insulation-mask generator (`make_zoned_mask.py`) and QC/validation/rendering of masks; zone configs in `config/` (V3B_final is the one in use). `tools/run_all.sh` regenerates everything. |
-| `P2_Revision_2026/` | Everything for the 2026 revision (start with its README): `drift_contact/` (the drift HV-contact study and 3D pages), `mechanics/` (NOW → NEW figures for the drift frame, carbon drift piece and carbon back), `pcb/drift_pad_B2/` (patched Gerbers and masks for the B2 drift pad; `qc_b2.py` is the polarity-aware rasteriser reused elsewhere), `pcb/next_version/` (alignment crosses, mesh-contact pad). |
+| `P2_Revision_2026/` | Everything for the 2026 revision (start with its README): `drift_contact/` (the drift HV-contact study and 3D pages), `mechanics/` (NOW → NEW figures for the drift frame, carbon drift piece and carbon back), `mesh_glue_tools/` (printable glue shoe + loose rails for gluing the mesh on the rim wall: STEP/STL and workshop sheets), `pcb/drift_pad_B2/` (patched Gerbers and masks for the B2 drift pad; `qc_b2.py` is the polarity-aware rasteriser reused elsewhere), `pcb/next_version/` (alignment crosses, mesh-contact pad). |
 
 ## Running
 
