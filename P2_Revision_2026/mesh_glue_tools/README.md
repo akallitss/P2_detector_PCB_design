@@ -62,6 +62,9 @@ All dimensions are in `tools/glue_params.py`. Change them there and re-run both 
 3. Lay a bead of glue along the middle of the wall ahead of the shoe (syringe by hand); the shoe
    has no feed. Its front is open, with an entry pocket 1.96 wide × 1.8 tall above the wall, so
    the bead runs into the cavity instead of being pushed along. Keep the bead lower than that.
+   Lay about the volume of the line: 0.10 mm³ per mm, which is a bead about 0.4 mm across. The shoe only
+   meters the height. Its two channels hold about 10 mm³ in all; a larger excess rides ahead in the
+   entry pocket and eventually spills.
    Push the shoe forward and slightly outwards, with the rail on your right, which is counter-clockwise seen from
    above. Change shoe at the corners.
 
