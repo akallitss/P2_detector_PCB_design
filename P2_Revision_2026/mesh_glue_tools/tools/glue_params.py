@@ -38,13 +38,13 @@ LINE_W = 1.00          # width of the lip notch = width of the laid line
 RUN_W = 0.35           # runner width (sits on each border of the wall)
 SKIRT_H = 0.60         # runners / scrapers stand this far below the body
 SHOE_L = 10.0          # length of the glue head along the travel
-END_T = 1.2            # thickness (X) of the front wall and of the rear scraper
+END_T = 1.2            # thickness (X) of the rear scraper (the front is open)
 CHAN_D = 1.2           # overflow channels go this far up into the body
 BODY_OUT = 1.0         # body overhang outside the wall (towards the edge)
 BODY_IN = 1.0          # body overhang inside the wall (over the pillars, 0.58 clear)
 TOP_Z = 8.4            # top of body and arm (Z)
-FEED_D = 1.30          # bore for an 18 G blunt dispensing needle (OD 1.27)
-BOSS_D, BOSS_H = 5.0, 3.0  # needle boss on top
+ENTRY_L = 2.5          # open front: entry pocket, full channel height, so the bead laid ahead runs in
+# no feed bore: the glue bead is laid on the wall ahead of the shoe (syringe by hand), the shoe meters it
 
 # guidance
 RAIL_W = 20.0          # rail width (away from the PCB)

@@ -50,19 +50,15 @@ def shoe(reach):
     # runners on the two borders of the wall
     s = body.fuse(box(-L, L, yo, yr0, zw, zb))
     s = s.fuse(box(-L, L, yr1, yi, zw, zb))
-    # front wall and rear scraper, touching the wall between the runners
-    s = s.fuse(box(L - P.END_T, L, yr0, yr1, zw, zb))
+    # rear scraper, touching the wall between the runners (the front is open: the glue is laid ahead)
     rear = box(-L, -L + P.END_T, yr0, yr1, zw, zb)
     rear = rear.cut(box(-L - 1, -L + P.END_T + 1, y_line0, y_line1, zw - 1, zw + P.LAID_H))   # the lip notch
     s = s.fuse(rear)
-    # overflow channels: up into the body, beside the line, between the end walls
+    # overflow channels: up into the body, beside the line, from the open front to the rear scraper
     for a, b in ((yr0, y_line0), (y_line1, yr1)):
-        s = s.cut(box(-L + P.END_T, L - P.END_T, a, b, zb - 0.01, zb + P.CHAN_D))
-    # feed: boss + bore for an 18 G blunt needle, down into the cavity
-    yc = P.WALL_W / 2
-    boss = Part.makeCylinder(P.BOSS_D / 2, P.BOSS_H, V(0, yc, P.TOP_Z))
-    s = s.fuse(boss)
-    s = s.cut(Part.makeCylinder(P.FEED_D / 2, P.TOP_Z + P.BOSS_H + 1, V(0, yc, zb - 0.5)))
+        s = s.cut(box(-L + P.END_T, L + 1, a, b, zb - 0.01, zb + P.CHAN_D))
+    # entry pocket at the open front: the bead laid on the wall ahead runs into the cavity, not pushed along
+    s = s.cut(box(L - P.ENTRY_L, L + 1, yr0, yr1, zb - 0.01, zb + P.CHAN_D))
 
     # arm: from the body out over the rail (its bottom is the skid on the rail top)
     A = P.ARM_L / 2
@@ -127,12 +123,13 @@ for k, r in P.REACH.items():
     write("shoe_" + k, sh)
     L = P.SHOE_L / 2
     SEC["shoe_" + k] = sections(sh, {
-        "yz_mid": ((1, 0, 0), -2.0),                     # across, through the cavity (behind the feed bore)
+        "yz_mid": ((1, 0, 0), 0.0),                      # across, through the middle of the cavity
         "yz_rear": ((1, 0, 0), -L + P.END_T / 2),        # across, through the rear scraper and its notch
+        "yz_front": ((1, 0, 0), L - P.ENTRY_L / 2),      # across, through the open front (entry pocket)
         "yz_screw": ((1, 0, 0), P.SCREW_X),              # across, through a set screw
         "xy_skirt": ((0, 0, 1), P.lip_z() + 0.05),       # just above the wall: runners, end walls, notch
         "xy_chan": ((0, 0, 1), P.body_z0() + 0.6),       # through the overflow channels
-        "xz_line": ((0, 1, 0), P.WALL_W / 2),            # along, through the line / notch / feed
+        "xz_line": ((0, 1, 0), P.WALL_W / 2),            # along, through the line / notch / entry
     })
 write("rail_straight", rail_straight(P.STRAIGHT_LEN / P.STRAIGHT_PIECES))
 write("rail_inner_arc", rail_arc(P.INNER_R, P.INNER_DEG, outside=False))

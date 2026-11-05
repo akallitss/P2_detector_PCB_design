@@ -1,7 +1,7 @@
 # Mesh gluing tools: glue shoe + loose rails (option C)
 
 Printable tools for laying the glue line on the P2 rim wall before the mesh is put down
-(option C of the note "P2 mesh wall: glue holder in 3D"). One short shoe lays a
+(option C of the note "P2 mesh wall: glue holder in 3D"). The glue bead is laid on the wall first. One short shoe then passes over it and leaves a
 1.0 × 0.10 mm line in the middle of the 2.66 mm Dynamask wall, and the excess goes up into two
 overflow channels. A fence foot on the shoe rides against loose rails laid on the table
 against the PCB edge, and a skid on the arm slides on the rail top. There are no pins or screws
@@ -59,8 +59,10 @@ All dimensions are in `tools/glue_params.py`. Change them there and re-run both 
    screws with a drop of varnish. The screws take up the PCB routing tolerance (±0.1–0.2 typical)
    and the sagitta of the arcs: on the inner arc the screws stick out about 0.76 mm more than on a
    straight side.
-3. Feed through an 18 G blunt dispensing needle pressed into the Ø1.30 bore. Push the shoe
-   forward and slightly outwards, with the rail on your right, which is counter-clockwise seen from
+3. Lay a bead of glue along the middle of the wall ahead of the shoe (syringe by hand); the shoe
+   has no feed. Its front is open, with an entry pocket 1.96 wide × 1.8 tall above the wall, so
+   the bead runs into the cavity instead of being pushed along. Keep the bead lower than that.
+   Push the shoe forward and slightly outwards, with the rail on your right, which is counter-clockwise seen from
    above. Change shoe at the corners.
 
 ## Known limits

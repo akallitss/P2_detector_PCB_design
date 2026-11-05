@@ -103,7 +103,7 @@ def sheet_shoe(pdf):
     R = P.REACH["straight"]
     fig = plt.figure(figsize=(16.54, 11.69))
     frame(fig, "Glue shoe — print 3 (one per reach)",
-          "Lays a 1.0 × 0.10 mm glue line in the middle of the 2.66 mm rim wall; the excess goes up into two overflow "
+          "The glue bead is laid on the wall ahead of the shoe (no feed in the shoe). The shoe takes it in at its open front and leaves a 1.0 × 0.10 mm line in the middle of the 2.66 mm rim wall; the excess goes up into two overflow "
           "channels. Guided by a fence foot (2 × M2 set screws) on the inner face of a loose rail laid against the PCB edge, "
           "and carried by a skid on the rail top. Shown: the straight-side shoe (reach 11.84).")
 
@@ -126,12 +126,12 @@ def sheet_shoe(pdf):
         ax.plot([yf, yf + P.FOOT_T], [zz, zz], color=INK, lw=0.6, ls="--", zorder=4)
     ax.annotate("2 × M2 set screw (nylon tip) at X = ±12, tap Ø1.6;\nturn until the runners sit on the wall borders",
                 (yf + 0.4, P.SCREW_Z + 0.5), (e - 19, 6.9), fontsize=7, arrowprops=dict(arrowstyle="-", lw=0.5))
-    ax.annotate("feed: 18 G blunt needle (Ø1.27)\npressed into Ø1.30, boss Ø5", (P.WALL_W / 2, P.TOP_Z + 2.5),
-                (P.WALL_W + 3.5, P.TOP_Z + 2.0), fontsize=7, arrowprops=dict(arrowstyle="-", lw=0.5))
+    ax.annotate("top closed, flat: no feed. The glue bead is laid on the wall\nahead of the shoe, which takes it in at its open front",
+                (P.WALL_W / 2, P.TOP_Z), (P.WALL_W - 9, P.TOP_Z + 2.2), fontsize=7, arrowprops=dict(arrowstyle="-", lw=0.5))
     note(ax, e - P.RAIL_W + 0.5, 1.0, "loose rail\n(sheet 2)", fs=7)
     note(ax, e + 0.3, -P.PCB_T - 0.5, "PCB 0.236", fs=6.5, va="top")
     note(ax, P.WALL_W + 1.6, 0.35, "pillars", fs=6.5)
-    ax.set_title("A — section across the shoe in its working position (through the cavity, 2 mm behind the feed)", loc="left", fontsize=9)
+    ax.set_title("A — section across the shoe in its working position (through the middle of the cavity)", loc="left", fontsize=9)
     ax.set_aspect("equal"); ax.set_xlim(-R - P.RAIL_W - 3, P.WALL_W + 10); ax.set_ylim(-2.4, P.TOP_Z + 4.5); ax.axis("off")
 
     # (2) detail of the glue head, across, through the rear scraper (the lip notch)
@@ -153,7 +153,7 @@ def sheet_shoe(pdf):
     outline(ax, S["xy_skirt"], 0, 1)
     for w in S["xy_chan"]:
         xs, ys = [p[0] for p in w], [p[1] for p in w]
-        if max(xs) - min(xs) < P.SHOE_L - 1 and max(ys) - min(ys) < 1.0:
+        if True:                                  # body cut 0.6 above its bottom: channels + entry open to the front
             ax.plot(xs, ys, color=INK, lw=0.7, ls="--", zorder=5)
     ax.add_patch(Rectangle((-L, -P.BODY_OUT), P.SHOE_L, P.WALL_W + P.BODY_OUT + P.BODY_IN, fill=False,
                            ec=GHOST, lw=0.6, ls=":"))
@@ -161,8 +161,9 @@ def sheet_shoe(pdf):
     note(ax, L + 1.3, 1.6, "travel", fs=7)
     dim(ax, (-L, 0), (L, 0), -1.8, f"{P.SHOE_L:.0f}", fs=6.5)
     dim(ax, (-L, P.WALL_W), (-L + P.END_T, P.WALL_W), 0.7, f"{P.END_T}", fs=6.5)
-    dim(ax, (L - P.END_T, P.WALL_W), (L, P.WALL_W), 0.7, f"{P.END_T}", fs=6.5)
-    note(ax, -0.5, 0.48, "overflow channel (dashed), 1.2 deep", fs=6.5)
+    dim(ax, (L - P.ENTRY_L, P.WALL_W), (L, P.WALL_W), 0.7, f"entry {P.ENTRY_L}", fs=6.5)
+    note(ax, L + 0.2, 0.2, "open\nfront", fs=6.5, va="bottom")
+    note(ax, -L, -1.45, "dashed: cut 0.6 higher, through the overflow channels and the entry pocket (1.2 deep)", fs=6.5)
     note(ax, -L - 0.2, 1.33, "notch ", fs=6.5, ha="right", va="center")
     ax.set_title("C — glue head cut just above the wall, seen from above", loc="left", fontsize=9)
     ax.set_aspect("equal"); ax.set_xlim(-L - 2.8, L + 4); ax.set_ylim(-2.6, P.WALL_W + 1.8); ax.axis("off")
@@ -178,7 +179,6 @@ def sheet_shoe(pdf):
     ax.add_patch(Rectangle((-A, yf), P.ARM_L, P.FOOT_T, fill=False, ec=INK, lw=0.6, ls="--", zorder=3))
     for x in (-P.SCREW_X, P.SCREW_X):
         ax.plot([x, x], [e, yf + P.FOOT_T], color=INK, lw=0.6, ls="-.", zorder=3)
-    ax.add_patch(plt.Circle((0, P.WALL_W / 2), P.BOSS_D / 2, fc="white", ec=INK, lw=0.8, zorder=3))
     dim(ax, (-A, e - P.SKID_W), (A, e - P.SKID_W), -2.0, f"{P.ARM_L:.0f}")
     dim(ax, (-P.SCREW_X, e - P.SKID_W), (P.SCREW_X, e - P.SKID_W), -4.2, f"screws {2 * P.SCREW_X:.0f}")
     dim(ax, (A, e - P.SKID_W), (A, -P.BODY_OUT), 2.5, f"{P.SKID_W + R - P.BODY_OUT:.2f}", vertical=True)
@@ -203,7 +203,7 @@ def sheet_shoe(pdf):
         note(ax, 0.0, y, f, fs=8, family="monospace"); note(ax, 0.20, y, use, fs=8)
         note(ax, 0.62, y, f"{r:.2f}", fs=8); note(ax, 0.72, y, f"{r + P.SKID_W - P.BODY_OUT:.2f}", fs=8); note(ax, 0.92, y, q, fs=8)
     txt = ("Print in resin (SLA/MSLA, e.g. a tough/rigid resin): the runners are 0.35 wide and the notch 0.10 deep, below what FDM holds.\n"
-           "Print upside down (top face on the plate) so the runners, end walls and notch are the last, cleanest layers; "
+           "Print upside down (top face on the plate) so the runners, rear scraper and notch are the last, cleanest layers; "
            "check the notch depth (0.10) on the print.\n"
            "Laid height = notch depth: to change it, change LAID_H in glue_params.py and re-run (100 µm → line spreads to ≈1.7 mm under the mesh).\n"
            "Set-up on the board: put the shoe on the wall, turn both set screws until the tips touch the rail and both runners sit on the wall borders "
