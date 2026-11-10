@@ -1,0 +1,74 @@
+edge,pcb_x,pcb_y,nearest_frame_x,nearest_frame_y,distance_mm,status
+bottom side,99.31,-6.01,99.31,-6.00,0.010,aligned
+bottom side,141.90,-7.51,129.31,-7.50,12.596,NOT aligned
+bottom side,184.50,-7.51,178.88,-7.50,5.619,NOT aligned
+bottom side,227.09,-7.51,228.45,-7.50,1.358,NOT aligned
+bottom side,269.68,-7.51,278.02,-7.50,8.335,NOT aligned
+bottom side,312.28,-7.51,327.59,-7.50,15.311,NOT aligned
+bottom side,354.87,-7.51,377.16,-7.50,22.288,NOT aligned
+bottom side,397.46,-7.51,377.16,-7.50,20.305,NOT aligned
+bottom side,440.05,-7.51,426.73,-7.50,13.328,NOT aligned
+bottom side,482.65,-7.51,476.30,-7.50,6.351,NOT aligned
+bottom side,525.24,-7.51,525.87,-7.50,0.626,NOT aligned
+bottom side,567.83,-7.51,575.44,-7.50,7.603,NOT aligned
+bottom side,610.43,-6.00,605.44,-6.00,4.994,NOT aligned
+outer arc,610.43,-6.00,610.30,14.50,20.500,NOT aligned
+outer arc,610.30,14.50,610.30,14.50,0.001,aligned
+outer arc,605.08,81.14,606.98,65.23,16.020,NOT aligned
+outer arc,594.28,139.80,599.44,115.51,24.829,NOT aligned
+outer arc,577.78,197.11,571.99,213.33,17.223,NOT aligned
+outer arc,555.82,252.56,552.25,260.18,8.419,NOT aligned
+outer arc,528.71,305.25,528.68,305.24,0.029,aligned
+outer arc,496.63,355.07,501.45,348.17,8.418,NOT aligned
+outer arc,459.59,401.83,470.74,388.69,17.235,NOT aligned
+outer arc,418.21,444.76,399.76,461.38,24.829,NOT aligned
+outer arc,372.81,483.44,359.98,493.04,16.022,NOT aligned
+outer arc,317.71,521.29,317.71,521.29,0.006,aligned
+outer arc,300.02,531.67,317.71,521.29,20.508,NOT aligned
+top side,44.46,89.01,44.46,89.00,0.009,aligned
+top side,65.98,129.25,58.16,115.73,15.617,NOT aligned
+top side,89.21,169.49,82.94,158.66,12.511,NOT aligned
+top side,112.44,209.73,107.73,201.59,9.406,NOT aligned
+top side,135.68,249.97,132.51,244.52,6.304,NOT aligned
+top side,158.91,290.21,157.30,287.45,3.198,NOT aligned
+top side,182.14,330.45,182.08,330.38,0.093,aligned
+top side,205.34,370.69,206.87,373.31,3.027,NOT aligned
+top side,228.61,410.93,231.65,416.23,6.117,NOT aligned
+top side,251.84,451.17,256.44,459.16,9.223,NOT aligned
+top side,275.07,491.41,281.22,502.09,12.328,NOT aligned
+top side,300.02,531.67,297.52,527.32,5.011,NOT aligned
+inner arc,99.31,-6.01,99.31,-6.00,0.010,aligned
+inner arc,94.16,32.16,94.15,32.14,0.020,aligned
+inner arc,74.92,65.47,74.91,65.47,0.013,aligned
+inner arc,44.46,89.01,44.46,89.00,0.009,aligned
+bottom side,,,178.88,-7.50,,"frame hole, no PCB hole"
+top side,,,58.16,115.73,,"frame hole, no PCB hole"
+top side,,,82.94,158.66,,"frame hole, no PCB hole"
+top side,,,107.73,201.59,,"frame hole, no PCB hole"
+bottom side,,,278.02,-7.50,,"frame hole, no PCB hole"
+bottom side,,,377.16,-7.50,,"frame hole, no PCB hole"
+bottom side,,,476.30,-7.50,,"frame hole, no PCB hole"
+bottom side,,,575.44,-7.50,,"frame hole, no PCB hole"
+bottom side,,,605.44,-6.00,,"frame hole, no PCB hole"
+outer arc,,,606.98,65.23,,"frame hole, no PCB hole"
+outer arc,,,599.44,115.51,,"frame hole, no PCB hole"
+outer arc,,,587.75,164.99,,"frame hole, no PCB hole"
+outer arc,,,571.99,213.33,,"frame hole, no PCB hole"
+outer arc,,,552.25,260.18,,"frame hole, no PCB hole"
+outer arc,,,501.45,348.17,,"frame hole, no PCB hole"
+outer arc,,,470.74,388.69,,"frame hole, no PCB hole"
+outer arc,,,436.77,426.51,,"frame hole, no PCB hole"
+outer arc,,,399.76,461.38,,"frame hole, no PCB hole"
+outer arc,,,359.98,493.04,,"frame hole, no PCB hole"
+top side,,,297.52,527.32,,"frame hole, no PCB hole"
+top side,,,281.22,502.09,,"frame hole, no PCB hole"
+top side,,,256.44,459.16,,"frame hole, no PCB hole"
+top side,,,231.65,416.23,,"frame hole, no PCB hole"
+top side,,,206.87,373.31,,"frame hole, no PCB hole"
+top side,,,157.30,287.45,,"frame hole, no PCB hole"
+top side,,,132.51,244.52,,"frame hole, no PCB hole"
+bottom side,,,525.87,-7.50,,"frame hole, no PCB hole"
+bottom side,,,426.73,-7.50,,"frame hole, no PCB hole"
+bottom side,,,327.59,-7.50,,"frame hole, no PCB hole"
+bottom side,,,228.45,-7.50,,"frame hole, no PCB hole"
+bottom side,,,129.31,-7.50,,"frame hole, no PCB hole"

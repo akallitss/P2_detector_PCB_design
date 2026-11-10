@@ -66,3 +66,12 @@ __pycache__/
 *.step
 *.stl
 *.pdf
+
+!/Final_Version/
+/Final_Version/*
+!/Final_Version/validation_final_version/
+/Final_Version/validation_final_version/*
+!/Final_Version/validation_final_version/tools/
+!/Final_Version/validation_final_version/data/
+/Final_Version/validation_final_version/data/*.pkl
+!/Final_Version/validation_final_version/README.md
