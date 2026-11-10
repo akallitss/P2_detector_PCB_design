@@ -23,6 +23,7 @@ How the two are put on top of each other (no fit, no adjustment):
 | `2_holes_zoom.png` | 8 true-size zooms (corners, sides, arcs) |
 | `3_signal_lines.png` | signal lines (F.Cu orange, B.Cu purple) under the frame walls and holes |
 | `4_hv_corners.png` | corner A (drift contact → D pad) and corner B (mesh contact, M pad) against the frame |
+| `5_requested_vs_v3.png` | the frame the revision asked for against frame V3 |
 
 Tables (`data/`): `holes_pcb_vs_frame.csv` (every PCB hole and its nearest frame hole),
 `frame_holes_vs_signal.csv` (for every hole: the signal tracks it would cut, or its clearance to them).
@@ -51,6 +52,21 @@ The rest of the pattern differs:
 **Frame outline:** outer edge R615, no extension behind the connectors (the PCB goes to R650).
 The 44 connector-support holes (Ø2.2 / Ø3.2) have no frame under them. The frame overhangs the PCB
 by 2 mm on the bottom side (frame y = −12, PCB edge y = −10).
+
+**Frame: requested vs delivered** (`5_requested_vs_v3.png`, script `fig_requested_vs_v3.py`; the
+requested frame is from `P2_Revision_2026/mechanics/tools/rev_geometry.py`):
+
+| requested in the revision | frame V3 |
+|---|---|
+| extension behind the connectors, 8 mm high, out to the PCB edge R650 | **missing**: ends at R615 |
+| 40 connector-support holes in the extension | **missing** |
+| HV openings at corners A and B | none; not needed without the extension |
+| straight sides +1.5 mm outward (edge 11.5) | edge at 12.0 (0.5 mm wider than asked) |
+| inner arc +1.5 mm outward (edge r 93.5) | **missing**: r 95.0, flush with the PCB edge |
+| 37 screw holes (pattern above) | 39 holes, a different pattern (see above) |
+
+Missing material in the top view: 213 cm². Not checkable in the 2D DXF: the removed drift-wire slot,
+the foam slot at corner A, gas bores, the 8 mm height.
 
 **HV / contacts:**
 - D pad (drift HV, corner A) and M pad (mesh HV, corner B): outside the frame, 6.0 / 6.2 mm from
