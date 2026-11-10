@@ -24,6 +24,7 @@ How the two are put on top of each other (no fit, no adjustment):
 | `3_signal_lines.png` | signal lines (F.Cu orange, B.Cu purple) under the frame walls and holes |
 | `4_hv_corners.png` | corner A (drift contact → D pad) and corner B (mesh contact, M pad) against the frame |
 | `5_requested_vs_v3.png` | the frame the revision asked for against frame V3 |
+| `6_side_widths.png` | wall width on the straight sides and the inner arc (V3 vs asked), with the room left past the M3 head |
 
 Tables (`data/`): `holes_pcb_vs_frame.csv` (every PCB hole and its nearest frame hole),
 `frame_holes_vs_signal.csv` (for every hole: the signal tracks it would cut, or its clearance to them).
@@ -63,6 +64,10 @@ requested frame is from `P2_Revision_2026/mechanics/tools/rev_geometry.py`):
 | HV openings at corners A and B | none; not needed without the extension |
 | straight sides +1.5 mm outward (edge 11.5) | edge at 12.0 (0.5 mm wider than asked) |
 | inner arc +1.5 mm outward (edge r 93.5) | **missing**: r 95.0, flush with the PCB edge |
+
+Wall width measured from the window edge (`6_side_widths.png`): straight sides V3 12.0 / asked 11.5 /
+PCB edge 10.0; inner arc V3 15.0 / asked 16.5 / PCB edge 15.0. Wall left past an M3 head (Ø5.5)
+on the screw line: V3 1.79 mm on all three sides; asked 1.27 (straight sides) and 3.27 (inner arc).
 | 37 screw holes (pattern above) | 39 holes, a different pattern (see above) |
 
 Missing material in the top view: 213 cm². Not checkable in the 2D DXF: the removed drift-wire slot,
