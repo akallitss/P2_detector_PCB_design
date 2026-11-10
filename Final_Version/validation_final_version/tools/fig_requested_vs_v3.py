@@ -19,10 +19,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Circle, Patch
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point
 from shapely.ops import unary_union
 
 import final_geometry as G
+import i18n
 sys.path.insert(0, os.path.join(G.FINAL, "..", "P2_Revision_2026", "mechanics", "tools"))
 import rev_geometry as rg                                            # noqa: E402
 from fig_validation import C_BOARD, C_BOARD_EC, crop, poly_patch      # noqa: E402
@@ -54,16 +55,18 @@ def dim_n(ax, p0, n, d0, d1, text, t_off, color=C_DIM, fs=9, ha="left"):
 
 def side_dims(ax, q, n, M, hole_d, step=7.0):
     """q on the window edge, on the normal through a real screw hole.  Arrows window -> PCB edge,
-    -> V3 edge, -> asked edge beside the hole; head room (head edge -> V3 edge) at the hole."""
+    window -> V3 edge, PCB edge -> V3 edge beside the hole; head room (head edge -> V3 edge) at the hole."""
     dim_n(ax, q, n, 0, M["pcb"], f"PCB {M['pcb']:.1f}", step, color=C_BOARD_EC)
     dim_n(ax, q, n, 0, M["v3"], f"V3 {M['v3']:.1f}", 2 * step)
-    dim_n(ax, q, n, 0, M["req"], f"asked {M['req']:.1f}", 3 * step, color=C_REQ)
+    past = M["v3"] - M["pcb"]
+    if past > 0.2:
+        dim_n(ax, q, n, M["pcb"], M["v3"], f"V3 {past:.1f} past the PCB edge", 3 * step, fs=8.5)
     head = hole_d + HEAD_D / 2
     hc = q + hole_d * n
     ax.add_patch(Circle(tuple(hc), HEAD_D / 2, fc="none", ec="black", lw=1.2, ls="--", zorder=8))
     ax.annotate("", tuple(q + head * n), tuple(q + M["v3"] * n),
                 arrowprops=dict(arrowstyle="<->", color=C_DIM, lw=1.1, shrinkA=0, shrinkB=0), zorder=12)
-    ax.text(0.02, 0.03, f"wall past the M3 head (dashed): V3 {M['v3'] - head:.2f} mm, asked {M['req'] - head:.2f} mm",
+    ax.text(0.02, 0.03, f"wall past the M3 head (dashed): {M['v3'] - head:.2f} mm",
             color=C_DIM, fontsize=9, ha="left", va="bottom", zorder=13, transform=ax.transAxes,
             bbox=dict(fc="white", ec="none", alpha=.85, pad=.3))
 
@@ -80,7 +83,9 @@ def main():
     v3 = G.frame_solid(F, outer, window)
     R = rg.build()
     req_outer = unary_union([R["outer_new"], R["ext"]])        # requested contour (HV openings cut)
-    missing = req_outer.difference(outer).difference(R["window"])
+    # only the extension (r > 615) counts as missing; the side widths were not a requirement
+    ring = Point(0, 0).buffer(700, 512).difference(Point(0, 0).buffer(614.9, 4096))
+    missing = req_outer.difference(outer).difference(R["window"]).intersection(ring)
     holes_req = R["holes"]                                     # connector-support holes in the extension
     pcb = G.board()
     req_line = rg.frame_outline()
@@ -95,9 +100,9 @@ def main():
     zc = 103 * np.array([math.cos(ai - math.radians(6)), math.sin(ai - math.radians(6))])  # hole + dims clockwise of it
     zooms = [("outer arc: extension behind the connectors (missing)", (570, 662, 52, 118), (585 * a8, a8), 10.5),
              ("corner A (bottom right)", (575, 660, -22, 38), None, None),
-             ("bottom side (top side the same): V3 wider than asked", (hb[0] - 8, hb[0] + 34, -19, 3),
+             ("bottom side (top side the same): wall width", (hb[0] - 8, hb[0] + 34, -19, 3),
               (np.array([hb[0], 5.0]), np.array([0.0, -1.0])), 7.5),
-             ("inner arc: V3 narrower than asked (no overhang)",
+             ("inner arc: wall width (frame flush with the PCB edge)",
               (zc[0] - 21, zc[0] + 21, zc[1] - 21, zc[1] + 21),
               (120 * ui, -ui), 10.5)]
     fig = plt.figure(figsize=(20, 11))
@@ -110,7 +115,6 @@ def main():
         ax.add_patch(poly_patch(crop(pcb, W), fc=C_BOARD, ec=C_BOARD_EC, lw=1, zorder=1))
         ax.add_patch(poly_patch(crop(v3, W), fc=C_V3, ec=C_V3_EC, lw=.7, alpha=.85, zorder=3))
         ax.add_patch(poly_patch(crop(missing, W), fc=C_MISS, ec=C_REQ, lw=.8, alpha=.8, hatch="///", zorder=4))
-        ax.plot(*np.asarray(req_outer.exterior.coords).T, color=C_REQ, lw=1.4, ls="--", zorder=5)
         for x, y, d in holes_req:
             ax.plot(x, y, "o", ms=3 if t == "whole part" else 6, mfc="white", mec="#5a2d00", mew=1, zorder=6)
         if t != "whole part":
@@ -126,7 +130,7 @@ def main():
             else:
                 side_dims(ax, q, norm[1], M, hole_d, step=7.0)
                 head = hole_d + HEAD_D / 2
-                print(t, {k: round(v, 2) for k, v in M.items()}, "past head V3 %.2f asked %.2f" % (M["v3"] - head, M["req"] - head))
+                print(t, {k: round(v, 2) for k, v in M.items()}, "past head %.2f" % (M["v3"] - head))
         ax.set_xlim(w[0], w[1])
         ax.set_ylim(w[2], w[3])
         ax.set_aspect("equal")
@@ -137,12 +141,12 @@ def main():
             ax.tick_params(labelsize=7)
     fig.legend(handles=[Patch(fc=C_BOARD, ec=C_BOARD_EC, label="final PCB"),
                         Patch(fc=C_V3, ec=C_V3_EC, alpha=.85, label="frame V3 (delivered)"),
-                        Patch(fc=C_MISS, ec=C_REQ, hatch="///", alpha=.8, label="asked in the revision, not in V3"),
-                        Line2D([], [], color=C_REQ, ls="--", lw=1.4, label="outer contour asked (HV openings cut out)"),
+                        Patch(fc=C_MISS, ec=C_REQ, hatch="///", alpha=.8,
+                              label="extension asked in the revision, not in V3 (HV openings cut out)"),
                         Line2D([], [], marker="o", ls="none", mfc="white", mec="#5a2d00", label="connector-support holes asked"),
                         Line2D([], [], color="black", ls="--", lw=1.1, label=f"M3 head Ø{HEAD_D} on the screw line")],
                loc="lower center", ncol=6, fontsize=9.5, frameon=False)
-    fig.suptitle("Frame: what the revision asked for vs frame V3, on the final PCB  "
+    fig.suptitle("Frame V3 on the final PCB: the extension behind the connectors is missing  "
                  "(top view; dimensions in mm, measured from the window edge)", fontsize=14, weight="bold")
     fig.tight_layout(rect=(0, .04, 1, .96))
     fig.savefig(os.path.join(G.FIG, "5_requested_vs_v3.png"), dpi=120)
@@ -150,4 +154,6 @@ def main():
 
 
 if __name__ == "__main__":
+    i18n.setup()
     main()
+    i18n.finish()

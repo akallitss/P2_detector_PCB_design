@@ -29,6 +29,7 @@ from shapely.geometry import Point, box
 from shapely.strtree import STRtree
 
 import final_geometry as G
+import i18n
 
 C_BOARD, C_BOARD_EC = "#e8f3e4", "#2e7d32"
 C_FRAME, C_FRAME_EC = "#9aa3b0", "#3c4350"
@@ -493,4 +494,6 @@ def main():
 
 
 if __name__ == "__main__":
+    i18n.setup()
     main()
+    i18n.finish()
