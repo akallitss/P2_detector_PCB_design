@@ -23,7 +23,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
-from matplotlib.patches import Circle, Patch, PathPatch
+from matplotlib.patches import Circle, Patch, PathPatch, Rectangle
 from matplotlib.path import Path
 from shapely.geometry import Point, box
 from shapely.strtree import STRtree
@@ -108,7 +108,7 @@ def poly_patch(geom, **kw):
             verts += xy.tolist()
             codes += [Path.MOVETO] + [Path.LINETO] * (len(xy) - 2) + [Path.CLOSEPOLY]
     if not verts:
-        return Patch(visible=False)
+        return Rectangle((0, 0), 0, 0, visible=False)
     return PathPatch(Path(verts, codes), **kw)
 
 

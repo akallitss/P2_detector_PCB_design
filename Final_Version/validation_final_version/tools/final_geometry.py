@@ -177,8 +177,8 @@ def _filled_loops(segs, tol=0.03):
     ink = unary_union(segs).buffer(tol, 4)
     out = []
     for g in getattr(ink, "geoms", [ink]):
-        out.append(Polygon(g.exterior))
-        out += [Polygon(r) for r in g.interiors]
+        out.append(Polygon(g.exterior).buffer(-tol, 4))          # undo the tolerance: exact line position
+        out += [Polygon(r).buffer(tol, 4) for r in g.interiors]
     return ink, out
 
 
@@ -194,7 +194,8 @@ def board(close=12.0, tab=1.0):
     centre = Point(300, 200)
     piece = next(g for g in getattr(rest, "geoms", [rest]) if g.contains(centre))
     exact = rect.difference(slots).intersection(piece.buffer(tab, 16))
-    return next(g for g in getattr(exact, "geoms", [exact]) if g.contains(centre))
+    b = next(g for g in getattr(exact, "geoms", [exact]) if g.contains(centre))
+    return b.buffer(0.03, 4, join_style=2)      # the slot line work was thickened by 0.03 (see _filled_loops)
 
 
 def frame_shapes(F):
