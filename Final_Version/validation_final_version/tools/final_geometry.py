@@ -8,6 +8,7 @@ origin = centre of the arcs, x along the bottom straight side, mm, top view.
            GERBER/P2_V1-Edge_Cuts.gbr   outline
            GERBER/P2_V1-Top.gbr, -Bottom.gbr   copper (signal lines, pads)
            GERBER/P2_V1-ENIG.gbr        gold pads (HV pads)
+  PCB    (P2_PCB=nov12) Final_Version/PCB-12Nov2026/GERBER/P2-V1_*.gbr: holes moved, no drill file
   frame  Final_Version/drift_frame/P2_Frame_V3.dxf   (block SE, arc centre at (80.572, 41.301))
 
 Copper is converted once to shapely polygons and cached in ../data/copper_cache.pkl (small).
@@ -26,13 +27,26 @@ from shapely.ops import polygonize, unary_union
 HERE = os.path.dirname(os.path.abspath(__file__))
 VAL = os.path.normpath(os.path.join(HERE, ".."))                 # validation_final_version/
 FINAL = os.path.normpath(os.path.join(VAL, ".."))               # Final_Version/
-FAB = os.path.join(FINAL, "PCB-Nov2026", "K55V1", "_FABRICATION")
-DRL = os.path.join(FAB, "NCDRILL", "P2_V1.drl")
-GBR = os.path.join(FAB, "GERBER", "P2_V1-%s.gbr")
+# Which PCB delivery: P2_PCB=nov09 (default, PCB-Nov2026/K55V1, with drill file) or
+# P2_PCB=nov12 (PCB-12Nov2026/GERBER, holes moved by the designer; Gerbers only, no drill file).
+PCB = os.environ.get("P2_PCB", "nov09")
 FRAME_DXF = os.path.join(FINAL, "drift_frame", "P2_Frame_V3.dxf")
-FIG = os.path.join(VAL, "figures")
-DATA = os.path.join(VAL, "data")
-CACHE = os.path.join(DATA, "copper_cache.pkl")
+if PCB == "nov12":
+    FAB = os.path.join(FINAL, "PCB-12Nov2026")
+    GBR_FILES = {"Top": "P2-V1_Top.gbr", "Bottom": "P2-V1_Bottom.gbr", "Edge_Cuts": "P2-V1_Bottom-Edge_Cuts.gbr",
+                 "ENIG": "P2-V1_ENIG-Bottom.gbr", "drl_map": "P2-V1_drl_map.gbr"}
+    GBR = os.path.join(FAB, "GERBER", "%s")
+    FIG = os.path.join(VAL, "figures", "PCB-12Nov2026")
+    DATA = os.path.join(VAL, "data", "PCB-12Nov2026")
+else:
+    FAB = os.path.join(FINAL, "PCB-Nov2026", "K55V1", "_FABRICATION")
+    GBR_FILES = {k: f"P2_V1-{k}.gbr" for k in ("Top", "Bottom", "Edge_Cuts", "ENIG", "drl_map")}
+    GBR = os.path.join(FAB, "GERBER", "%s")
+    FIG = os.path.join(VAL, "figures")
+    DATA = os.path.join(VAL, "data")
+DRL = os.path.join(FINAL, "PCB-Nov2026", "K55V1", "_FABRICATION", "NCDRILL", "P2_V1.drl")
+CACHE = os.path.join(VAL, "data", f"copper_cache_{PCB}.pkl")
+SCREW_PAD_D = 4.56          # copper pad round each plated Ø3.5 screw hole (F.Cu and B.Cu)
 
 # Gerber header "%TF.SameCoordinates,PXe1e70c6PY26a226f6*%": the Gerbers are written relative to
 # this origin (nm), the drill file is not.  Checked: the shifted drill holes sit on the arc centre.
@@ -41,8 +55,8 @@ FRAME_CENTRE = (80.572, 41.301)                                 # centre of all 
 
 
 # ---------------------------------------------------------------- PCB
-def pcb_holes():
-    """{tool: dict(d=, plated=, xy=[(x, y)])} in the common coordinates."""
+def _drill_file():
+    """{tool: dict(d=, plated=, xy=[(x, y)])} from the 9 Nov drill file."""
     tools, cur, plated = {}, None, None
     for line in open(DRL):
         if "TA.AperFunction" in line:
@@ -61,9 +75,31 @@ def pcb_holes():
     return tools
 
 
+def screw_pads(name="Top"):
+    """Centres of the Ø4.56 copper pads = the plated Ø3.5 screw holes."""
+    from gerbonara.graphic_objects import Flash
+    from gerbonara.utils import MM
+    out = []
+    for o in _gerber(name).objects:
+        if isinstance(o, Flash) and abs(getattr(o.aperture, "diameter", 0) - SCREW_PAD_D) < 1e-3:
+            out.append((round(o.x, 4), round(o.y, 4)))
+    return sorted(set(out))
+
+
+def pcb_holes():
+    """{tool: dict(d=, plated=, xy=[(x, y)])} in the common coordinates.  Tool 4 = Ø3.5 screw holes,
+    5 = Ø2.2 and 6 = Ø3.2 connector supports.  nov12 has no drill file: the screw holes are the
+    centres of their Ø4.56 pads (F.Cu = B.Cu checked in check_nov12.py); the connector-support holes
+    are taken from the 9 Nov drill file (check_nov12.py compares them with the 12 Nov drill map)."""
+    tools = _drill_file()
+    if PCB == "nov12":
+        tools[4] = dict(d=3.5, plated=True, xy=screw_pads("Top"))
+    return tools
+
+
 def _gerber(name):
     from gerbonara import GerberFile
-    return GerberFile.open(GBR % name)
+    return GerberFile.open(GBR % GBR_FILES[name])
 
 
 def _prim_polys(obj):

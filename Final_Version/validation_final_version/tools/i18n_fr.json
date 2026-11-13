@@ -1,5 +1,11 @@
 {
- "keep_list": ["PCB", "F.Cu", "B.Cu", "10 mm"],
+ "keep_list": [
+  "PCB",
+  "F.Cu",
+  "B.Cu",
+  "10 mm",
+  "5 mm"
+ ],
  "exact": {
   "corner B: mesh contact\n+ M pad": "coin B : contact mesh\n+ pastille M",
   "corner A: drift contact\n+ D pad": "coin A : contact dérive\n+ pastille D",
@@ -55,34 +61,140 @@
   "frame V3 (delivered)": "cadre V3 (livré)",
   "extension asked in the revision, not in V3 (HV openings cut out)": "extension demandée dans la révision, absente du V3 (ouvertures HT découpées)",
   "connector-support holes asked": "trous de maintien connecteur demandés",
-  "M3 head Ø5.5 on the screw line": "tête M3 Ø5.5 sur la ligne de vis"
+  "M3 head Ø5.5 on the screw line": "tête M3 Ø5.5 sur la ligne de vis",
+  "outer arc, aligned hole": "grand arc, trou aligné",
+  "outer arc, PCB hole with no frame hole": "grand arc, trou du PCB sans trou du cadre",
+  "O-ring groove (4.58–5.49 mm from the window)": "gorge du joint torique (4.58–5.49 mm de la fenêtre)",
+  "gas channel inside the frame (arcs only)": "canal de gaz dans le cadre (arcs seulement)"
  },
  "rules": [
-  ["^Δ (?=[\\d.]+$)", "Δ "],
-  ["^PCB only\\nframe hole ([\\d.]+) away$", "PCB seul\ntrou du cadre à \\1 mm"],
-  ["^frame hole: cuts (\\d+) tracks?$", "trou du cadre : coupe \\1 pistes"],
-  ["^frame hole: ([\\d.]+) mm to nearest track \\(([BF]\\.Cu)\\)$", "trou du cadre : \\1 mm de la piste la plus proche (\\2)"],
-  ["^PCB hole: ([\\d.]+) mm to nearest track \\(([BF]\\.Cu)\\)$", "trou du PCB : \\1 mm de la piste la plus proche (\\2)"],
-  ["^(.*?):  PCB (\\d+) holes \\(pitch (\\S+) mm\\)   \\|   frame (\\d+) holes \\(pitch (\\S+) mm\\)   \\|   aligned (\\d+)  (.*)$", "\\1 :  PCB \\2 trous (pas \\3 mm)   |   cadre \\4 trous (pas \\5 mm)   |   alignés \\6  \\7"],
-  ["arc length on r", "longueur d'arc sur r"],
-  ["^bottom side :", "côté bas :"],
-  ["^outer arc :", "grand arc :"],
-  ["^top side :", "côté haut :"],
-  ["^inner arc :", "petit arc :"],
-  ["^D pad \\(drift HV\\)\\n", "pastille D (HT dérive)\n"],
-  ["^M pad \\(mesh HV\\)\\n", "pastille M (HT mesh)\n"],
-  ["^drift contact pad\\n", "pastille de contact dérive\n"],
-  ["^mesh contact pad\\n", "pastille de contact mesh\n"],
-  [" mm \\(bbox\\)\\n", " mm (encombrement)\n"],
-  ["outside the frame, ([\\d.]+) mm from its outer edge", "hors du cadre, à \\1 mm de son bord extérieur"],
-  ["in the frame window, ([\\d.]+) mm from the wall", "dans la fenêtre du cadre, à \\1 mm de la paroi"],
-  ["in the window, but ([\\d.]+) mm² \\((\\d+) %\\)\\nunder the wall corner", "dans la fenêtre, mais \\1 mm² (\\2 %)\nsous le coin de la paroi"],
-  ["^UNDER the frame wall$", "SOUS la paroi du cadre"],
-  ["^PCB (?=[\\d.]+$)", "PCB "],
-  ["^V3 (?=[\\d.]+$)", "V3 "],
-  ["^V3 ([\\d.]+)\\n\\(ends at R615\\)$", "V3 \\1\n(s'arrête à R615)"],
-  ["^missing ([\\d.]+)\\n\\(asked: out to\\nthe PCB edge R650\\)$", "manque \\1\n(demandé : jusqu'au\nbord du PCB R650)"],
-  ["^V3 ([\\d.]+) past the PCB edge$", "V3 dépasse le bord du PCB de \\1"],
-  ["^wall past the M3 head \\(dashed\\): ([\\d.]+) mm$", "paroi au-delà de la tête M3 (tirets) : \\1 mm"]
+  [
+   "^STEP 1 – the final PCB \\(Gerbers of 12 Nov 2026\\)\\n(\\d+) screw holes Ø3.5 \\(plated\\), (\\d+) connector-support holes, signal lines \\(orange F.Cu, purple B.Cu\\)$",
+   "ÉTAPE 1 – le PCB final (Gerbers du 12 nov. 2026)\n\\1 trous de vis Ø3.5 (métallisés), \\2 trous de maintien connecteur, pistes de signal (orange F.Cu, violet B.Cu)"
+  ],
+  [
+   "^screw holes aligned \\(< 0.1 mm\\): (\\d+) of (\\d+) PCB / (\\d+) frame\\nPCB hole with no frame hole:  (\\d+)\\nframe hole with no PCB hole: (\\d+)\\nconnector-support holes: frame ends at R615,\\n  no frame under them \\((\\d+)\\)\\nHV pads D and M: outside the frame \\(r > 615\\)$",
+   "trous de vis alignés (< 0.1 mm) : \\1 sur \\2 PCB / \\3 cadre\ntrou PCB sans trou cadre :  \\4\ntrou cadre sans trou PCB : \\5\ntrous de maintien connecteur : le cadre s'arrête à R615,\n  pas de cadre dessous (\\6)\npastilles HT D et M : hors du cadre (r > 615)"
+  ],
+  [
+   "^groove ([\\d.]+)$",
+   "gorge \\1"
+  ],
+  [
+   "^groove ([\\d.]+)\\ngas channel ([\\d.]+)$",
+   "gorge \\1\ncanal de gaz \\2"
+  ],
+  [
+   "^PCB screw holes vs the O-ring groove and the gas channel of frame V3 – no hole touches them\\n\\(edge-to-edge distances in mm; closest to the groove ([\\d.]+), closest to the gas channel ([\\d.]+)\\)$",
+   "Trous de vis du PCB / gorge du joint torique et canal de gaz du cadre V3 – aucun trou ne les touche\n(distances bord à bord en mm ; le plus près de la gorge \\1, le plus près du canal de gaz \\2)"
+  ],
+  [
+   "^PCB screw holes vs the O-ring groove and the gas channel of frame V3 – a hole touches them\\n\\(edge-to-edge distances in mm; closest to the groove ([-\\d.]+), closest to the gas channel ([-\\d.]+)\\)$",
+   "Trous de vis du PCB / gorge du joint torique et canal de gaz du cadre V3 – un trou les touche\n(distances bord à bord en mm ; le plus près de la gorge \\1, le plus près du canal de gaz \\2)"
+  ],
+  [
+   "^Δ (?=[\\d.]+$)",
+   "Δ "
+  ],
+  [
+   "^PCB only\\nframe hole ([\\d.]+) away$",
+   "PCB seul\ntrou du cadre à \\1 mm"
+  ],
+  [
+   "^frame hole: cuts (\\d+) tracks?$",
+   "trou du cadre : coupe \\1 pistes"
+  ],
+  [
+   "^frame hole: ([\\d.]+) mm to nearest track \\(([BF]\\.Cu)\\)$",
+   "trou du cadre : \\1 mm de la piste la plus proche (\\2)"
+  ],
+  [
+   "^PCB hole: ([\\d.]+) mm to nearest track \\(([BF]\\.Cu)\\)$",
+   "trou du PCB : \\1 mm de la piste la plus proche (\\2)"
+  ],
+  [
+   "^(.*?):  PCB (\\d+) holes \\(pitch (\\S+) mm\\)   \\|   frame (\\d+) holes \\(pitch (\\S+) mm\\)   \\|   aligned (\\d+)  (.*)$",
+   "\\1 :  PCB \\2 trous (pas \\3 mm)   |   cadre \\4 trous (pas \\5 mm)   |   alignés \\6  \\7"
+  ],
+  [
+   "arc length on r",
+   "longueur d'arc sur r"
+  ],
+  [
+   "^bottom side :",
+   "côté bas :"
+  ],
+  [
+   "^outer arc :",
+   "grand arc :"
+  ],
+  [
+   "^top side :",
+   "côté haut :"
+  ],
+  [
+   "^inner arc :",
+   "petit arc :"
+  ],
+  [
+   "^D pad \\(drift HV\\)\\n",
+   "pastille D (HT dérive)\n"
+  ],
+  [
+   "^M pad \\(mesh HV\\)\\n",
+   "pastille M (HT mesh)\n"
+  ],
+  [
+   "^drift contact pad\\n",
+   "pastille de contact dérive\n"
+  ],
+  [
+   "^mesh contact pad\\n",
+   "pastille de contact mesh\n"
+  ],
+  [
+   " mm \\(bbox\\)\\n",
+   " mm (encombrement)\n"
+  ],
+  [
+   "outside the frame, ([\\d.]+) mm from its outer edge",
+   "hors du cadre, à \\1 mm de son bord extérieur"
+  ],
+  [
+   "in the frame window, ([\\d.]+) mm from the wall",
+   "dans la fenêtre du cadre, à \\1 mm de la paroi"
+  ],
+  [
+   "in the window, but ([\\d.]+) mm² \\((\\d+) %\\)\\nunder the wall corner",
+   "dans la fenêtre, mais \\1 mm² (\\2 %)\nsous le coin de la paroi"
+  ],
+  [
+   "^UNDER the frame wall$",
+   "SOUS la paroi du cadre"
+  ],
+  [
+   "^PCB (?=[\\d.]+$)",
+   "PCB "
+  ],
+  [
+   "^V3 (?=[\\d.]+$)",
+   "V3 "
+  ],
+  [
+   "^V3 ([\\d.]+)\\n\\(ends at R615\\)$",
+   "V3 \\1\n(s'arrête à R615)"
+  ],
+  [
+   "^missing ([\\d.]+)\\n\\(asked: out to\\nthe PCB edge R650\\)$",
+   "manque \\1\n(demandé : jusqu'au\nbord du PCB R650)"
+  ],
+  [
+   "^V3 ([\\d.]+) past the PCB edge$",
+   "V3 dépasse le bord du PCB de \\1"
+  ],
+  [
+   "^wall past the M3 head \\(dashed\\): ([\\d.]+) mm$",
+   "paroi au-delà de la tête M3 (tirets) : \\1 mm"
+  ]
  ]
 }

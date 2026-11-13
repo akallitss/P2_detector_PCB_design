@@ -29,7 +29,10 @@ from shapely.geometry import Point, box
 from shapely.strtree import STRtree
 
 import final_geometry as G
+import frame_features as FF
 import i18n
+
+PCB_LABEL = "Gerbers of 12 Nov 2026" if G.PCB == "nov12" else "PCB-Nov2026 / K55V1"
 
 C_BOARD, C_BOARD_EC = "#e8f3e4", "#2e7d32"
 C_FRAME, C_FRAME_EC = "#9aa3b0", "#3c4350"
@@ -203,7 +206,7 @@ def fig_steps(D):
     a1.annotate("corner B: mesh contact\n+ M pad", (322, 532), (400, 505), fontsize=9, arrowprops=dict(arrowstyle="->"))
     a1.annotate("corner A: drift contact\n+ D pad", (615, 10), (450, 40), fontsize=9, arrowprops=dict(arrowstyle="->"))
     full(a1)
-    a1.set_title(f"STEP 1 – the final PCB (PCB-Nov2026 / K55V1)\n{len(D['pcb35'])} screw holes Ø3.5 (plated), "
+    a1.set_title(f"STEP 1 – the final PCB ({PCB_LABEL})\n{len(D['pcb35'])} screw holes Ø3.5 (plated), "
                  f"{len(D['pcb_conn'])} connector-support holes, signal lines (orange F.Cu, purple B.Cu)",
                  fontsize=11, loc="left")
     # 2 frame
@@ -472,8 +475,72 @@ def fig_hv(D):
     plt.close(fig)
 
 
+# ---------------------------------------------------------------- figure 5: O-ring groove + gas channel
+C_GROOVE, C_GAS = "#4fc3f7", "#0277bd"
+GAS_ZOOMS = [("bottom side", (226.9, -3)), ("bottom-right corner", (604, 3)), ("outer arc, aligned hole", None),
+             ("outer arc, PCB hole with no frame hole", None), ("top side", None), ("inner arc", (78, 60))]
+
+
+def fig_gas(D):
+    """Every PCB screw hole against the O-ring groove and the internal gas channel of frame V3."""
+    feat = FF.features(D["window"])
+    rows = []
+    for x, y in D["pcb35"]:
+        rows.append(("PCB", (x, y), FF.clearance((x, y), 3.5, feat["groove"]), FF.clearance((x, y), 3.5, feat["gas"])))
+    for x, y in D["fr"]:
+        rows.append(("frame", (x, y), FF.clearance((x, y), 3.5, feat["groove"]), FF.clearance((x, y), 3.5, feat["gas"])))
+    pcb = [r for r in rows if r[0] == "PCB"]
+    g_min = min(pcb, key=lambda r: r[2])
+    a_min = min(pcb, key=lambda r: r[3])
+    # pick real holes for the zooms that have no fixed centre
+    al = [a for a, b, d in D["pairs"] if "outer arc" in edge_of(a) and "corner" not in edge_of(a) and math.hypot(*a) > 605]
+    po = [p for p in D["pcb_only"] if "outer arc" in edge_of(p)]
+    ts = [p for p in D["pcb35"] if edge_of(p) == ["top side"]]
+    centres = {"outer arc, aligned hole": al[len(al) // 2] if al else (528.7, 305.3),
+               "outer arc, PCB hole with no frame hole": po[0] if po else (594.3, 139.8),
+               "top side": ts[len(ts) // 2] if ts else (182, 330)}
+    fig, axs = plt.subplots(2, 3, figsize=(19, 12))
+    for ax, (t, c) in zip(axs.flat, GAS_ZOOMS):
+        c = c or centres[t]
+        w = (c[0] - 16, c[0] + 16, c[1] - 12, c[1] + 12)
+        board(ax, D, w)
+        frame(ax, D, w, alpha=.45)
+        ax.add_patch(poly_patch(crop(feat["groove"], w), fc=C_GROOVE, ec=C_GAS, lw=.6, alpha=.8, zorder=5))
+        ax.add_patch(poly_patch(crop(feat["gas"], w), fc=C_GAS, ec="none", alpha=.55, hatch="xx", zorder=5))
+        true_holes(ax, D, w)
+        for kind, p, g, a in rows:
+            if kind == "PCB" and w[0] < p[0] < w[1] and w[2] < p[1] < w[3]:
+                txt = f"groove {g:.2f}" + (f"\ngas channel {a:.2f}" if a < 5 else "")
+                ax.text(p[0] + 2.3, p[1] - 0.4, txt, fontsize=8.5, color=C_GAS, va="top", zorder=12,
+                        bbox=dict(fc="white", ec="none", alpha=.85, pad=.4))
+        tidy(ax, w, t)
+        scalebar(ax, w, 5)
+    fig.legend(handles=[Patch(fc=C_BOARD, ec=C_BOARD_EC, label="PCB"),
+                        Patch(fc=C_FRAME, ec=C_FRAME_EC, alpha=.45, label="frame V3"),
+                        Patch(fc=C_GROOVE, ec=C_GAS, alpha=.8, label="O-ring groove (4.58–5.49 mm from the window)"),
+                        Patch(fc=C_GAS, alpha=.55, hatch="xx", label="gas channel inside the frame (arcs only)"),
+                        Line2D([], [], color=C_PCB_H, ls="--", lw=2, label="PCB Ø3.5 hole"),
+                        Line2D([], [], color=C_FR_H, lw=1.4, label="frame hole")],
+               loc="lower center", ncol=6, fontsize=9.5, frameon=False)
+    ok = g_min[2] > 0 and a_min[3] > 0
+    fig.suptitle(f"PCB screw holes vs the O-ring groove and the gas channel of frame V3 – "
+                 f"{'no hole touches them' if ok else 'a hole touches them'}\n"
+                 f"(edge-to-edge distances in mm; closest to the groove {g_min[2]:.2f}, "
+                 f"closest to the gas channel {a_min[3]:.2f})", fontsize=13, weight="bold")
+    fig.tight_layout(rect=(0, .04, 1, .94), h_pad=2)
+    fig.savefig(os.path.join(G.FIG, "5_gas_ring.png"), dpi=120)
+    plt.close(fig)
+    with open(os.path.join(G.DATA, "holes_vs_groove_gas.csv"), "w", newline="") as fh:
+        wr = csv.writer(fh)
+        wr.writerow(["part", "x", "y", "edge", "clearance_to_O_ring_groove_mm", "clearance_to_gas_channel_mm"])
+        for kind, p, g, a in rows:
+            wr.writerow([kind, f"{p[0]:.2f}", f"{p[1]:.2f}", " / ".join(edge_of(p)), f"{g:.2f}", f"{a:.2f}"])
+    return g_min, a_min
+
+
 def main():
     os.makedirs(G.FIG, exist_ok=True)
+    os.makedirs(G.DATA, exist_ok=True)
     D = load()
     print(f"PCB Ø3.5: {len(D['pcb35'])}, frame holes: {len(D['fr'])} Ø{D['fr_d']}, aligned {len(D['pairs'])}, "
           f"PCB only {len(D['pcb_only'])}, frame only {len(D['fr_only'])}")
@@ -485,6 +552,8 @@ def main():
     clr = signal_clearance(D)
     fig_signal(D, clr)
     fig_hv(D)
+    g, a = fig_gas(D)
+    print(f"closest to the O-ring groove: {g[2]:.2f} mm at {g[1]}; to the gas channel: {a[3]:.2f} mm at {a[1]}")
     for kind in ("frame hole", "PCB hole"):
         r = [x for x in clr if x[0] == kind]
         print(f"{kind}s on signal tracks: {sum(1 for x in r if x[4])} / {len(r)}; "
