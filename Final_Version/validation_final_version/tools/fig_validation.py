@@ -428,8 +428,61 @@ def fig_signal(D, clr):
 
 
 # ---------------------------------------------------------------- figure 4: HV corners
-HV_LABEL = {"D pad (drift HV)": (628, 24), "drift contact pad": (575, -6),
+HV_LABEL = {"D pad (drift HV)": (628, 24), "drift contact pad": (574, 30),
             "M pad (mesh HV)": (330, 520), "mesh contact pad": (284, 504)}
+
+
+C_MOVE = "#d81b60"
+
+
+def hole_marks(ax, D, w, near=6.0, box_at=(0.02, 0.97)):
+    """Tag every Ø3.5 hole in the window: PCB hole (blue dashed) / frame hole (red); aligned pairs
+    marked, and for a frame hole that is off: arrow to the PCB hole + how far to move it."""
+    inwin = lambda p: w[0] < p[0] < w[1] and w[2] < p[1] < w[3]
+    mid = np.array([(w[0] + w[1]) / 2, (w[2] + w[3]) / 2])
+
+    def towards_mid(q, L=9.0):
+        v = mid - np.asarray(q)
+        return tuple(np.asarray(q) + L * v / (np.linalg.norm(v) + 1e-9))
+    tag = dict(fontsize=8.5, zorder=15, bbox=dict(fc="white", ec="none", alpha=.9, pad=.4))
+    seen = set()
+    for q in D["fr"]:
+        if not inwin(q):
+            continue
+        p = min(D["pcb35"], key=lambda r: math.dist(r, q))
+        d = math.dist(p, q)
+        ax.add_patch(Circle(q, 1.75, fc="none", ec=C_FR_H, lw=2.4, zorder=13))
+        if d < MATCH:
+            seen.add(tuple(p))
+            ax.add_patch(Circle(p, 1.75, fc="none", ec=C_PCB_H, lw=2.4, ls=(0, (3, 2)), zorder=14))
+            ax.annotate(f"PCB hole = frame hole\n(aligned, Δ {d:.2f} mm)", q, towards_mid(q), color=C_OK, ha="center",
+                        va="center", arrowprops=dict(arrowstyle="-", color=C_OK, lw=.9), **tag)
+        elif d < near:
+            seen.add(tuple(p))
+            ax.add_patch(Circle(p, 1.75, fc="none", ec=C_PCB_H, lw=2.4, ls=(0, (3, 2)), zorder=14))
+            ax.annotate("", p, q, arrowprops=dict(arrowstyle="-|>", color=C_MOVE, lw=2.2, mutation_scale=16,
+                                                  shrinkA=0, shrinkB=0), zorder=16)
+            u = (np.asarray(p) - np.asarray(q)) / d
+            nv = np.array([-u[1], u[0]])
+            ax.annotate("frame hole", q, tuple(np.asarray(q) + 6 * nv), color=C_FR_H, ha="center", va="center",
+                        arrowprops=dict(arrowstyle="-", color=C_FR_H, lw=.9), **tag)
+            ax.annotate("PCB hole", p, tuple(np.asarray(p) - 6 * nv), color=C_PCB_H, ha="center", va="center",
+                        arrowprops=dict(arrowstyle="-", color=C_PCB_H, lw=.9), **tag)
+            dx, dy = p[0] - q[0], p[1] - q[1]
+            ax.annotate(f"move the frame hole by {d:.2f} mm\n(Δx {dx:+.2f}, Δy {dy:+.2f})\n"
+                        f"from ({q[0]:.2f}, {q[1]:.2f}) to ({p[0]:.2f}, {p[1]:.2f})",
+                        tuple((np.asarray(p) + np.asarray(q)) / 2), box_at, textcoords="axes fraction",
+                        color=C_MOVE, weight="bold", fontsize=9.5, ha="left", va="top", zorder=17,
+                        arrowprops=dict(arrowstyle="-", color=C_MOVE, lw=1.1),
+                        bbox=dict(fc="white", ec=C_MOVE, alpha=.95, pad=.5))
+        else:
+            ax.annotate("frame hole\n(no PCB hole)", q, (q[0] - 12, q[1] - 4), color=C_FR_H,
+                        arrowprops=dict(arrowstyle="-", color=C_FR_H, lw=.9), **tag)
+    for p in D["pcb35"]:
+        if inwin(p) and tuple(p) not in seen:
+            ax.add_patch(Circle(p, 1.75, fc="none", ec=C_PCB_H, lw=2.4, ls=(0, (3, 2)), zorder=14))
+            ax.annotate("PCB hole\n(no frame hole)", p, (p[0] + 3.5, p[1] + 3.5), color=C_PCB_H,
+                        arrowprops=dict(arrowstyle="-", color=C_PCB_H, lw=.9), **tag)
 
 
 def fig_hv(D):
@@ -443,6 +496,7 @@ def fig_hv(D):
         copper(ax, D, w, kinds=("zone", "other", "signal"), alpha=.75)
         frame(ax, D, w, alpha=.5)
         true_holes(ax, D, w)
+        hole_marks(ax, D, w, box_at=(0.52, 0.27) if "corner A" in t else (0.02, 0.97))
         for n, P in D["pads"].items():
             c = P.centroid
             if not (w[0] < c.x < w[1] and w[2] < c.y < w[3]):
@@ -466,8 +520,11 @@ def fig_hv(D):
         scalebar(ax, w)
     fig.legend(handles=[Patch(fc=C_PAD, ec="k", label="HV / contact pads (F.Cu)"),
                         Patch(fc=C_ZONE, alpha=.5, label="GND zone"), Patch(fc=C_TOP, label="F.Cu"), Patch(fc=C_BOT, label="B.Cu"),
-                        Patch(fc=C_FRAME, ec=C_FRAME_EC, alpha=.5, label="frame V3")],
-               loc="lower center", ncol=5, fontsize=10, frameon=False)
+                        Patch(fc=C_FRAME, ec=C_FRAME_EC, alpha=.5, label="frame V3"),
+                        Line2D([], [], color=C_PCB_H, ls=(0, (3, 2)), lw=2.4, label="PCB hole Ø3.5"),
+                        Line2D([], [], color=C_FR_H, lw=2.4, label="frame hole Ø3.5"),
+                        Line2D([], [], color=C_MOVE, lw=2.2, marker=">", ms=7, label="move the frame hole to the PCB hole")],
+               loc="lower center", ncol=8, fontsize=9.5, frameon=False)
     fig.suptitle("HV connections at the two corners – final PCB vs final frame V3 (frame outer edge R615, no extension, "
                  "no HV openings needed there)", fontsize=12.5, weight="bold")
     fig.tight_layout(rect=(0, .05, 1, .95))

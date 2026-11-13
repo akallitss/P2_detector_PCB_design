@@ -65,9 +65,23 @@
   "outer arc, aligned hole": "grand arc, trou aligné",
   "outer arc, PCB hole with no frame hole": "grand arc, trou du PCB sans trou du cadre",
   "O-ring groove (4.58–5.49 mm from the window)": "gorge du joint torique (4.58–5.49 mm de la fenêtre)",
-  "gas channel inside the frame (arcs only)": "canal de gaz dans le cadre (arcs seulement)"
+  "gas channel inside the frame (arcs only)": "canal de gaz dans le cadre (arcs seulement)",
+  "PCB hole": "trou du PCB",
+  "PCB hole Ø3.5": "trou du PCB Ø3.5",
+  "frame hole Ø3.5": "trou du cadre Ø3.5",
+  "move the frame hole to the PCB hole": "déplacer le trou du cadre vers le trou du PCB",
+  "frame hole\n(no PCB hole)": "trou du cadre\n(pas de trou PCB)",
+  "PCB hole\n(no frame hole)": "trou du PCB\n(pas de trou cadre)"
  },
  "rules": [
+  [
+   "^PCB hole = frame hole\\n\\(aligned, Δ ([\\d.]+) mm\\)$",
+   "trou PCB = trou cadre\n(aligné, Δ \\1 mm)"
+  ],
+  [
+   "^move the frame hole by ([\\d.]+) mm\\n\\(Δx ([-+\\d.]+), Δy ([-+\\d.]+)\\)\\nfrom \\(([-\\d.]+), ([-\\d.]+)\\) to \\(([-\\d.]+), ([-\\d.]+)\\)$",
+   "déplacer le trou du cadre de \\1 mm\n(Δx \\2, Δy \\3)\nde (\\4 ; \\5) à (\\6 ; \\7)"
+  ],
   [
    "^STEP 1 – the final PCB \\(Gerbers of 12 Nov 2026\\)\\n(\\d+) screw holes Ø3.5 \\(plated\\), (\\d+) connector-support holes, signal lines \\(orange F.Cu, purple B.Cu\\)$",
    "ÉTAPE 1 – le PCB final (Gerbers du 12 nov. 2026)\n\\1 trous de vis Ø3.5 (métallisés), \\2 trous de maintien connecteur, pistes de signal (orange F.Cu, violet B.Cu)"
